@@ -1,0 +1,62 @@
+openapi: 3.0.3
+info:
+  title: Rokwire <Name> Building Block API
+  description: <Name> Building Block API Documentation
+  version: 1.4.0
+servers:
+  - url: 'https://api.rokwire.illinois.edu/<name>'
+    description: Production server
+  - url: 'https://api-test.rokwire.illinois.edu/<name>'
+    description: Test server
+  - url: 'https://api-dev.rokwire.illinois.edu/<name>'
+    description: Development server
+  - url: 'http://localhost/<name>'
+    description: Local server
+tags:
+  - name: Client
+    description: Client applications APIs.
+  - name: Admin
+    description: Clients administration applications APIs.
+  - name: BBs
+    description: Building Block APIs.
+  - name: TPS
+    description: Third-Party Service APIs.
+  - name: System
+    description: Third-Party Service APIs.
+  - name: Default
+    description: Default APIs.
+paths:  
+  # Default
+  /version:
+    $ref: "./resources/default/version.yaml"
+
+  # Client
+  /api/examples/{id}:
+    $ref: "./resources/client/examples-id.yaml"
+
+  # Admin
+  /api/admin/examples:
+    $ref: "./resources/admin/examples.yaml"
+  /api/admin/examples/{id}:
+    $ref: "./resources/admin/examples-id.yaml" 
+
+  # BBs
+  /api/bbs/examples/{id}:
+    $ref: "./resources/bbs/examples-id.yaml"
+  
+  # TPS
+  /api/tps/examples/{id}:
+    $ref: "./resources/tps/examples-id.yaml"
+
+  # System
+  /api/system/configs/{id}:
+    $ref: "./resources/system/configs-id.yaml"
+    
+components:
+  securitySchemes:
+      bearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+  schemas:
+    $ref: "./schemas/index.yaml"

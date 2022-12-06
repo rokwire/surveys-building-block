@@ -1,0 +1,461 @@
+openapi: 3.0.3
+info:
+  title: Rokwire <Name> Building Block API
+  description: <Name> Building Block API Documentation
+  version: 1.4.0
+servers:
+  - url: 'https://api.rokwire.illinois.edu/<name>'
+    description: Production server
+  - url: 'https://api-test.rokwire.illinois.edu/<name>'
+    description: Test server
+  - url: 'https://api-dev.rokwire.illinois.edu/<name>'
+    description: Development server
+  - url: 'http://localhost/<name>'
+    description: Local server
+tags:
+  - name: Client
+    description: Client applications APIs.
+  - name: Admin
+    description: Clients administration applications APIs.
+  - name: BBs
+    description: Building Block APIs.
+  - name: TPS
+    description: Third-Party Service APIs.
+  - name: System
+    description: Third-Party Service APIs.
+  - name: Default
+    description: Default APIs.
+paths:
+  /version:
+    get:
+      tags:
+        - Default
+      summary: Get version
+      description: |
+        Gets current version of this service
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: v1.0.0
+        '500':
+          description: Internal error
+  '/api/examples/{id}':
+    get:
+      tags:
+        - Client
+      summary: Gets example
+      description: |
+        Gets example record
+
+        **Auth:** Requires valid user token with `get_examples` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to retrieve
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  /api/admin/examples:
+    post:
+      tags:
+        - Admin
+      summary: Create example
+      description: |
+        Creates new example record
+
+        **Auth:** Requires valid admin token with `update_examples` or `all_examples`  permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to update
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: New example content
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/admin/examples/{id}':
+    get:
+      tags:
+        - Admin
+      summary: Gets example
+      description: |
+        Gets example record
+
+        **Auth:** Requires valid admin token with one of the following permissions:
+        - `get_examples`
+        - `update_examples`
+        - `delete_examples`
+        - `all_examples`
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to retrieve
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    put:
+      tags:
+        - Admin
+      summary: Update example
+      description: |
+        Updates example record
+
+        **Auth:** Requires valid admin token with `update_examples` or `all_examples`  permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to update
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: New example content
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Example'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    delete:
+      tags:
+        - Admin
+      summary: Delete example
+      description: |
+        Deletes example record
+
+        **Auth:** Requires valid admin token with `delete_examples` or `all_examples` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to delete
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/bbs/examples/{id}':
+    get:
+      tags:
+        - BBs
+      summary: Gets example
+      description: |
+        Gets example record
+
+        **Auth:** Requires valid first-party service account token with `get_examples` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to retrieve
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/tps/examples/{id}':
+    get:
+      tags:
+        - TPS
+      summary: Gets example
+      description: |
+        Gets example record
+
+        **Auth:** Requires valid third-party service account token with `get_examples` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of example to retrieve
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Example'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/system/configs/{id}':
+    get:
+      tags:
+        - System
+      summary: Get config
+      description: |
+        Gets config record
+
+        **Auth:** Requires valid admin token with one of the following permissions:
+        - `get_configs_<name>`
+        - `update_configs_<name>`
+        - `delete_configs_<name>`
+        - `all_configs_<name>`
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of config to retrieve
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    put:
+      tags:
+        - System
+      summary: Save config
+      description: |
+        Saves config record
+
+        **Auth:** Requires valid admin token with `update_configs_<name>` or `all_configs_<name>`  permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of config to update
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: New config content
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    delete:
+      tags:
+        - System
+      summary: Delete config
+      description: |
+        Deletes config record
+
+        **Auth:** Requires valid admin token with `delete_configs_<name>` or `all_configs_<name>` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of config to delete
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Config:
+      type: object
+      required:
+        - id
+        - data
+        - date_created
+      properties:
+        id:
+          type: string
+          readOnly: true
+        data:
+          type: string
+        date_created:
+          type: string
+          readOnly: true
+        date_updated:
+          type: string
+          nullable: true
+          readOnly: true
+    EnvConfigData:
+      type: object
+      required:
+        - example_env
+      properties:
+        example_env:
+          type: string
+    Example:
+      type: object
+      required:
+        - id
+        - app_id
+        - org_id
+        - data
+        - date_created
+      properties:
+        id:
+          type: string
+          readOnly: true
+        org_id:
+          type: string
+          readOnly: true
+        app_id:
+          type: string
+          readOnly: true
+        data:
+          type: string
+        date_created:
+          type: string
+          readOnly: true
+        date_updated:
+          type: string
+          nullable: true
+          readOnly: true

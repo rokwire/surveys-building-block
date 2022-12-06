@@ -1,0 +1,18 @@
+type: object
+required:
+- id
+- data
+- date_created
+properties:
+  id:
+    type: string
+    readOnly: true
+  data:
+    type: string
+  date_created:
+    type: string
+    readOnly: true
+  date_updated:
+    type: string
+    nullable: true
+    readOnly: true

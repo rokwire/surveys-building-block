@@ -1,0 +1,1 @@
+p, get_examples, /<name>/api/examples/*, (GET), Get examples

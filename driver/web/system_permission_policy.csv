@@ -1,0 +1,6 @@
+p, all_system_<name>, /<name>/api/system/*, (GET)|(POST)|(PUT)|(DELETE), All <name> system admin actions
+
+p, all_configs_<name>, /<name>/api/system/configs/*, (GET)|(PUT)|(DELETE), All <name> config admin actions
+p, get_configs_<name>, /<name>/api/system/configs/*, (GET), Get <name> configs
+p, update_configs_<name>, /<name>/api/system/configs/*, (GET)|(PUT),
+p, delete_configs_<name>, /<name>/api/system/configs/*, (GET)|(DELETE),
