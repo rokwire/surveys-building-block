@@ -23,9 +23,20 @@ type appShared struct {
 	app *Application
 }
 
-// getExample gets an Example by ID
-func (a appShared) getExample(orgID string, appID string, id string) (*model.Example, error) {
-	return a.app.storage.GetExample(orgID, appID, id)
+func (a appShared) getSurvey(id string, orgID string, appID string) (*model.Survey, error) {
+	return a.app.storage.GetSurvey(id, orgID, appID)
+}
+
+func (a appShared) createSurvey(survey model.Survey) (*model.Survey, error) {
+	return a.app.storage.CreateSurvey(survey)
+}
+
+func (a appShared) updateSurvey(survey model.Survey, admin bool) error {
+	return a.app.storage.UpdateSurvey(survey, admin)
+}
+
+func (a appShared) deleteSurvey(id string, orgID string, appID string, creatorID *string) error {
+	return a.app.storage.DeleteSurvey(id, orgID, appID, creatorID)
 }
 
 // newAppShared creates new appShared

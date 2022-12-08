@@ -1,8 +1,8 @@
-p, all_admin_<name>, /<name>/api/admin/*, (GET)|(POST)|(PUT)|(DELETE), All <name> admin actions
+p, all_admin_surveys, /surveys/api/admin/*, (GET)|(POST)|(PUT)|(DELETE), All surveys admin actions
 
-p, all_examples, /<name>/api/admin/examples, (POST), All example admin actions
-p, all_examples, /<name>/api/admin/examples/*, (GET)|(PUT)|(DELETE),
-p, get_examples, /<name>/api/admin/examples/*, (GET), Get examples
-p, update_examples, /<name>/api/admin/examples, (POST), Update examples
-p, update_examples, /<name>/api/admin/examples/*, (GET)|(PUT),
-p, delete_examples, /<name>/api/admin/examples/*, (GET)|(DELETE),
+p, all_examples, /surveys/api/admin/examples, (POST), All example admin actions
+p, all_examples, /surveys/api/admin/examples/*, (GET)|(PUT)|(DELETE),
+p, get_examples, /surveys/api/admin/examples/*, (GET), Get examples
+p, update_examples, /surveys/api/admin/examples, (POST), Update examples
+p, update_examples, /surveys/api/admin/examples/*, (GET)|(PUT),
+p, delete_examples, /surveys/api/admin/examples/*, (GET)|(DELETE),

@@ -174,10 +174,10 @@ func (a Adapter) DeleteConfig(id string) error {
 
 	res, err := a.db.configs.DeleteOneWithContext(a.context, filter, nil)
 	if err != nil {
-		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeConfig, nil, err)
+		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeConfig, filterArgs(filter), err)
 	}
 	if res.DeletedCount != 1 {
-		return errors.ErrorData(logutils.StatusMissing, model.TypeConfig, logutils.StringArgs(id))
+		return errors.ErrorData(logutils.StatusMissing, model.TypeConfig, filterArgs(filter))
 	}
 
 	return nil
@@ -216,6 +216,14 @@ func (a *Adapter) abortTransaction(sessionContext mongo.SessionContext) {
 	if err != nil {
 		a.db.logger.Errorf("error aborting a transaction: %s", err)
 	}
+}
+
+func filterArgs(filter bson.M) *logutils.FieldArgs {
+	args := logutils.FieldArgs{}
+	for k, v := range filter {
+		args[k] = v
+	}
+	return &args
 }
 
 // NewStorageAdapter creates a new storage adapter instance

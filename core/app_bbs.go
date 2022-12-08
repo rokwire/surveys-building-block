@@ -14,18 +14,9 @@
 
 package core
 
-import (
-	"application/core/model"
-)
-
 // appBBs contains BB implementations
 type appBBs struct {
 	app *Application
-}
-
-// GetExample gets an Example by ID
-func (a appBBs) GetExample(orgID string, appID string, id string) (*model.Example, error) {
-	return a.app.shared.getExample(orgID, appID, id)
 }
 
 // newAppBBs creates new appBBs

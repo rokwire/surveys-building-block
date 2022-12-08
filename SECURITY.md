@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Patches for **<Name> Building Block** in this repository will only be applied to the following versions:
+Patches for **Surveys Building Block** in this repository will only be applied to the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -14,4 +14,4 @@ Patches for **<Name> Building Block** in this repository will only be applied to
 Vulnerabilities can be responsibly disclosed through the process
  documented at https://go.illinois.edu/vulnerability
 
-Bugs can be reported by creating a [GitHub issue](https://github.com/rokwire/<name>-building-block/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D+).
+Bugs can be reported by creating a [GitHub issue](https://github.com/rokwire/surveys-building-block/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D+).

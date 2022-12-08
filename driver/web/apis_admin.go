@@ -31,80 +31,184 @@ type AdminAPIsHandler struct {
 	app *core.Application
 }
 
-func (h AdminAPIsHandler) getExample(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	params := mux.Vars(r)
-	id := params["id"]
+func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	example, err := h.app.Admin.GetExample(claims.OrgID, claims.AppID, id)
+	resData, err := h.app.Admin.GetSurvey(id, claims.OrgID, claims.AppID)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeExample, nil, err, http.StatusInternalServerError, true)
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	response, err := json.Marshal(example)
+	data, err := json.Marshal(resData)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionMarshal, model.TypeExample, nil, err, http.StatusInternalServerError, false)
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}
-	return l.HTTPResponseSuccessJSON(response)
+
+	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) createExample(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	var requestData model.Example
-	err := json.NewDecoder(r.Body).Decode(&requestData)
+func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	var item model.Survey
+	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionUnmarshal, model.TypeExample, nil, err, http.StatusBadRequest, true)
+		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	requestData.OrgID = claims.OrgID
-	requestData.AppID = claims.AppID
-	example, err := h.app.Admin.CreateExample(requestData)
-	if err != nil || example == nil {
-		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeExample, nil, err, http.StatusInternalServerError, true)
+	item.OrgID = claims.OrgID
+	item.AppID = claims.AppID
+	item.CreatorID = claims.Subject
+
+	createdItem, err := h.app.Admin.CreateSurvey(item)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	response, err := json.Marshal(example)
+	data, err := json.Marshal(createdItem)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionMarshal, model.TypeExample, nil, err, http.StatusInternalServerError, false)
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}
-	return l.HTTPResponseSuccessJSON(response)
+
+	return l.HTTPResponseSuccessJSON(data)
+
 }
 
-func (h AdminAPIsHandler) updateExample(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	params := mux.Vars(r)
-	id := params["id"]
+func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	var requestData model.Example
-	err := json.NewDecoder(r.Body).Decode(&requestData)
+	var item model.Survey
+	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionUnmarshal, model.TypeExample, nil, err, http.StatusBadRequest, true)
+		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	requestData.ID = id
-	requestData.OrgID = claims.OrgID
-	requestData.AppID = claims.AppID
-	err = h.app.Admin.UpdateExample(requestData)
+	item.ID = id
+	item.OrgID = claims.OrgID
+	item.AppID = claims.AppID
+	item.CreatorID = claims.Subject
+
+	err = h.app.Admin.UpdateSurvey(item)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeExample, nil, err, http.StatusInternalServerError, true)
+		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteExample(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	params := mux.Vars(r)
-	id := params["id"]
+func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	err := h.app.Admin.DeleteExample(claims.OrgID, claims.AppID, id)
+	err := h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeExample, nil, err, http.StatusInternalServerError, true)
+		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+	}
+
+	return l.HTTPResponseSuccess()
+}
+
+func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	resData, err := h.app.Admin.GetAlertContacts(claims.OrgID, claims.AppID)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
+func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if len(id) <= 0 {
+		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
+	}
+
+	resData, err := h.app.Admin.GetAlertContact(id, claims.OrgID, claims.AppID)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
+func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	var item model.AlertContact
+	err := json.NewDecoder(r.Body).Decode(&item)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
+	}
+
+	item.OrgID = claims.OrgID
+	item.AppID = claims.AppID
+
+	createdItem, err := h.app.Admin.CreateAlertContact(item)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(createdItem)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
+func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if len(id) <= 0 {
+		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
+	}
+
+	var item model.AlertContact
+	err := json.NewDecoder(r.Body).Decode(&item)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
+	}
+
+	item.ID = id
+	item.OrgID = claims.OrgID
+	item.AppID = claims.AppID
+
+	err = h.app.Admin.UpdateAlertContact(item)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
+	}
+
+	return l.HTTPResponseSuccess()
+}
+
+func (h AdminAPIsHandler) deleteAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if len(id) <= 0 {
+		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
+	}
+
+	err := h.app.Admin.DeleteAlertContact(id, claims.OrgID, claims.AppID)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
 	}
 
 	return l.HTTPResponseSuccess()

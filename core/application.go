@@ -50,7 +50,8 @@ type Application struct {
 
 	logger *logs.Logger
 
-	storage Storage
+	storage       Storage
+	notifications Notifications
 }
 
 // Start starts the core part of the application
@@ -71,8 +72,8 @@ func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 }
 
 // NewApplication creates new Application
-func NewApplication(version string, build string, storage Storage, logger *logs.Logger) *Application {
-	application := Application{version: version, build: build, storage: storage, logger: logger}
+func NewApplication(version string, build string, storage Storage, notifications Notifications, logger *logs.Logger) *Application {
+	application := Application{version: version, build: build, storage: storage, notifications: notifications, logger: logger}
 
 	//add the drivers ports/interfaces
 	application.Default = newAppDefault(&application)

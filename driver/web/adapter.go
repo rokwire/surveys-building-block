@@ -72,22 +72,35 @@ func (a Adapter) Start() {
 	mainRouter := baseRouter.PathPrefix("/api").Subrouter()
 
 	// Client APIs
-	mainRouter.HandleFunc("/examples/{id}", a.wrapFunc(a.clientAPIsHandler.getExample, a.auth.client.Permissions)).Methods("GET")
+	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.getSurvey, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.createSurvey, a.auth.client.User)).Methods("POST")
+	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurvey, a.auth.client.User)).Methods("PUT")
+	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurvey, a.auth.client.User)).Methods("DELETE")
+	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.getSurveyResponse, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.getSurveyResponses, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.createSurveyResponse, a.auth.client.User)).Methods("POST")
+	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurveyResponse, a.auth.client.User)).Methods("PUT")
+	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurveyResponse, a.auth.client.User)).Methods("DELETE")
+	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.deleteSurveyResponses, a.auth.client.User)).Methods("DELETE")
+	mainRouter.HandleFunc("/survey-alerts", a.wrapFunc(a.clientAPIsHandler.createSurveyAlert, a.auth.client.User)).Methods("POST")
 
 	// Admin APIs
 	adminRouter := mainRouter.PathPrefix("/admin").Subrouter()
-	adminRouter.HandleFunc("/examples/{id}", a.wrapFunc(a.adminAPIsHandler.getExample, a.auth.admin.Standard)).Methods("GET")
-	adminRouter.HandleFunc("/examples", a.wrapFunc(a.adminAPIsHandler.createExample, a.auth.admin.Standard)).Methods("POST")
-	adminRouter.HandleFunc("/examples/{id}", a.wrapFunc(a.adminAPIsHandler.updateExample, a.auth.admin.Standard)).Methods("PUT")
-	adminRouter.HandleFunc("/examples/{id}", a.wrapFunc(a.adminAPIsHandler.deleteExample, a.auth.admin.Standard)).Methods("DELETE")
+	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.getSurvey, a.auth.admin.Permissions)).Methods("GET")
+	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.createSurvey, a.auth.admin.Permissions)).Methods("POST")
+	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.updateSurvey, a.auth.admin.Permissions)).Methods("PUT")
+	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.deleteSurvey, a.auth.admin.Permissions)).Methods("DELETE")
+	adminRouter.HandleFunc("/alert-contacts", a.wrapFunc(a.adminAPIsHandler.getAlertContacts, a.auth.admin.Permissions)).Methods("GET")
+	adminRouter.HandleFunc("/alert-contacts/{id}", a.wrapFunc(a.adminAPIsHandler.getAlertContact, a.auth.admin.Permissions)).Methods("GET")
+	adminRouter.HandleFunc("/alert-contacts", a.wrapFunc(a.adminAPIsHandler.createAlertContact, a.auth.admin.Permissions)).Methods("POST")
+	adminRouter.HandleFunc("/alert-contacts/{id}", a.wrapFunc(a.adminAPIsHandler.updateAlertContact, a.auth.admin.Permissions)).Methods("PUT")
+	adminRouter.HandleFunc("/alert-contacts/{id}", a.wrapFunc(a.adminAPIsHandler.deleteAlertContact, a.auth.admin.Permissions)).Methods("DELETE")
 
 	// BB APIs
-	bbsRouter := mainRouter.PathPrefix("/bbs").Subrouter()
-	bbsRouter.HandleFunc("/examples/{id}", a.wrapFunc(a.bbsAPIsHandler.getExample, a.auth.bbs.Permissions)).Methods("GET")
+	// bbsRouter := mainRouter.PathPrefix("/bbs").Subrouter()
 
 	// TPS APIs
-	tpsRouter := mainRouter.PathPrefix("/tps").Subrouter()
-	tpsRouter.HandleFunc("/examples/{id}", a.wrapFunc(a.tpsAPIsHandler.getExample, a.auth.tps.Permissions)).Methods("GET")
+	// tpsRouter := mainRouter.PathPrefix("/tps").Subrouter()
 
 	// System APIs
 	systemRouter := mainRouter.PathPrefix("/system").Subrouter()

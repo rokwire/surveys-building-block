@@ -1,6 +1,6 @@
-p, all_system_<name>, /<name>/api/system/*, (GET)|(POST)|(PUT)|(DELETE), All <name> system admin actions
+p, all_system_surveys, /surveys/api/system/*, (GET)|(POST)|(PUT)|(DELETE), All surveys system admin actions
 
-p, all_configs_<name>, /<name>/api/system/configs/*, (GET)|(PUT)|(DELETE), All <name> config admin actions
-p, get_configs_<name>, /<name>/api/system/configs/*, (GET), Get <name> configs
-p, update_configs_<name>, /<name>/api/system/configs/*, (GET)|(PUT),
-p, delete_configs_<name>, /<name>/api/system/configs/*, (GET)|(DELETE),
+p, all_configs_surveys, /surveys/api/system/configs/*, (GET)|(PUT)|(DELETE), All surveys config admin actions
+p, get_configs_surveys, /surveys/api/system/configs/*, (GET), Get surveys configs
+p, update_configs_surveys, /surveys/api/system/configs/*, (GET)|(PUT),
+p, delete_configs_surveys, /surveys/api/system/configs/*, (GET)|(DELETE),

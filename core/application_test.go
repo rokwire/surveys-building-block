@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	serviceID string = "<name>"
+	serviceID string = "surveys"
 )
 
 func buildTestApplication(storage core.Storage) *core.Application {

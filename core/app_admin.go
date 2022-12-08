@@ -16,10 +16,6 @@ package core
 
 import (
 	"application/core/model"
-
-	"github.com/google/uuid"
-	"github.com/rokwire/logging-library-go/v2/errors"
-	"github.com/rokwire/logging-library-go/v2/logutils"
 )
 
 // appAdmin contains admin implementations
@@ -27,29 +23,50 @@ type appAdmin struct {
 	app *Application
 }
 
-// GetExample gets an Example by ID
-func (a appAdmin) GetExample(orgID string, appID string, id string) (*model.Example, error) {
-	return a.app.shared.getExample(orgID, appID, id)
+// Surveys
+// GetSurvey returns the survey with the provided ID
+func (a appAdmin) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
+	return a.app.shared.getSurvey(id, orgID, appID)
 }
 
-// CreateExample creates a new Example
-func (a appAdmin) CreateExample(example model.Example) (*model.Example, error) {
-	example.ID = uuid.NewString()
-	err := a.app.storage.InsertExample(example)
-	if err != nil {
-		return nil, errors.WrapErrorAction(logutils.ActionCreate, model.TypeExample, nil, err)
-	}
-	return &example, nil
+// CreateSurvey creates a new survey
+func (a appAdmin) CreateSurvey(survey model.Survey) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey)
 }
 
-// UpdateExample updates an Example
-func (a appAdmin) UpdateExample(example model.Example) error {
-	return a.app.storage.UpdateExample(example)
+// UpdateSurvey updates the provided survey
+func (a appAdmin) UpdateSurvey(survey model.Survey) error {
+	return a.app.shared.updateSurvey(survey, true)
 }
 
-// DeleteExample deletes an Example by ID
-func (a appAdmin) DeleteExample(orgID string, appID string, id string) error {
-	return a.app.storage.DeleteExample(orgID, appID, id)
+// DeleteSurvey deletes the survey with the specified ID
+func (a appAdmin) DeleteSurvey(id string, orgID string, appID string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, nil)
+}
+
+// GetAlertContacts returns all alert contacts for the provided app/org
+func (a appAdmin) GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error) {
+	return a.app.storage.GetAlertContacts(orgID, appID)
+}
+
+// GetAlertContacts returns the alert contacts for the provided id
+func (a appAdmin) GetAlertContact(id string, orgID string, appID string) (*model.AlertContact, error) {
+	return a.app.storage.GetAlertContact(id, orgID, appID)
+}
+
+// CreateAlertContact creates a new alert contact
+func (a appAdmin) CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error) {
+	return a.app.storage.CreateAlertContact(alertContact)
+}
+
+// UpdateAlertContact updates an existing alert contact
+func (a appAdmin) UpdateAlertContact(alertContact model.AlertContact) error {
+	return a.app.storage.UpdateAlertContact(alertContact)
+}
+
+// DeleteAlertContact deletes an existing alert contact with the provided id
+func (a appAdmin) DeleteAlertContact(id string, orgID string, appID string) error {
+	return a.app.storage.DeleteAlertContact(id, orgID, appID)
 }
 
 // newAppAdmin creates new appAdmin

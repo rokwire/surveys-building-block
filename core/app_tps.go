@@ -14,18 +14,9 @@
 
 package core
 
-import (
-	"application/core/model"
-)
-
 // appTPS contains BB implementations
 type appTPS struct {
 	app *Application
-}
-
-// GetExample gets an Example by ID
-func (a appTPS) GetExample(orgID string, appID string, id string) (*model.Example, error) {
-	return a.app.shared.getExample(orgID, appID, id)
 }
 
 // newAppTPS creates new appTPS

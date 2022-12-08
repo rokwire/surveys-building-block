@@ -16,38 +16,11 @@ package web
 
 import (
 	"application/core"
-	"application/core/model"
-	"encoding/json"
-	"net/http"
-
-	"github.com/gorilla/mux"
-	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
-	"github.com/rokwire/logging-library-go/v2/logs"
-	"github.com/rokwire/logging-library-go/v2/logutils"
 )
 
 // BBsAPIsHandler handles the rest BBs APIs implementation
 type BBsAPIsHandler struct {
 	app *core.Application
-}
-
-func (h BBsAPIsHandler) getExample(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	params := mux.Vars(r)
-	id := params["id"]
-	if len(id) <= 0 {
-		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
-	}
-
-	example, err := h.app.BBs.GetExample(claims.OrgID, claims.AppID, id)
-	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeExample, nil, err, http.StatusInternalServerError, true)
-	}
-
-	response, err := json.Marshal(example)
-	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionMarshal, model.TypeExample, nil, err, http.StatusInternalServerError, false)
-	}
-	return l.HTTPResponseSuccessJSON(response)
 }
 
 // NewBBsAPIsHandler creates new Building Block API handler instance

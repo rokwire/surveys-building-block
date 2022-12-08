@@ -18,9 +18,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
-	"github.com/rokwire/logging-library-go/v2/logutils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,8 +36,10 @@ type database struct {
 	dbClient *mongo.Client
 	logger   *logs.Logger
 
-	configs  *collectionWrapper
-	examples *collectionWrapper
+	configs         *collectionWrapper
+	surveys         *collectionWrapper
+	surveyResponses *collectionWrapper
+	alertContacts   *collectionWrapper
 
 	listeners []Listener
 }
@@ -74,8 +74,20 @@ func (d *database) start() error {
 		return err
 	}
 
-	examples := &collectionWrapper{database: d, coll: db.Collection("examples")}
-	err = d.applyExamplesChecks(examples)
+	surveys := &collectionWrapper{database: d, coll: db.Collection("surveys")}
+	err = d.applySurveysChecks(surveys)
+	if err != nil {
+		return err
+	}
+
+	surveyResponses := &collectionWrapper{database: d, coll: db.Collection("survey_responses")}
+	err = d.applySurveyResponsesChecks(surveyResponses)
+	if err != nil {
+		return err
+	}
+
+	alertContacts := &collectionWrapper{database: d, coll: db.Collection("alert_contacts")}
+	err = d.applyAlertContactsChecks(alertContacts)
 	if err != nil {
 		return err
 	}
@@ -85,7 +97,9 @@ func (d *database) start() error {
 	d.dbClient = client
 
 	d.configs = configs
-	d.examples = examples
+	d.surveys = surveys
+	d.surveyResponses = surveyResponses
+	d.alertContacts = alertContacts
 
 	go d.configs.Watch(nil, d.logger)
 
@@ -93,22 +107,50 @@ func (d *database) start() error {
 }
 
 func (d *database) applyConfigsChecks(messages *collectionWrapper) error {
-	d.logger.Infof("apply configs checks.....")
+	d.logger.Info("apply configs checks.....")
 
-	d.logger.Infof("apply configs passed")
+	d.logger.Info("apply configs passed")
 	return nil
 }
 
-func (d *database) applyExamplesChecks(examples *collectionWrapper) error {
-	d.logger.Infof("apply examples checks.....")
+func (d *database) applySurveysChecks(surveys *collectionWrapper) error {
+	d.logger.Info("apply surveys checks.....")
 
-	//add compound unique index - org_id + app_id
-	err := examples.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}}, false)
+	err := surveys.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "creator_id", Value: 1}}, false)
 	if err != nil {
-		return errors.WrapErrorAction(logutils.ActionCreate, "index", nil, err)
+		return err
 	}
 
-	d.logger.Infof("apply examples passed")
+	d.logger.Info("surveys passed")
+	return nil
+}
+
+func (d *database) applySurveyResponsesChecks(surveyResponses *collectionWrapper) error {
+	d.logger.Info("apply survey responses checks.....")
+
+	err := surveyResponses.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "user_id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
+	err = surveyResponses.AddIndex(bson.D{primitive.E{Key: "survey._id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
+	d.logger.Info("survey responses passed")
+	return nil
+}
+
+func (d *database) applyAlertContactsChecks(alertContacts *collectionWrapper) error {
+	d.logger.Info("apply alert contacts checks.....")
+
+	err := alertContacts.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "key", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
+	d.logger.Info("survey alert contacts passed")
 	return nil
 }
 
@@ -126,16 +168,10 @@ func (d *database) onDataChanged(changeDoc map[string]interface{}) {
 
 	switch coll {
 	case "configs":
-		d.logger.Infof("configs collection changed")
+		d.logger.Info("configs collection changed")
 
 		for _, listener := range d.listeners {
 			go listener.OnConfigsUpdated()
-		}
-	case "examples":
-		d.logger.Infof("examples collection changed")
-
-		for _, listener := range d.listeners {
-			go listener.OnExamplesUpdated()
 		}
 	}
 }

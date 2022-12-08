@@ -1,1 +1,1 @@
-p, get_examples, /<name>/api/tps/examples/*, (GET), Get examples
+p, get_examples, /surveys/api/tps/examples/*, (GET), Get examples

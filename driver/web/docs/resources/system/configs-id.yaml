@@ -6,10 +6,10 @@ get:
     Gets config record
 
     **Auth:** Requires valid admin token with one of the following permissions:
-    - `get_configs_<name>`
-    - `update_configs_<name>`
-    - `delete_configs_<name>`
-    - `all_configs_<name>`
+    - `get_configs_surveys`
+    - `update_configs_surveys`
+    - `delete_configs_surveys`
+    - `all_configs_surveys`
   security:
     - bearerAuth: []
   parameters:
@@ -41,7 +41,7 @@ put:
   description: |
     Saves config record
 
-    **Auth:** Requires valid admin token with `update_configs_<name>` or `all_configs_<name>`  permission
+    **Auth:** Requires valid admin token with `update_configs_surveys` or `all_configs_surveys`  permission
   security:
     - bearerAuth: []
   parameters:
@@ -80,7 +80,7 @@ delete:
   description: |
     Deletes config record
 
-    **Auth:** Requires valid admin token with `delete_configs_<name>` or `all_configs_<name>` permission
+    **Auth:** Requires valid admin token with `delete_configs_surveys` or `all_configs_surveys` permission
   security:
     - bearerAuth: []
   parameters:

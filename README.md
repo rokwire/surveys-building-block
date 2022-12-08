@@ -1,4 +1,4 @@
-# <Name> Building Block
+# Surveys Building Block
 *A short description of the functionality provided by the Building Block*
 
 ## Architecture
@@ -14,9 +14,9 @@ What the service provides - user interface, rest adapter, test agent etc.
 What the service depends on - database, mock database, integration with other services etc.
 
 ## Documentation
-The functionality provided by this application is documented in the [Wiki](https://github.com/rokwire/<name>-building-block/wiki).
+The functionality provided by this application is documented in the [Wiki](https://github.com/rokwire/surveys-building-block/wiki).
 
-The API documentation is available here: https://api.rokwire.illinois.edu/<name>/api/doc/ui/index.html
+The API documentation is available here: https://api.rokwire.illinois.edu/surveys/api/doc/ui/index.html
 
 ## Set Up
 
@@ -65,7 +65,7 @@ $ ./bin/application
   
 3. Create Docker image  
 ```
-docker build -t <name> .
+docker build -t surveys .
 ```
 4. Run as Docker container
 ```
@@ -126,7 +126,7 @@ Verify the service is running as calling the get version API.
 
 #### Call get version API
 
-curl -X GET -i https://api-dev.rokwire.illinois.edu/<name>/api/version
+curl -X GET -i https://api-dev.rokwire.illinois.edu/surveys/api/version
 
 Response
 ```

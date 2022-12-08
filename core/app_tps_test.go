@@ -14,11 +14,7 @@
 
 package core_test
 
-import (
-	"testing"
-)
-
-func Test_TPS_GetExample(t *testing.T) {
-	app := buildTestAppGetExample(t)
-	test_Shared_GetExample(t, app.TPS)
-}
+// func Test_TPS_GetExample(t *testing.T) {
+// 	app := buildTestAppGetExample(t)
+// 	test_Shared_GetExample(t, app.TPS)
+// }

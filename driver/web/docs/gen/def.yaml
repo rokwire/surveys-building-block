@@ -1,16 +1,16 @@
 openapi: 3.0.3
 info:
-  title: Rokwire <Name> Building Block API
-  description: <Name> Building Block API Documentation
+  title: Rokwire Surveys Building Block API
+  description: Surveys Building Block API Documentation
   version: 1.4.0
 servers:
-  - url: 'https://api.rokwire.illinois.edu/<name>'
+  - url: 'https://api.rokwire.illinois.edu/surveys'
     description: Production server
-  - url: 'https://api-test.rokwire.illinois.edu/<name>'
+  - url: 'https://api-test.rokwire.illinois.edu/surveys'
     description: Test server
-  - url: 'https://api-dev.rokwire.illinois.edu/<name>'
+  - url: 'https://api-dev.rokwire.illinois.edu/surveys'
     description: Development server
-  - url: 'http://localhost/<name>'
+  - url: 'http://localhost/surveys'
     description: Local server
 tags:
   - name: Client
@@ -299,10 +299,10 @@ paths:
         Gets config record
 
         **Auth:** Requires valid admin token with one of the following permissions:
-        - `get_configs_<name>`
-        - `update_configs_<name>`
-        - `delete_configs_<name>`
-        - `all_configs_<name>`
+        - `get_configs_surveys`
+        - `update_configs_surveys`
+        - `delete_configs_surveys`
+        - `all_configs_surveys`
       security:
         - bearerAuth: []
       parameters:
@@ -334,7 +334,7 @@ paths:
       description: |
         Saves config record
 
-        **Auth:** Requires valid admin token with `update_configs_<name>` or `all_configs_<name>`  permission
+        **Auth:** Requires valid admin token with `update_configs_surveys` or `all_configs_surveys`  permission
       security:
         - bearerAuth: []
       parameters:
@@ -373,7 +373,7 @@ paths:
       description: |
         Deletes config record
 
-        **Auth:** Requires valid admin token with `delete_configs_<name>` or `all_configs_<name>` permission
+        **Auth:** Requires valid admin token with `delete_configs_surveys` or `all_configs_surveys` permission
       security:
         - bearerAuth: []
       parameters:
