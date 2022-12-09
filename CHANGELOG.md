@@ -12,3 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Security
+
+## [1.0.0] - 2022-12-09
+### Added
+- Initial implementation
+
+[Unreleased]: https://github.com/rokwire/core-building-block/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/rokwire/core-auth-library-go/tree/v1.0.0
+
