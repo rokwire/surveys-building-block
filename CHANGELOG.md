@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Survey response ID not set on create [#4](https://github.com/rokwire/surveys-building-block/issues/4)
+
 ## [1.0.1] - 2022-12-09
 ### Fixed
 - Client APIs failing scope authorization [#1](https://github.com/rokwire/surveys-building-block/issues/1)
