@@ -25,10 +25,10 @@ import (
 )
 
 // GetSurveyResponse gets a survey response by ID
-func (sa *Adapter) GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error) {
+func (a *Adapter) GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error) {
 	filter := bson.M{"_id": id, "user_id": userID, "org_id": orgID, "app_id": appID}
 	var entry model.SurveyResponse
-	err := sa.db.surveyResponses.FindOne(filter, &entry, nil)
+	err := a.db.surveyResponses.FindOne(filter, &entry, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeSurveyResponse, filterArgs(filter), err)
 	}
@@ -36,7 +36,7 @@ func (sa *Adapter) GetSurveyResponse(id string, orgID string, appID string, user
 }
 
 // GetSurveyResponses gets matching surveys for a user
-func (sa *Adapter) GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+func (a *Adapter) GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	filter := bson.M{"user_id": userID, "org_id": orgID, "app_id": appID}
 	if len(surveyIDs) > 0 {
 		filter["survey._id"] = bson.M{"$in": surveyIDs}
@@ -63,7 +63,7 @@ func (sa *Adapter) GetSurveyResponses(orgID string, appID string, userID string,
 		opts.SetSkip(int64(*offset))
 	}
 	var results []model.SurveyResponse
-	err := sa.db.surveyResponses.Find(filter, &results, opts)
+	err := a.db.surveyResponses.Find(filter, &results, opts)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeSurveyResponse, filterArgs(filter), err)
 	}
@@ -71,8 +71,8 @@ func (sa *Adapter) GetSurveyResponses(orgID string, appID string, userID string,
 }
 
 // CreateSurveyResponse creates a new survey response
-func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
-	_, err := sa.db.surveyResponses.InsertOne(surveyResponse)
+func (a *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+	_, err := a.db.surveyResponses.InsertOne(surveyResponse)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, model.TypeSurveyResponse, nil, err)
 	}
@@ -80,7 +80,7 @@ func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 }
 
 // UpdateSurveyResponse updates an existing service response
-func (sa *Adapter) UpdateSurveyResponse(surveyResponse model.SurveyResponse) error {
+func (a *Adapter) UpdateSurveyResponse(surveyResponse model.SurveyResponse) error {
 	now := time.Now().UTC()
 	filter := bson.M{"_id": surveyResponse.ID, "user_id": surveyResponse.UserID, "org_id": surveyResponse.OrgID, "app_id": surveyResponse.AppID}
 	update := bson.M{"$set": bson.M{
@@ -88,7 +88,7 @@ func (sa *Adapter) UpdateSurveyResponse(surveyResponse model.SurveyResponse) err
 		"date_updated": now,
 	}}
 
-	res, err := sa.db.surveyResponses.UpdateOne(filter, update, nil)
+	res, err := a.db.surveyResponses.UpdateOne(filter, update, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionUpdate, model.TypeSurveyResponse, filterArgs(filter), err)
 	}
@@ -99,9 +99,9 @@ func (sa *Adapter) UpdateSurveyResponse(surveyResponse model.SurveyResponse) err
 }
 
 // DeleteSurveyResponse deletes a survey response
-func (sa *Adapter) DeleteSurveyResponse(orgID string, appID string, userID string, id string) error {
+func (a *Adapter) DeleteSurveyResponse(orgID string, appID string, userID string, id string) error {
 	filter := bson.M{"_id": id, "user_id": userID, "org_id": orgID, "app_id": appID}
-	res, err := sa.db.surveyResponses.DeleteOne(filter, nil)
+	res, err := a.db.surveyResponses.DeleteOne(filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, filterArgs(filter), err)
 	}
@@ -112,7 +112,7 @@ func (sa *Adapter) DeleteSurveyResponse(orgID string, appID string, userID strin
 }
 
 // DeleteSurveyResponses deletes matching surveys
-func (sa *Adapter) DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
+func (a *Adapter) DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
 	filter := bson.M{"user_id": userID, "org_id": orgID, "app_id": appID}
 	if len(surveyIDs) > 0 {
 		filter["survey._id"] = bson.M{"$in": surveyIDs}
@@ -131,7 +131,7 @@ func (sa *Adapter) DeleteSurveyResponses(orgID string, appID string, userID stri
 		filter["date_created"] = dateFilter
 	}
 
-	result, err := sa.db.surveyResponses.DeleteMany(filter, nil)
+	result, err := a.db.surveyResponses.DeleteMany(filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, filterArgs(filter), err)
 	}

@@ -72,6 +72,7 @@ func (a Adapter) Start() {
 	mainRouter := baseRouter.PathPrefix("/api").Subrouter()
 
 	// Client APIs
+	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.getSurveys, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.getSurvey, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.createSurvey, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurvey, a.auth.client.User)).Methods("PUT")
@@ -86,6 +87,7 @@ func (a Adapter) Start() {
 
 	// Admin APIs
 	adminRouter := mainRouter.PathPrefix("/admin").Subrouter()
+	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.getSurveys, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.getSurvey, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.createSurvey, a.auth.admin.Permissions)).Methods("POST")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.updateSurvey, a.auth.admin.Permissions)).Methods("PUT")

@@ -29,6 +29,7 @@ type Default interface {
 type Client interface {
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey) error
 	DeleteSurvey(id string, orgID string, appID string, userID string) error
@@ -49,6 +50,7 @@ type Client interface {
 type Admin interface {
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey) error
 	DeleteSurvey(id string, orgID string, appID string) error
@@ -80,6 +82,7 @@ type System interface {
 type Shared interface {
 	// Surveys
 	getSurvey(id string, orgID string, appID string) (*model.Survey, error)
+	getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
 	createSurvey(survey model.Survey) (*model.Survey, error)
 	updateSurvey(survey model.Survey, admin bool) error
 	deleteSurvey(id string, orgID string, appID string, creatorID *string) error
@@ -95,6 +98,7 @@ type Storage interface {
 	DeleteConfig(id string) error
 
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey, admin bool) error
 	DeleteSurvey(id string, orgID string, appID string, creatorID *string) error

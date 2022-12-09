@@ -21,22 +21,48 @@ import (
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logutils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // GetSurvey retrieves a single survey
-func (sa *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
+func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
 	var entry model.Survey
-	err := sa.db.surveys.FindOne(filter, &entry, nil)
+	err := a.db.surveys.FindOne(filter, &entry, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeSurvey, filterArgs(filter), err)
 	}
 	return &entry, nil
 }
 
+// GetSurveys gets matching surveys
+func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
+	filter := bson.M{"org_id": orgID, "app_id": appID}
+	if len(surveyIDs) > 0 {
+		filter["_id"] = bson.M{"$in": surveyIDs}
+	}
+	if len(surveyTypes) > 0 {
+		filter["type"] = bson.M{"$in": surveyTypes}
+	}
+
+	opts := options.Find()
+	if limit != nil {
+		opts.SetLimit(int64(*limit))
+	}
+	if offset != nil {
+		opts.SetSkip(int64(*offset))
+	}
+	var results []model.Survey
+	err := a.db.surveys.Find(filter, &results, opts)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeSurvey, filterArgs(filter), err)
+	}
+	return results, nil
+}
+
 // CreateSurvey creates a poll
-func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	_, err := sa.db.surveys.InsertOne(survey)
+func (a *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
+	_, err := a.db.surveys.InsertOne(survey)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err)
 	}
@@ -45,7 +71,7 @@ func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 }
 
 // UpdateSurvey updates a survey
-func (sa *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
+func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 	if len(survey.ID) > 0 {
 		now := time.Now().UTC()
 		filter := bson.M{"_id": survey.ID, "org_id": survey.OrgID, "app_id": survey.AppID}
@@ -69,7 +95,7 @@ func (sa *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"date_updated":          now,
 		}}
 
-		res, err := sa.db.surveys.UpdateOne(filter, update, nil)
+		res, err := a.db.surveys.UpdateOne(filter, update, nil)
 		if err != nil {
 			return errors.WrapErrorAction(logutils.ActionUpdate, model.TypeSurvey, filterArgs(filter), err)
 		}
@@ -82,12 +108,12 @@ func (sa *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 }
 
 // DeleteSurvey deletes a survey
-func (sa *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID *string) error {
+func (a *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID *string) error {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
 	if creatorID != nil {
 		filter["creator_id"] = creatorID
 	}
-	res, err := sa.db.surveys.DeleteOne(filter, nil)
+	res, err := a.db.surveys.DeleteOne(filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurvey, filterArgs(filter), err)
 	}

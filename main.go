@@ -40,7 +40,7 @@ func main() {
 		Version = "dev"
 	}
 
-	serviceID := "template"
+	serviceID := "surveys"
 
 	loggerOpts := logs.LoggerOpts{SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties(serviceID + "/version")}
 	logger := logs.NewLogger(serviceID, &loggerOpts)

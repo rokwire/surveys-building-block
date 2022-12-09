@@ -16,6 +16,9 @@ package core
 
 import (
 	"application/core/model"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 // appAdmin contains admin implementations
@@ -27,6 +30,11 @@ type appAdmin struct {
 // GetSurvey returns the survey with the provided ID
 func (a appAdmin) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
 	return a.app.shared.getSurvey(id, orgID, appID)
+}
+
+// GetSurvey returns surveys matching the provided query
+func (a appAdmin) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset)
 }
 
 // CreateSurvey creates a new survey
@@ -56,6 +64,9 @@ func (a appAdmin) GetAlertContact(id string, orgID string, appID string) (*model
 
 // CreateAlertContact creates a new alert contact
 func (a appAdmin) CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error) {
+	alertContact.ID = uuid.NewString()
+	alertContact.DateCreated = time.Now().UTC()
+	alertContact.DateUpdated = nil
 	return a.app.storage.CreateAlertContact(alertContact)
 }
 

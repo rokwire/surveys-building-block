@@ -24,10 +24,10 @@ import (
 )
 
 // GetAlertContacts retrieves all alert contacts
-func (sa *Adapter) GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error) {
+func (a *Adapter) GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error) {
 	filter := bson.M{"org_id": orgID, "app_id": appID}
 	var entry []model.AlertContact
-	err := sa.db.alertContacts.Find(filter, &entry, nil)
+	err := a.db.alertContacts.Find(filter, &entry, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeAlertContact, filterArgs(filter), err)
 	}
@@ -35,10 +35,10 @@ func (sa *Adapter) GetAlertContacts(orgID string, appID string) ([]model.AlertCo
 }
 
 // GetAlertContact retrieves a single alert contact
-func (sa *Adapter) GetAlertContact(id string, orgID string, appID string) (*model.AlertContact, error) {
+func (a *Adapter) GetAlertContact(id string, orgID string, appID string) (*model.AlertContact, error) {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
 	var entry model.AlertContact
-	err := sa.db.alertContacts.FindOne(filter, &entry, nil)
+	err := a.db.alertContacts.FindOne(filter, &entry, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeAlertContact, filterArgs(filter), err)
 	}
@@ -47,10 +47,10 @@ func (sa *Adapter) GetAlertContact(id string, orgID string, appID string) (*mode
 }
 
 // GetAlertContactsByKey gets all alert contacts that share the key in the filter
-func (sa *Adapter) GetAlertContactsByKey(key string, orgID string, appID string) ([]model.AlertContact, error) {
+func (a *Adapter) GetAlertContactsByKey(key string, orgID string, appID string) ([]model.AlertContact, error) {
 	filter := bson.M{"key": key, "org_id": orgID, "app_id": appID}
 	var results []model.AlertContact
-	err := sa.db.alertContacts.Find(filter, &results, nil)
+	err := a.db.alertContacts.Find(filter, &results, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeAlertContact, filterArgs(filter), err)
 	}
@@ -61,8 +61,8 @@ func (sa *Adapter) GetAlertContactsByKey(key string, orgID string, appID string)
 }
 
 // CreateAlertContact creates an alert contact
-func (sa *Adapter) CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error) {
-	_, err := sa.db.alertContacts.InsertOne(alertContact)
+func (a *Adapter) CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error) {
+	_, err := a.db.alertContacts.InsertOne(alertContact)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, model.TypeAlertContact, nil, err)
 	}
@@ -71,7 +71,7 @@ func (sa *Adapter) CreateAlertContact(alertContact model.AlertContact) (*model.A
 }
 
 // UpdateAlertContact updates an alert contact
-func (sa *Adapter) UpdateAlertContact(alertContact model.AlertContact) error {
+func (a *Adapter) UpdateAlertContact(alertContact model.AlertContact) error {
 	now := time.Now().UTC()
 	filter := bson.M{"_id": alertContact.ID, "org_id": alertContact.OrgID, "app_id": alertContact.AppID}
 	update := bson.M{"$set": bson.M{
@@ -82,7 +82,7 @@ func (sa *Adapter) UpdateAlertContact(alertContact model.AlertContact) error {
 		"date_updated": now,
 	}}
 
-	res, err := sa.db.alertContacts.UpdateOne(filter, update, nil)
+	res, err := a.db.alertContacts.UpdateOne(filter, update, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionUpdate, model.TypeAlertContact, filterArgs(filter), err)
 	}
@@ -94,9 +94,9 @@ func (sa *Adapter) UpdateAlertContact(alertContact model.AlertContact) error {
 }
 
 // DeleteAlertContact deletes an alert contact
-func (sa *Adapter) DeleteAlertContact(id string, orgID string, appID string) error {
+func (a *Adapter) DeleteAlertContact(id string, orgID string, appID string) error {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
-	res, err := sa.db.alertContacts.DeleteOne(filter, nil)
+	res, err := a.db.alertContacts.DeleteOne(filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionUpdate, model.TypeAlertContact, filterArgs(filter), err)
 	}

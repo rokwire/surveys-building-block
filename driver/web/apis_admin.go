@@ -19,6 +19,8 @@ import (
 	"application/core/model"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
@@ -39,6 +41,50 @@ func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokena
 	}
 
 	resData, err := h.app.Admin.GetSurvey(id, claims.OrgID, claims.AppID)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
+func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	surveyIDsRaw := r.URL.Query().Get("ids")
+	var surveyIDs []string
+	if len(surveyIDsRaw) > 0 {
+		surveyIDs = strings.Split(surveyIDsRaw, ",")
+	}
+	surveyTypesRaw := r.URL.Query().Get("types")
+	var surveyTypes []string
+	if len(surveyTypesRaw) > 0 {
+		surveyTypes = strings.Split(surveyTypesRaw, ",")
+	}
+
+	limitRaw := r.URL.Query().Get("limit")
+	limit := 20
+	if len(limitRaw) > 0 {
+		intParsed, err := strconv.Atoi(limitRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("limit"), nil, http.StatusBadRequest, false)
+		}
+		limit = intParsed
+	}
+	offsetRaw := r.URL.Query().Get("offset")
+	offset := 0
+	if len(offsetRaw) > 0 {
+		intParsed, err := strconv.Atoi(offsetRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("offset"), nil, http.StatusBadRequest, false)
+		}
+		offset = intParsed
+	}
+
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

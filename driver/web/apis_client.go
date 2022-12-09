@@ -54,6 +54,50 @@ func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *token
 	return l.HTTPResponseSuccessJSON(data)
 }
 
+func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	surveyIDsRaw := r.URL.Query().Get("ids")
+	var surveyIDs []string
+	if len(surveyIDsRaw) > 0 {
+		surveyIDs = strings.Split(surveyIDsRaw, ",")
+	}
+	surveyTypesRaw := r.URL.Query().Get("types")
+	var surveyTypes []string
+	if len(surveyTypesRaw) > 0 {
+		surveyTypes = strings.Split(surveyTypesRaw, ",")
+	}
+
+	limitRaw := r.URL.Query().Get("limit")
+	limit := 20
+	if len(limitRaw) > 0 {
+		intParsed, err := strconv.Atoi(limitRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("limit"), nil, http.StatusBadRequest, false)
+		}
+		limit = intParsed
+	}
+	offsetRaw := r.URL.Query().Get("offset")
+	offset := 0
+	if len(offsetRaw) > 0 {
+		intParsed, err := strconv.Atoi(offsetRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("offset"), nil, http.StatusBadRequest, false)
+		}
+		offset = intParsed
+	}
+
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
 func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
 	var item model.Survey
 	err := json.NewDecoder(r.Body).Decode(&item)
@@ -64,6 +108,7 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
+	item.Type = "user"
 
 	createdItem, err := h.app.Client.CreateSurvey(item)
 	if err != nil {
@@ -96,6 +141,7 @@ func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *to
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
+	item.Type = "user"
 
 	err = h.app.Client.UpdateSurvey(item)
 	if err != nil {
