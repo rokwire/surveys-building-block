@@ -118,6 +118,7 @@ type Storage interface {
 	DeleteAlertContact(id string, orgID string, appID string) error
 }
 
+// Notifications is the interface for accessing the Notifications BB
 type Notifications interface {
 	SendNotification(notification model.NotificationMessage)
 	SendMail(toEmail string, subject string, body string)
