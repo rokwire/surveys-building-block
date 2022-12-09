@@ -18,6 +18,7 @@ import (
 	"application/core/model"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logutils"
 )
@@ -66,6 +67,9 @@ func (a appClient) GetSurveyResponses(orgID string, appID string, userID string,
 
 // CreateSurveyResponse creates a new survey response
 func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+	surveyResponse.ID = uuid.NewString()
+	surveyResponse.DateCreated = time.Now().UTC()
+	surveyResponse.DateUpdated = nil
 	return a.app.storage.CreateSurveyResponse(surveyResponse)
 }
 
