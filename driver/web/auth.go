@@ -80,7 +80,7 @@ func NewAuth(serviceRegManager *authservice.ServiceRegManager) (*Auth, error) {
 
 func newClientAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.StandardHandler, error) {
 	clientPermissionAuth := authorization.NewCasbinStringAuthorization("driver/web/client_permission_policy.csv")
-	clientScopeAuth := authorization.NewCasbinStringAuthorization("driver/web/client_scope_policy.csv")
+	clientScopeAuth := authorization.NewCasbinScopeAuthorization("driver/web/client_scope_policy.csv", serviceRegManager.AuthService.ServiceID)
 	clientTokenAuth, err := tokenauth.NewTokenAuth(true, serviceRegManager, clientPermissionAuth, clientScopeAuth)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, "client token auth", nil, err)

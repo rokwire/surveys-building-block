@@ -6,8 +6,8 @@ Patches for **Surveys Building Block** in this repository will only be applied t
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.0   | :white_check_mark: |
-| < 1.0.0 | :x:                |
+| 1.0.1   | :white_check_mark: |
+| < 1.0.1 | :x:                |
 
 ## Reporting a Bug or Vulnerability
 
