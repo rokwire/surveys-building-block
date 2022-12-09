@@ -1,5 +1,5 @@
 # Surveys Building Block
-*A short description of the functionality provided by the Building Block*
+The Surveys Building Block manages survey data for the Rokwire platform.
 
 ## Architecture
 The service is based on clear hexagonal architecture. The hexagonal architecture divides the system into several loosely-coupled components, such as the application core and different adapters. We categorize the adapters in two categories - driver and driven.
@@ -30,12 +30,14 @@ The following Environment variables are supported. The service will not start un
 
 Name|Format|Required|Description
 ---|---|---|---
-BASE_URL | < url > | yes | Base URL where this application is being hosted
-PORT | < int > | yes | Port to be used by this application
-MONGO_AUTH | <mongodb://USER:PASSWORD@HOST:PORT/DATABASE NAME> | yes | MongoDB authentication string. The user must have read/write privileges.
-MONGO_DATABASE | < string > | yes | MongoDB database name
-MONGO_TIMEOUT | < int > | no | MongoDB timeout in milliseconds. Defaults to 500.
-CORE_BB_BASE_URL | < url > | yes | Core BB base URL
+SURVEYS_BASE_URL | < url > | yes | Base URL where this application is being hosted
+SURVEYS_PORT | < int > | yes | Port to be used by this application
+SURVEYS_MONGO_AUTH | <mongodb://USER:PASSWORD@HOST:PORT/DATABASE NAME> | yes | MongoDB authentication string. The user must have read/write privileges.
+SURVEYS_MONGO_DATABASE | < string > | yes | MongoDB database name
+SURVEYS_MONGO_TIMEOUT | < int > | no | MongoDB timeout in milliseconds. Defaults to 500.
+SURVEYS_CORE_BB_BASE_URL | < url > | yes | Core BB base URL
+SURVEYS_SERVICE_ACCOUNT_ID | < string > | yes | Service account ID
+SURVEYS_PRIV_KEY | < PEM rsa private key > | yes | Private key for service account
 
 ### Run Application
 

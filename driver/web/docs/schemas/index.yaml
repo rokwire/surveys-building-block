@@ -3,5 +3,17 @@ Config:
   $ref: "./application/Config.yaml"
 EnvConfigData:
   $ref: "./application/EnvConfigData.yaml"
-Example:
-  $ref: "./application/Example.yaml"
+Survey:
+  $ref: "./surveys/Survey.yaml"
+SurveyData:
+  $ref: "./surveys/SurveyData.yaml"
+SurveyStats:
+  $ref: "./surveys/SurveyStats.yaml"
+ActionData:
+  $ref: "./surveys/ActionData.yaml"
+OptionData:
+  $ref: "./surveys/OptionData.yaml"
+SurveyResponse:
+  $ref: "./surveys/SurveyResponse.yaml"
+AlertContact:
+  $ref: "./surveys/AlertContact.yaml"

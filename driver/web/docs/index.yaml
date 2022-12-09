@@ -31,22 +31,35 @@ paths:
     $ref: "./resources/default/version.yaml"
 
   # Client
-  /api/examples/{id}:
-    $ref: "./resources/client/examples-id.yaml"
+  /api/surveys:
+      $ref: "./resources/client/surveys.yaml"     
+  /api/surveys/{id}:
+    $ref: "./resources/client/surveysid.yaml"
+  /api/survey-responses:
+    $ref: "./resources/client/survey-responses.yaml"     
+  /api/survey-responses/{id}:
+    $ref: "./resources/client/survey-responsesid.yaml"   
+  /api/survey-alerts:
+    $ref: "./resources/client/survey-alerts.yaml"  
 
   # Admin
-  /api/admin/examples:
-    $ref: "./resources/admin/examples.yaml"
-  /api/admin/examples/{id}:
-    $ref: "./resources/admin/examples-id.yaml" 
+  /api/admin/surveys:
+    $ref: "./resources/admin/surveys.yaml"     
+  /api/admin/surveys/{id}:
+    $ref: "./resources/admin/surveysid.yaml"
+  /api/admin/alert-contacts:
+    $ref: "./resources/admin/alert-contact.yaml"     
+  /api/admin/alert-contacts/{id}:
+    $ref: "./resources/admin/alert-contactids.yaml" 
+
 
   # BBs
-  /api/bbs/examples/{id}:
-    $ref: "./resources/bbs/examples-id.yaml"
+  # /api/bbs/examples/{id}:
+  #   $ref: "./resources/bbs/examples-id.yaml"
   
   # TPS
-  /api/tps/examples/{id}:
-    $ref: "./resources/tps/examples-id.yaml"
+  # /api/tps/examples/{id}:
+  #   $ref: "./resources/tps/examples-id.yaml"
 
   # System
   /api/system/configs/{id}:

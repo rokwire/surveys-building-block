@@ -1,10 +1,4 @@
 type: object
-required:
-- id
-- app_id
-- org_id
-- data
-- date_created
 properties:
   id:
     type: string
@@ -13,14 +7,17 @@ properties:
     type: string
     readOnly: true
   app_id:
-    type: string  
-    readOnly: true
-  data:
     type: string
+    readOnly: true
+  user_id:
+    type: string
+    readOnly: true
+  survey:
+    $ref: "./Survey.yaml"
   date_created:
     type: string
     readOnly: true
   date_updated:
-    type: string 
-    nullable: true
+    type: string
     readOnly: true
+    nullable: true

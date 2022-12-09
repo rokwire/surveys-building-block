@@ -1,8 +1,19 @@
 p, all_admin_surveys, /surveys/api/admin/*, (GET)|(POST)|(PUT)|(DELETE), All surveys admin actions
 
-p, all_examples, /surveys/api/admin/examples, (POST), All example admin actions
-p, all_examples, /surveys/api/admin/examples/*, (GET)|(PUT)|(DELETE),
-p, get_examples, /surveys/api/admin/examples/*, (GET), Get examples
-p, update_examples, /surveys/api/admin/examples, (POST), Update examples
-p, update_examples, /surveys/api/admin/examples/*, (GET)|(PUT),
-p, delete_examples, /surveys/api/admin/examples/*, (GET)|(DELETE),
+p, all_surveys, /surveys/api/admin/surveys, (GET)|(POST)|(PUT)|(DELETE), All survey admin actions
+p, all_surveys, /surveys/api/admin/surveys/*, (GET)|(POST)|(PUT)|(DELETE)
+p, get_surveys, /surveys/api/admin/surveys, (GET), Get surveys
+p, get_surveys, /surveys/api/admin/surveys/*, (GET)
+p, update_surveys, /surveys/api/admin/surveys, (GET)|(POST), Update surveys
+p, update_surveys, /surveys/api/admin/surveys/*, (GET)|(PUT)
+p, delete_surveys, /surveys/api/admin/surveys, (GET), Delete surveys
+p, delete_surveys, /surveys/api/admin/surveys/*, (GET)|(DELETE)
+
+p, all_alert_contacts, /surveys/api/admin/alert-contacts, (GET)|(POST)|(PUT)|(DELETE), All alert contact actions
+p, all_alert_contacts, /surveys/api/admin/alert-contacts/*, (GET)|(POST)|(PUT)|(DELETE)
+p, get_alert_contacts, /surveys/api/admin/alert-contacts, (GET), Get alert contacts
+p, get_alert_contacts, /surveys/api/admin/alert-contacts/*, (GET)
+p, update_alert_contacts, /surveys/api/admin/alert-contacts, (GET)|(POST), Update alert contacts
+p, update_alert_contacts, /surveys/api/admin/alert-contacts/*, (GET)|(PUT)
+p, delete_alert_contacts, /surveys/api/admin/alert-contacts, (GET), Delete alert contacts
+p, delete_alert_contacts, /surveys/api/admin/alert-contacts/*, (GET)|(DELETE)

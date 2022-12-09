@@ -35,7 +35,7 @@ const (
 func buildTestApplication(storage core.Storage) *core.Application {
 	loggerOpts := logs.LoggerOpts{SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties(serviceID + "/version")}
 	logger := logs.NewLogger(serviceID, &loggerOpts)
-	return core.NewApplication("1.1.1", "build", storage, logger)
+	return core.NewApplication("1.1.1", "build", storage, nil, logger)
 }
 
 func TestApplication_Start(t *testing.T) {
