@@ -1,7 +1,7 @@
 ---
-name: Rokwire Issue Template
-about: A generic Rokwire issue template for creating tasks and epics.
-title: "[TASK] | [EPIC] "
+name: Task
+about: Record a task that is not related to a specific feature, bug, or epic
+title: "[TASK] "
 labels: ''
 assignees: ''
 
