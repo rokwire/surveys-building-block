@@ -16,7 +16,7 @@ What the service depends on - database, mock database, integration with other se
 ## Documentation
 The functionality provided by this application is documented in the [Wiki](https://github.com/rokwire/surveys-building-block/wiki).
 
-The API documentation is available here: https://api.rokwire.illinois.edu/surveys/api/doc/ui/index.html
+The API documentation is available here: https://api-dev.rokwire.illinois.edu/surveys/doc/ui/index.html
 
 ## Set Up
 
@@ -128,7 +128,7 @@ Verify the service is running as calling the get version API.
 
 #### Call get version API
 
-curl -X GET -i https://api-dev.rokwire.illinois.edu/surveys/api/version
+curl -X GET -i https://api-dev.rokwire.illinois.edu/surveys/version
 
 Response
 ```
