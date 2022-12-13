@@ -78,7 +78,7 @@ func main() {
 		logger.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
 
-	serviceRegManager, err := authservice.NewTestServiceRegManager(&authService, serviceRegLoader)
+	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceRegLoader)
 	if err != nil {
 		logger.Fatalf("Error initializing service registration manager: %v", err)
 	}
