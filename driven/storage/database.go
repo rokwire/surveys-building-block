@@ -15,6 +15,7 @@
 package storage
 
 import (
+	"application/core/interfaces"
 	"context"
 	"time"
 
@@ -41,7 +42,7 @@ type database struct {
 	surveyResponses *collectionWrapper
 	alertContacts   *collectionWrapper
 
-	listeners []Listener
+	listeners []interfaces.StorageListener
 }
 
 func (d *database) start() error {

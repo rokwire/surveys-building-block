@@ -16,7 +16,8 @@ package core_test
 
 import (
 	"application/core"
-	"application/core/mocks"
+	"application/core/interfaces"
+	"application/core/interfaces/mocks"
 	"application/core/model"
 	"errors"
 	"reflect"
@@ -32,7 +33,7 @@ const (
 	serviceID string = "surveys"
 )
 
-func buildTestApplication(storage core.Storage) *core.Application {
+func buildTestApplication(storage interfaces.Storage) *core.Application {
 	loggerOpts := logs.LoggerOpts{SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties(serviceID + "/version")}
 	logger := logs.NewLogger(serviceID, &loggerOpts)
 	return core.NewApplication("1.1.1", "build", storage, nil, logger)
