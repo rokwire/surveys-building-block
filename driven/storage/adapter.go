@@ -192,8 +192,12 @@ func (a Adapter) PerformTransaction(transaction func(storage interfaces.Storage)
 
 		err := transaction(adapter)
 		if err != nil {
-			adapter.abortTransaction()
-			return nil, errors.WrapErrorAction("performing", logutils.TypeTransaction, nil, err)
+			if wrappedErr, ok := err.(interface {
+				Internal() error
+			}); ok && wrappedErr.Internal() != nil {
+				return nil, wrappedErr.Internal()
+			}
+			return nil, err
 		}
 
 		return nil, nil
@@ -203,18 +207,14 @@ func (a Adapter) PerformTransaction(transaction func(storage interfaces.Storage)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionStart, "mongo session", nil, err)
 	}
-	context := mongo.NewSessionContext(context.Background(), session)
+	context := context.Background()
 	defer session.EndSession(context)
 
 	_, err = session.WithTransaction(context, callback)
-	return err
-}
-
-func (a *Adapter) abortTransaction() {
-	err := a.context.AbortTransaction(a.context)
 	if err != nil {
-		a.db.logger.Errorf("error aborting a transaction: %s", err)
+		return errors.WrapErrorAction("performing", logutils.TypeTransaction, nil, err)
 	}
+	return nil
 }
 
 func filterArgs(filter bson.M) *logutils.FieldArgs {
