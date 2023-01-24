@@ -192,9 +192,7 @@ func (a Adapter) PerformTransaction(transaction func(storage interfaces.Storage)
 
 		err := transaction(adapter)
 		if err != nil {
-			if wrappedErr, ok := err.(interface {
-				Internal() error
-			}); ok && wrappedErr.Internal() != nil {
+			if wrappedErr, ok := err.(*errors.Error); ok && wrappedErr.Internal() != nil {
 				return nil, wrappedErr.Internal()
 			}
 			return nil, err
