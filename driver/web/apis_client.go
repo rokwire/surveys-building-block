@@ -369,6 +369,57 @@ func (h ClientAPIsHandler) createSurveyAlert(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccess()
 }
 
+func (h ClientAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	surveyTypeRaw := r.URL.Query().Get("survey_type")
+	if surveyTypeRaw == "" {
+		return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("survey_type"), nil, http.StatusBadRequest, false)
+	}
+	surveyTypes := []string{surveyTypeRaw}
+
+	timeOffsetRaw := r.URL.Query().Get("time_offset")
+	var timeOffset int // hours
+	if len(timeOffsetRaw) > 0 {
+		intParsed, err := strconv.Atoi(timeOffsetRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("time_offset"), nil, http.StatusBadRequest, false)
+		}
+		timeOffset = intParsed
+	}
+
+	startDateRaw := r.URL.Query().Get("start_date")
+	var startDate *time.Time
+	if len(startDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, startDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("start_date"), nil, http.StatusBadRequest, false)
+		}
+		startDate = &dateParsed
+	}
+	endDateRaw := r.URL.Query().Get("end_date")
+	var endDate *time.Time
+	if len(endDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, endDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("end_date"), nil, http.StatusBadRequest, false)
+		}
+		endDate = &dateParsed
+	} else if timeOffset > 0 {
+
+	}
+
+	resData, err := h.app.Client.GetSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, nil, surveyTypes, startDate, endDate, nil, nil)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
 // NewClientAPIsHandler creates new client API handler instance
 func NewClientAPIsHandler(app *core.Application) ClientAPIsHandler {
 	return ClientAPIsHandler{app: app}
