@@ -837,10 +837,10 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: survey_type
+        - name: survey_types
           in: query
-          description: The survey type to retrieve responses for
-          required: true
+          description: A comma-separated list of survey types to retrieve responses for
+          required: false
           style: simple
           explode: false
           schema:
@@ -884,6 +884,75 @@ paths:
           description: Unauthorized
         '500':
           description: Internal error
+  /api/system/configs:
+    get:
+      tags:
+        - System
+      summary: Get configs
+      description: |
+        Get existing configs by search parameters
+
+        **Auth:** Requires valid admin token with one of the following permissions:
+        - `get_configs_surveys`
+        - `update_configs_surveys`
+        - `delete_configs_surveys`
+        - `all_configs_surveys`
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          description: config type
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Config'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    post:
+      tags:
+        - System
+      summary: Create config
+      description: |
+        Creates config record
+
+        **Auth:** Requires valid admin token with `update_configs_surveys` or `all_configs_surveys` permission
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: New config content
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
   '/api/system/configs/{id}':
     get:
       tags:
@@ -915,45 +984,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Config'
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal error
-    put:
-      tags:
-        - System
-      summary: Save config
-      description: |
-        Saves config record
-
-        **Auth:** Requires valid admin token with `update_configs_surveys` or `all_configs_surveys`  permission
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          description: ID of config to update
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      requestBody:
-        description: New config content
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Config'
-      responses:
-        '200':
-          description: Success
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: Success
         '400':
           description: Bad request
         '401':

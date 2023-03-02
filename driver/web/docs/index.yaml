@@ -65,6 +65,8 @@ paths:
   #   $ref: "./resources/tps/examples-id.yaml"
 
   # System
+  /api/system/configs:
+    $ref: "./resources/system/configs.yaml"
   /api/system/configs/{id}:
     $ref: "./resources/system/configs-id.yaml"
     

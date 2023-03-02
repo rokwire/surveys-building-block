@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -148,6 +149,37 @@ func (a Adapter) getCachedConfig(id string, configType string, appID string, org
 	return nil, nil
 }
 
+func (a Adapter) getCachedConfigs(configType *string) ([]model.Config, error) {
+	a.configsLock.RLock()
+	defer a.configsLock.RUnlock()
+
+	var err error
+	configList := make([]model.Config, 0)
+	a.cachedConfigs.Range(func(key, item interface{}) bool {
+		keyStr, ok := key.(string)
+		if !ok || item == nil {
+			return false
+		}
+		if !strings.Contains(keyStr, "_") {
+			return true
+		}
+
+		config, ok := item.(model.Config)
+		if !ok {
+			err = errors.ErrorAction(logutils.ActionCast, model.TypeConfig, &logutils.FieldArgs{"key": key})
+			return false
+		}
+
+		if configType == nil || strings.HasPrefix(keyStr, fmt.Sprintf("%s_", *configType)) {
+			configList = append(configList, config)
+		}
+
+		return true
+	})
+
+	return configList, err
+}
+
 // loadConfigs loads configs
 func (a Adapter) loadConfigs() ([]model.Config, error) {
 	filter := bson.M{}
@@ -161,8 +193,8 @@ func (a Adapter) loadConfigs() ([]model.Config, error) {
 	return configs, nil
 }
 
-// GetConfig gets a config from cache
-func (a Adapter) GetConfig(id string) (*model.Config, error) {
+// FindConfigByID gets a config from cache by its ID
+func (a Adapter) FindConfigByID(id string) (*model.Config, error) {
 	return a.getCachedConfig(id, "", "", "")
 }
 
@@ -171,9 +203,14 @@ func (a Adapter) FindConfig(configType string, appID string, orgID string) (*mod
 	return a.getCachedConfig("", configType, appID, orgID)
 }
 
-// SaveConfig saves provided configs
-func (a Adapter) SaveConfig(configs model.Config) error {
-	_, err := a.db.configs.InsertOneWithContext(a.context, configs)
+// FindConfigs finds all configs for the specified type
+func (a Adapter) FindConfigs(configType *string) ([]model.Config, error) {
+	return a.getCachedConfigs(configType)
+}
+
+// InsertConfig inserts the provided config
+func (a Adapter) InsertConfig(config model.Config) error {
+	_, err := a.db.configs.InsertOneWithContext(a.context, config)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionInsert, model.TypeConfig, nil, err)
 	}

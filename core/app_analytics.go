@@ -26,8 +26,8 @@ type appAnalytics struct {
 
 // Survey Response
 // GetSurveyResponses returns the survey responses matching the provided filters
-func (a appAnalytics) GetSurveyResponses(surveyType string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error) {
-	return a.app.storage.GetSurveyResponses(nil, nil, nil, nil, []string{surveyType}, startDate, endDate, nil, nil)
+func (a appAnalytics) GetSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error) {
+	return a.app.storage.GetSurveyResponses(nil, nil, nil, nil, surveyTypes, startDate, endDate, nil, nil)
 }
 
 // newAppAnalytics creates new appAnalytics

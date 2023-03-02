@@ -17,9 +17,13 @@ package web
 import (
 	"application/core"
 	"application/core/model"
+	"application/utils"
+	"crypto/subtle"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
@@ -33,9 +37,24 @@ type AnalyticsAPIsHandler struct {
 }
 
 func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	surveyType := r.URL.Query().Get("survey_type")
-	if surveyType == "" {
-		return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("survey_type"), nil, http.StatusBadRequest, false)
+	// validate static token by comparing it against env config
+	token, _, err := tokenauth.GetRequestTokens(r)
+	if err != nil {
+		return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, nil, http.StatusUnauthorized, false)
+	}
+	envConfig, err := h.app.GetEnvConfigs()
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), nil, http.StatusInternalServerError, false)
+	}
+	hashedToken := utils.SHA256Hash([]byte(token))
+	if subtle.ConstantTimeCompare([]byte(base64.StdEncoding.EncodeToString(hashedToken)), []byte(envConfig.SplunkToken)) == 0 {
+		return l.HTTPResponseErrorAction(logutils.ActionValidate, logutils.TypeToken, nil, nil, http.StatusUnauthorized, false)
+	}
+
+	surveyTypesRaw := r.URL.Query().Get("survey_types")
+	var surveyTypes []string
+	if len(surveyTypesRaw) > 0 {
+		surveyTypes = strings.Split(surveyTypesRaw, ",")
 	}
 
 	timeOffsetRaw := r.URL.Query().Get("time_offset")
@@ -79,7 +98,7 @@ func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.R
 		endDate = &now
 	}
 
-	resData, err := h.app.Analytics.GetSurveyResponses(surveyType, startDate, endDate)
+	resData, err := h.app.Analytics.GetSurveyResponses(surveyTypes, startDate, endDate)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}

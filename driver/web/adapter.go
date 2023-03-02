@@ -16,7 +16,6 @@ package web
 
 import (
 	"application/core"
-	"application/core/interfaces"
 	"bytes"
 	"fmt"
 	"net/http"
@@ -102,7 +101,7 @@ func (a Adapter) Start() {
 
 	// Analytics APIs
 	analyticsRouter := mainRouter.PathPrefix("/analytics").Subrouter()
-	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, a.auth.analytics)).Methods("GET")
+	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, nil)).Methods("GET")
 
 	// BB APIs
 	// bbsRouter := mainRouter.PathPrefix("/bbs").Subrouter()
@@ -113,7 +112,8 @@ func (a Adapter) Start() {
 	// System APIs
 	systemRouter := mainRouter.PathPrefix("/system").Subrouter()
 	systemRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.systemAPIsHandler.getConfig, a.auth.system.Permissions)).Methods("GET")
-	systemRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.systemAPIsHandler.saveConfig, a.auth.system.Permissions)).Methods("PUT")
+	systemRouter.HandleFunc("/configs", a.wrapFunc(a.systemAPIsHandler.getConfigs, a.auth.system.Permissions)).Methods("GET")
+	systemRouter.HandleFunc("/configs", a.wrapFunc(a.systemAPIsHandler.createConfig, a.auth.system.Permissions)).Methods("POST")
 	systemRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.systemAPIsHandler.deleteConfig, a.auth.system.Permissions)).Methods("DELETE")
 
 	a.logger.Fatalf("Error serving: %v", http.ListenAndServe(":"+a.port, router))
@@ -189,13 +189,13 @@ func (a Adapter) wrapFunc(handler handlerFunc, authorization tokenauth.Handler) 
 }
 
 // NewWebAdapter creates new WebAdapter instance
-func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Application, serviceRegManager *authservice.ServiceRegManager, storage interfaces.Storage, logger *logs.Logger) Adapter {
+func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Application, serviceRegManager *authservice.ServiceRegManager, logger *logs.Logger) Adapter {
 	yamlDoc, err := loadDocsYAML(baseURL)
 	if err != nil {
 		logger.Fatalf("error parsing docs yaml - %s", err.Error())
 	}
 
-	auth, err := NewAuth(serviceRegManager, storage)
+	auth, err := NewAuth(serviceRegManager)
 	if err != nil {
 		logger.Fatalf("error creating auth - %s", err.Error())
 	}
@@ -204,6 +204,8 @@ func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Appl
 	clientAPIsHandler := NewClientAPIsHandler(app)
 	adminAPIsHandler := NewAdminAPIsHandler(app)
 	analyticsAPIsHandler := NewAnalyticsAPIsHandler(app)
+	systemAPIsHandler := NewSystemAPIsHandler(app)
 	return Adapter{baseURL: baseURL, port: port, serviceID: serviceID, cachedYamlDoc: yamlDoc, auth: auth, defaultAPIsHandler: defaultAPIsHandler,
-		clientAPIsHandler: clientAPIsHandler, adminAPIsHandler: adminAPIsHandler, analyticsAPIsHandler: analyticsAPIsHandler, app: app, logger: logger}
+		clientAPIsHandler: clientAPIsHandler, adminAPIsHandler: adminAPIsHandler, analyticsAPIsHandler: analyticsAPIsHandler, systemAPIsHandler: systemAPIsHandler,
+		app: app, logger: logger}
 }

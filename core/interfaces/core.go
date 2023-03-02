@@ -64,7 +64,7 @@ type Admin interface {
 
 // Analytics exposes Analytics APIs for the driver adapters
 type Analytics interface {
-	GetSurveyResponses(surveyType string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error)
+	GetSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error)
 }
 
 // BBs exposes Building Block APIs for the driver adapters
@@ -78,6 +78,7 @@ type TPS interface {
 // System exposes system administrative APIs for the driver adapters
 type System interface {
 	GetConfig(id string) (*model.Config, error)
-	SaveConfig(configs model.Config) error
+	GetConfigs(configType *string) ([]model.Config, error)
+	CreateConfig(config model.Config) error
 	DeleteConfig(id string) error
 }

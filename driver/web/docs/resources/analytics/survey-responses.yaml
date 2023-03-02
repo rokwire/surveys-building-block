@@ -7,10 +7,10 @@ get:
   security:
     - bearerAuth: []
   parameters:
-    - name: survey_type
+    - name: survey_types
       in: query
-      description: The survey type to retrieve responses for
-      required: true
+      description: A comma-separated list of survey types to retrieve responses for
+      required: false
       style: simple
       explode: false
       schema:

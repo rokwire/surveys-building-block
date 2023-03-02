@@ -50,23 +50,35 @@ func (h SystemAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *token
 	return l.HTTPResponseSuccessJSON(response)
 }
 
-func (h SystemAPIsHandler) saveConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	params := mux.Vars(r)
-	id := params["id"]
-	if len(id) <= 0 {
-		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
+func (h SystemAPIsHandler) getConfigs(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	var configType *string
+	typeParam := r.URL.Query().Get("type")
+	if len(typeParam) > 0 {
+		configType = &typeParam
 	}
 
+	configs, err := h.app.System.GetConfigs(configType)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeConfig, nil, err, http.StatusInternalServerError, true)
+	}
+
+	response, err := json.Marshal(configs)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, model.TypeConfig, nil, err, http.StatusInternalServerError, false)
+	}
+	return l.HTTPResponseSuccessJSON(response)
+}
+
+func (h SystemAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
 	var requestData model.Config
 	err := json.NewDecoder(r.Body).Decode(&requestData)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUnmarshal, model.TypeConfig, nil, err, http.StatusBadRequest, true)
 	}
 
-	requestData.ID = id
-	err = h.app.System.SaveConfig(requestData)
+	err = h.app.System.CreateConfig(requestData)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionSave, model.TypeConfig, nil, err, http.StatusInternalServerError, true)
+		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeConfig, nil, err, http.StatusInternalServerError, true)
 	}
 
 	return l.HTTPResponseSuccess()

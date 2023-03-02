@@ -121,6 +121,6 @@ func main() {
 	application.Start()
 
 	// Web adapter
-	webAdapter := web.NewWebAdapter(baseURL, port, serviceID, application, serviceRegManager, storageAdapter, logger)
+	webAdapter := web.NewWebAdapter(baseURL, port, serviceID, application, serviceRegManager, logger)
 	webAdapter.Start()
 }

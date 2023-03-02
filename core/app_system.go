@@ -16,6 +16,9 @@ package core
 
 import (
 	"application/core/model"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 // appSystem contains system implementations
@@ -25,12 +28,19 @@ type appSystem struct {
 
 // GetConfig gets the configs for the provided id
 func (a appSystem) GetConfig(id string) (*model.Config, error) {
-	return a.app.storage.GetConfig(id)
+	return a.app.storage.FindConfigByID(id)
 }
 
-// SaveConfig saves the provided configs
-func (a appSystem) SaveConfig(configs model.Config) error {
-	return a.app.storage.SaveConfig(configs)
+// GetConfigs gets the configs for the provided type
+func (a appSystem) GetConfigs(configType *string) ([]model.Config, error) {
+	return a.app.storage.FindConfigs(configType)
+}
+
+// CreateConfig creates the provided config
+func (a appSystem) CreateConfig(config model.Config) error {
+	config.ID = uuid.NewString()
+	config.DateCreated = time.Now()
+	return a.app.storage.InsertConfig(config)
 }
 
 // DeleteConfig deletes the configs for the provided id

@@ -323,7 +323,7 @@ func (collWrapper *collectionWrapper) watch(pipeline interface{}, resumeToken bs
 	defer cur.Close(ctx)
 
 	var changeDoc map[string]interface{}
-	l.Infof("%s: waiting for changes\n", collWrapper.coll.Name())
+	l.Infof("%s: waiting for changes", collWrapper.coll.Name())
 	for cur.Next(ctx) {
 		if e := cur.Decode(&changeDoc); e != nil {
 			l.Errorf("error decoding: %s\n", e)

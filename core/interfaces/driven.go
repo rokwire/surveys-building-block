@@ -24,9 +24,10 @@ type Storage interface {
 	RegisterStorageListener(listener StorageListener)
 	PerformTransaction(func(storage Storage) error) error
 
-	GetConfig(id string) (*model.Config, error)
+	FindConfigByID(id string) (*model.Config, error)
 	FindConfig(configType string, appID string, orgID string) (*model.Config, error)
-	SaveConfig(configs model.Config) error
+	FindConfigs(configType *string) ([]model.Config, error)
+	InsertConfig(config model.Config) error
 	DeleteConfig(id string) error
 
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)

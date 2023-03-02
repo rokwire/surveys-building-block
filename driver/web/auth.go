@@ -15,13 +15,9 @@
 package web
 
 import (
-	"application/core/interfaces"
-	"application/core/model"
-	"crypto/subtle"
 	"net/http"
 
 	"github.com/rokwire/core-auth-library-go/v2/authorization"
-	"github.com/rokwire/core-auth-library-go/v2/authutils"
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logutils"
 
@@ -36,12 +32,10 @@ type Auth struct {
 	bbs    tokenauth.Handlers
 	tps    tokenauth.Handlers
 	system tokenauth.Handlers
-
-	analytics staticTokenHandler
 }
 
 // NewAuth creates new auth handler
-func NewAuth(serviceRegManager *authservice.ServiceRegManager, storage interfaces.Storage) (*Auth, error) {
+func NewAuth(serviceRegManager *authservice.ServiceRegManager) (*Auth, error) {
 	client, err := newClientAuth(serviceRegManager)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, "client auth", nil, err)
@@ -73,12 +67,11 @@ func NewAuth(serviceRegManager *authservice.ServiceRegManager, storage interface
 	systemHandlers := tokenauth.NewHandlers(system)
 
 	auth := Auth{
-		client:    clientHandlers,
-		admin:     adminHandlers,
-		bbs:       bbsHandlers,
-		tps:       tpsHandlers,
-		system:    systemHandlers,
-		analytics: newStaticTokenHandler(storage),
+		client: clientHandlers,
+		admin:  adminHandlers,
+		bbs:    bbsHandlers,
+		tps:    tpsHandlers,
+		system: systemHandlers,
 	}
 	return &auth, nil
 }
@@ -190,42 +183,4 @@ func newSystemAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth
 
 	auth := tokenauth.NewStandardHandler(*systemTokenAuth, check)
 	return &auth, nil
-}
-
-// staticTokenHandler entity
-// This enforces that the token matches a static token from storage.
-type staticTokenHandler struct {
-	storage interfaces.Storage
-}
-
-// Check checks the token in the provided request
-func (h staticTokenHandler) Check(req *http.Request) (int, *tokenauth.Claims, error) {
-	token, _, err := tokenauth.GetRequestTokens(req)
-	if err != nil {
-		return http.StatusUnauthorized, nil, errors.WrapErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, err)
-	}
-
-	config, err := h.storage.FindConfig(model.ConfigTypeEnv, authutils.AllApps, authutils.AllOrgs)
-	if err != nil {
-		return http.StatusInternalServerError, nil, err
-	}
-	envConfig, err := model.GetConfigData[model.EnvConfigData](*config)
-	if err != nil {
-		return http.StatusInternalServerError, nil, err
-	}
-
-	if subtle.ConstantTimeCompare([]byte(token), []byte(envConfig.SplunkToken)) == 0 {
-		return http.StatusUnauthorized, nil, nil
-	}
-
-	return http.StatusOK, nil, nil
-}
-
-// GetTokenAuth exposes the TokenAuth for the handler
-func (h staticTokenHandler) GetTokenAuth() *tokenauth.TokenAuth {
-	return nil
-}
-
-func newStaticTokenHandler(storage interfaces.Storage) staticTokenHandler {
-	return staticTokenHandler{storage: storage}
 }
