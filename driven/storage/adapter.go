@@ -124,17 +124,24 @@ func parseConfigsData[T model.ConfigData](config *model.Config) error {
 	return nil
 }
 
-func (a Adapter) getCachedConfig(id string) (*model.Config, error) {
+func (a Adapter) getCachedConfig(id string, configType string, appID string, orgID string) (*model.Config, error) {
 	a.configsLock.RLock()
 	defer a.configsLock.RUnlock()
 
-	errArgs := &logutils.FieldArgs{"configs.id": id}
+	var item any
+	var errArgs logutils.FieldArgs
+	if id != "" {
+		errArgs = logutils.FieldArgs{"id": id}
+		item, _ = a.cachedConfigs.Load(id)
+	} else {
+		errArgs = logutils.FieldArgs{"type": configType, "app_id": appID, "org_id": orgID}
+		item, _ = a.cachedConfigs.Load(fmt.Sprintf("%s_%s_%s", configType, appID, orgID))
+	}
 
-	item, _ := a.cachedConfigs.Load(id)
 	if item != nil {
 		config, ok := item.(model.Config)
 		if !ok {
-			return nil, errors.ErrorAction(logutils.ActionCast, model.TypeConfig, errArgs)
+			return nil, errors.ErrorAction(logutils.ActionCast, model.TypeConfig, &errArgs)
 		}
 		return &config, nil
 	}
@@ -156,7 +163,12 @@ func (a Adapter) loadConfigs() ([]model.Config, error) {
 
 // GetConfig gets a config from cache
 func (a Adapter) GetConfig(id string) (*model.Config, error) {
-	return a.getCachedConfig(id)
+	return a.getCachedConfig(id, "", "", "")
+}
+
+// FindConfig finds the config for the specified type, appID, and orgID
+func (a Adapter) FindConfig(configType string, appID string, orgID string) (*model.Config, error) {
+	return a.getCachedConfig("", configType, appID, orgID)
 }
 
 // SaveConfig saves provided configs

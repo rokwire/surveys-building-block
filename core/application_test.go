@@ -50,8 +50,8 @@ func TestApplication_Start(t *testing.T) {
 }
 
 func TestApplication_GetEnvConfigs(t *testing.T) {
-	data := model.EnvConfigData{ExampleEnv: "example"}
-	config := model.Config{ID: "env", Data: data, DateCreated: time.Now(), DateUpdated: nil}
+	data := model.EnvConfigData{SplunkToken: "example"}
+	config := model.Config{Type: "env", Data: data, DateCreated: time.Now(), DateUpdated: nil}
 
 	storage := mocks.NewStorage(t)
 	storage.On("GetConfig", "env").Return(&config, nil)

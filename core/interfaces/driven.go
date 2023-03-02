@@ -25,6 +25,7 @@ type Storage interface {
 	PerformTransaction(func(storage Storage) error) error
 
 	GetConfig(id string) (*model.Config, error)
+	FindConfig(configType string, appID string, orgID string) (*model.Config, error)
 	SaveConfig(configs model.Config) error
 	DeleteConfig(id string) error
 
