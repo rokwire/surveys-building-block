@@ -64,11 +64,11 @@ func (a *Application) Start() {
 // GetEnvConfigs retrieves the cached database env configs
 func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 	// Load env configs from database
-	config, err := a.storage.GetConfig(model.ConfigIDEnv)
+	config, err := a.storage.GetConfig(model.ConfigTypeEnv)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, nil, err)
 	}
-	return config.DataAsEnvConfig()
+	return model.GetConfigData[model.EnvConfigData](*config)
 }
 
 // NewApplication creates new Application

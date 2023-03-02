@@ -15,9 +15,12 @@
 package web
 
 import (
+	"application/core/model"
+	"crypto/subtle"
 	"net/http"
 
 	"github.com/rokwire/core-auth-library-go/v2/authorization"
+	"github.com/rokwire/core-auth-library-go/v2/authutils"
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logutils"
 
@@ -183,4 +186,43 @@ func newSystemAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth
 
 	auth := tokenauth.NewStandardHandler(*systemTokenAuth, check)
 	return &auth, nil
+}
+
+// StaticTokenHandler entity
+// This enforces that the token was the result of direct user authentication. This should be used to protect sensitive account settings
+type StaticTokenHandler struct {
+	storage interfaces.Storage
+}
+
+// Check checks the token in the provided request
+func (h StaticTokenHandler) Check(req *http.Request) (int, *tokenauth.Claims, error) {
+	token, _, err := tokenauth.GetRequestTokens(req)
+	if err != nil {
+		return http.StatusUnauthorized, nil, errors.WrapErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, err)
+	}
+
+	config, err := h.storage.FindConfig(model.ConfigTypeEnv, authutils.AllApps, authutils.AllOrgs)
+	if err != nil {
+		return http.StatusInternalServerError, nil, err
+	}
+	envConfig, err := model.GetConfigData[model.EnvConfigData](*config)
+	if err != nil {
+		return http.StatusInternalServerError, nil, err
+	}
+
+	if subtle.ConstantTimeCompare([]byte(token), []byte(envConfig.SplunkToken)) == 0 {
+		return http.StatusUnauthorized, nil, nil
+	}
+
+	return http.StatusOK, nil, nil
+}
+
+// GetTokenAuth exposes the TokenAuth for the handler
+func (h StaticTokenHandler) GetTokenAuth() *tokenauth.TokenAuth {
+	return nil
+}
+
+// NewStaticTokenHandler creates a new StaticTokenHandler
+func NewStaticTokenHandler(storage interfaces.Storage) StaticTokenHandler {
+	return StaticTokenHandler{storage: storage}
 }

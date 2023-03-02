@@ -17,6 +17,7 @@ package storage
 import (
 	"application/core/model"
 	"context"
+	"fmt"
 	"strconv"
 	"sync"
 	"time"
@@ -91,35 +92,34 @@ func (a Adapter) setCachedConfigs(configs []model.Config) {
 	a.cachedConfigs = &syncmap.Map{}
 
 	for _, config := range configs {
-		//TODO: verify that this pointer doesn't cause issues
-		err := parseConfigsData(&config)
+		var err error
+		switch config.Type {
+		case model.ConfigTypeEnv:
+			err = parseConfigsData[model.EnvConfigData](&config)
+		default:
+			err = parseConfigsData[map[string]interface{}](&config)
+		}
 		if err != nil {
 			a.db.logger.Warn(err.Error())
 		}
 		a.cachedConfigs.Store(config.ID, config)
+		a.cachedConfigs.Store(fmt.Sprintf("%s_%s_%s", config.Type, config.AppID, config.OrgID), config)
 	}
 }
 
-func parseConfigsData(config *model.Config) error {
+func parseConfigsData[T model.ConfigData](config *model.Config) error {
 	bsonBytes, err := bson.Marshal(config.Data)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionUnmarshal, model.TypeConfig, nil, err)
 	}
-	if config.ID == model.ConfigIDEnv {
-		var envData model.EnvConfigData
-		err = bson.Unmarshal(bsonBytes, &envData)
-		if err != nil {
-			return errors.WrapErrorAction(logutils.ActionUnmarshal, model.TypeEnvConfigData, nil, err)
-		}
-		config.Data = envData
-	} else {
-		var mapData map[string]interface{}
-		err = bson.Unmarshal(bsonBytes, &mapData)
-		if err != nil {
-			return errors.WrapErrorAction(logutils.ActionUnmarshal, model.TypeConfig, nil, err)
-		}
-		config.Data = mapData
+
+	var data T
+	err = bson.Unmarshal(bsonBytes, &data)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionUnmarshal, model.TypeConfigData, &logutils.FieldArgs{"type": config.Type}, err)
 	}
+
+	config.Data = data
 	return nil
 }
 

@@ -36,8 +36,18 @@ func (a *Adapter) GetSurveyResponse(id string, orgID string, appID string, userI
 }
 
 // GetSurveyResponses gets matching surveys for a user
-func (a *Adapter) GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	filter := bson.M{"user_id": userID, "org_id": orgID, "app_id": appID}
+func (a *Adapter) GetSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	filter := bson.M{}
+	if userID != nil {
+		filter["user_id"] = userID
+	}
+	if orgID != nil {
+		filter["org_id"] = orgID
+	}
+	if appID != nil {
+		filter["app_id"] = appID
+	}
+
 	if len(surveyIDs) > 0 {
 		filter["survey._id"] = bson.M{"$in": surveyIDs}
 	}

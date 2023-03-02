@@ -44,12 +44,13 @@ type Adapter struct {
 
 	cachedYamlDoc []byte
 
-	defaultAPIsHandler DefaultAPIsHandler
-	clientAPIsHandler  ClientAPIsHandler
-	adminAPIsHandler   AdminAPIsHandler
-	bbsAPIsHandler     BBsAPIsHandler
-	tpsAPIsHandler     TPSAPIsHandler
-	systemAPIsHandler  SystemAPIsHandler
+	defaultAPIsHandler   DefaultAPIsHandler
+	clientAPIsHandler    ClientAPIsHandler
+	adminAPIsHandler     AdminAPIsHandler
+	analyticsAPIsHandler AnalyticsAPIsHandler
+	bbsAPIsHandler       BBsAPIsHandler
+	tpsAPIsHandler       TPSAPIsHandler
+	systemAPIsHandler    SystemAPIsHandler
 
 	app *core.Application
 
@@ -100,7 +101,7 @@ func (a Adapter) Start() {
 
 	// Analytics APIs
 	analyticsRouter := mainRouter.PathPrefix("/analytics").Subrouter()
-	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.getAnonymousSurveyResponses, nil)).Methods("POST")
+	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, nil)).Methods("POST")
 
 	// BB APIs
 	// bbsRouter := mainRouter.PathPrefix("/bbs").Subrouter()
@@ -201,7 +202,7 @@ func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Appl
 	defaultAPIsHandler := NewDefaultAPIsHandler(app)
 	clientAPIsHandler := NewClientAPIsHandler(app)
 	adminAPIsHandler := NewAdminAPIsHandler(app)
-	bbsAPIsHandler := NewBBsAPIsHandler(app)
+	analyticsAPIsHandler := NewAnalyticsAPIsHandler(app)
 	return Adapter{baseURL: baseURL, port: port, serviceID: serviceID, cachedYamlDoc: yamlDoc, auth: auth, defaultAPIsHandler: defaultAPIsHandler,
-		clientAPIsHandler: clientAPIsHandler, adminAPIsHandler: adminAPIsHandler, bbsAPIsHandler: bbsAPIsHandler, app: app, logger: logger}
+		clientAPIsHandler: clientAPIsHandler, adminAPIsHandler: adminAPIsHandler, analyticsAPIsHandler: analyticsAPIsHandler, app: app, logger: logger}
 }
