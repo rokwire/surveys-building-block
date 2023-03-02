@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package storage
+package model
 
-import "application/core/model"
+// DefaultStorageListener default storage listener implementation
+type DefaultStorageListener struct{}
 
-type storageListener struct {
-	adapter *Adapter
-	model.DefaultStorageListener
-}
+// OnConfigsUpdated notifies that the configs collection has been updated
+func (d *DefaultStorageListener) OnConfigsUpdated() {}
 
-func (s *storageListener) OnConfigsUpdated() {
-	s.adapter.cacheConfigs()
-}
+// OnExamplesUpdated notifies that the examples collection has been updated
+func (d *DefaultStorageListener) OnExamplesUpdated() {}

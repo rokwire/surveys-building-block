@@ -3,11 +3,11 @@
 package mocks
 
 import (
-	model "application/core/model"
+	interfaces "application/core/interfaces"
 
 	mock "github.com/stretchr/testify/mock"
 
-	storage "application/driven/storage"
+	model "application/core/model"
 
 	time "time"
 )
@@ -341,11 +341,11 @@ func (_m *Storage) GetSurveys(orgID string, appID string, surveyIDs []string, su
 }
 
 // PerformTransaction provides a mock function with given fields: _a0
-func (_m *Storage) PerformTransaction(_a0 func(storage.Adapter) error) error {
+func (_m *Storage) PerformTransaction(_a0 func(interfaces.Storage) error) error {
 	ret := _m.Called(_a0)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(func(storage.Adapter) error) error); ok {
+	if rf, ok := ret.Get(0).(func(func(interfaces.Storage) error) error); ok {
 		r0 = rf(_a0)
 	} else {
 		r0 = ret.Error(0)
@@ -354,9 +354,9 @@ func (_m *Storage) PerformTransaction(_a0 func(storage.Adapter) error) error {
 	return r0
 }
 
-// RegisterStorageListener provides a mock function with given fields: storageListener
-func (_m *Storage) RegisterStorageListener(storageListener storage.Listener) {
-	_m.Called(storageListener)
+// RegisterStorageListener provides a mock function with given fields: listener
+func (_m *Storage) RegisterStorageListener(listener interfaces.StorageListener) {
+	_m.Called(listener)
 }
 
 // SaveConfig provides a mock function with given fields: configs

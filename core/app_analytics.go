@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package core_test
+package core
 
 import (
-	"application/core/interfaces"
-	"testing"
+	"application/core/model"
+	"time"
 )
 
-func Test_appDefault_GetVersion(t *testing.T) {
-	tests := []struct {
-		name string
-		a    interfaces.Default
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.a.GetVersion(); got != tt.want {
-				t.Errorf("appDefault.GetVersion() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+// appAnalytics contains analytics implementations
+type appAnalytics struct {
+	app *Application
+}
+
+// Survey Response
+// GetSurveyResponses returns the survey responses matching the provided filters
+func (a appAnalytics) GetSurveyResponses(surveyType string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error) {
+	return a.app.storage.GetSurveyResponses(nil, nil, nil, nil, []string{surveyType}, startDate, endDate, nil, nil)
+}
+
+// newAppAnalytics creates new appAnalytics
+func newAppAnalytics(app *Application) appAnalytics {
+	return appAnalytics{app: app}
 }

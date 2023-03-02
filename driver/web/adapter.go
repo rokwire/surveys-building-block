@@ -16,6 +16,7 @@ package web
 
 import (
 	"application/core"
+	"application/core/interfaces"
 	"bytes"
 	"fmt"
 	"net/http"
@@ -101,7 +102,7 @@ func (a Adapter) Start() {
 
 	// Analytics APIs
 	analyticsRouter := mainRouter.PathPrefix("/analytics").Subrouter()
-	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, nil)).Methods("POST")
+	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, a.auth.analytics)).Methods("GET")
 
 	// BB APIs
 	// bbsRouter := mainRouter.PathPrefix("/bbs").Subrouter()
@@ -188,13 +189,13 @@ func (a Adapter) wrapFunc(handler handlerFunc, authorization tokenauth.Handler) 
 }
 
 // NewWebAdapter creates new WebAdapter instance
-func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Application, serviceRegManager *authservice.ServiceRegManager, logger *logs.Logger) Adapter {
+func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Application, serviceRegManager *authservice.ServiceRegManager, storage interfaces.Storage, logger *logs.Logger) Adapter {
 	yamlDoc, err := loadDocsYAML(baseURL)
 	if err != nil {
 		logger.Fatalf("error parsing docs yaml - %s", err.Error())
 	}
 
-	auth, err := NewAuth(serviceRegManager)
+	auth, err := NewAuth(serviceRegManager, storage)
 	if err != nil {
 		logger.Fatalf("error creating auth - %s", err.Error())
 	}

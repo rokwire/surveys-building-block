@@ -73,7 +73,7 @@ type SurveyResponseAnonymous struct {
 	Type        string       `json:"type"`
 	SurveyStats *SurveyStats `json:"stats"`
 	DateCreated time.Time    `json:"date_created"`
-	DateUpdated *time.Time   `json:"date_updated"`
+	DateUpdated *time.Time   `json:"date_updated,omitempty"`
 }
 
 // SurveyStats are stats of a Survey

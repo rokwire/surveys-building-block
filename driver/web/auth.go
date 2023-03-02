@@ -15,6 +15,7 @@
 package web
 
 import (
+	"application/core/interfaces"
 	"application/core/model"
 	"crypto/subtle"
 	"net/http"
@@ -35,10 +36,12 @@ type Auth struct {
 	bbs    tokenauth.Handlers
 	tps    tokenauth.Handlers
 	system tokenauth.Handlers
+
+	analytics staticTokenHandler
 }
 
 // NewAuth creates new auth handler
-func NewAuth(serviceRegManager *authservice.ServiceRegManager) (*Auth, error) {
+func NewAuth(serviceRegManager *authservice.ServiceRegManager, storage interfaces.Storage) (*Auth, error) {
 	client, err := newClientAuth(serviceRegManager)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, "client auth", nil, err)
@@ -70,11 +73,12 @@ func NewAuth(serviceRegManager *authservice.ServiceRegManager) (*Auth, error) {
 	systemHandlers := tokenauth.NewHandlers(system)
 
 	auth := Auth{
-		client: clientHandlers,
-		admin:  adminHandlers,
-		bbs:    bbsHandlers,
-		tps:    tpsHandlers,
-		system: systemHandlers,
+		client:    clientHandlers,
+		admin:     adminHandlers,
+		bbs:       bbsHandlers,
+		tps:       tpsHandlers,
+		system:    systemHandlers,
+		analytics: newStaticTokenHandler(storage),
 	}
 	return &auth, nil
 }
@@ -188,14 +192,14 @@ func newSystemAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth
 	return &auth, nil
 }
 
-// StaticTokenHandler entity
-// This enforces that the token was the result of direct user authentication. This should be used to protect sensitive account settings
-type StaticTokenHandler struct {
+// staticTokenHandler entity
+// This enforces that the token matches a static token from storage.
+type staticTokenHandler struct {
 	storage interfaces.Storage
 }
 
 // Check checks the token in the provided request
-func (h StaticTokenHandler) Check(req *http.Request) (int, *tokenauth.Claims, error) {
+func (h staticTokenHandler) Check(req *http.Request) (int, *tokenauth.Claims, error) {
 	token, _, err := tokenauth.GetRequestTokens(req)
 	if err != nil {
 		return http.StatusUnauthorized, nil, errors.WrapErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, err)
@@ -218,11 +222,10 @@ func (h StaticTokenHandler) Check(req *http.Request) (int, *tokenauth.Claims, er
 }
 
 // GetTokenAuth exposes the TokenAuth for the handler
-func (h StaticTokenHandler) GetTokenAuth() *tokenauth.TokenAuth {
+func (h staticTokenHandler) GetTokenAuth() *tokenauth.TokenAuth {
 	return nil
 }
 
-// NewStaticTokenHandler creates a new StaticTokenHandler
-func NewStaticTokenHandler(storage interfaces.Storage) StaticTokenHandler {
-	return StaticTokenHandler{storage: storage}
+func newStaticTokenHandler(storage interfaces.Storage) staticTokenHandler {
+	return staticTokenHandler{storage: storage}
 }

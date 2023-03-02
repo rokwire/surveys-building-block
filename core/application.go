@@ -15,8 +15,8 @@
 package core
 
 import (
+	"application/core/interfaces"
 	"application/core/model"
-	"application/driven/storage"
 
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
@@ -25,7 +25,7 @@ import (
 
 type storageListener struct {
 	app *Application
-	storage.DefaultListenerImpl
+	model.DefaultStorageListener
 }
 
 // OnExampleUpdated notifies that the example collection has changed
@@ -40,18 +40,19 @@ type Application struct {
 	version string
 	build   string
 
-	Default Default // expose to the drivers adapters
-	Client  Client  // expose to the drivers adapters
-	Admin   Admin   // expose to the drivers adapters
-	BBs     BBs     // expose to the drivers adapters
-	TPS     TPS     // expose to the drivers adapters
-	System  System  // expose to the drivers adapters
-	shared  Shared
+	Default   interfaces.Default   // expose to the drivers adapters
+	Client    interfaces.Client    // expose to the drivers adapters
+	Admin     interfaces.Admin     // expose to the drivers adapters
+	Analytics interfaces.Analytics // expose to the drivers adapters
+	BBs       interfaces.BBs       // expose to the drivers adapters
+	TPS       interfaces.TPS       // expose to the drivers adapters
+	System    interfaces.System    // expose to the drivers adapters
+	shared    Shared
 
 	logger *logs.Logger
 
-	storage       Storage
-	notifications Notifications
+	storage       interfaces.Storage
+	notifications interfaces.Notifications
 }
 
 // Start starts the core part of the application
@@ -72,13 +73,14 @@ func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 }
 
 // NewApplication creates new Application
-func NewApplication(version string, build string, storage Storage, notifications Notifications, logger *logs.Logger) *Application {
+func NewApplication(version string, build string, storage interfaces.Storage, notifications interfaces.Notifications, logger *logs.Logger) *Application {
 	application := Application{version: version, build: build, storage: storage, notifications: notifications, logger: logger}
 
 	//add the drivers ports/interfaces
 	application.Default = newAppDefault(&application)
 	application.Client = newAppClient(&application)
 	application.Admin = newAppAdmin(&application)
+	application.Analytics = newAppAnalytics(&application)
 	application.BBs = newAppBBs(&application)
 	application.TPS = newAppTPS(&application)
 	application.System = newAppSystem(&application)

@@ -15,6 +15,7 @@
 package storage
 
 import (
+	"application/core/interfaces"
 	"application/core/model"
 	"context"
 	"fmt"
@@ -35,7 +36,7 @@ import (
 type Adapter struct {
 	db *database
 
-	context context.Context
+	context mongo.SessionContext
 
 	cachedConfigs *syncmap.Map
 	configsLock   *sync.RWMutex
@@ -62,13 +63,13 @@ func (a *Adapter) Start() error {
 }
 
 // RegisterStorageListener registers a data change listener with the storage adapter
-func (a *Adapter) RegisterStorageListener(storageListener Listener) {
-	a.db.listeners = append(a.db.listeners, storageListener)
+func (a *Adapter) RegisterStorageListener(listener interfaces.StorageListener) {
+	a.db.listeners = append(a.db.listeners, listener)
 }
 
 // Creates a new Adapter with provided context
-func (a Adapter) withContext(context context.Context) Adapter {
-	return Adapter{db: a.db, context: context}
+func (a Adapter) withContext(context mongo.SessionContext) *Adapter {
+	return &Adapter{db: a.db, context: context, cachedConfigs: a.cachedConfigs, configsLock: a.configsLock}
 }
 
 // cacheConfigs caches the configs from the DB
@@ -184,38 +185,34 @@ func (a Adapter) DeleteConfig(id string) error {
 }
 
 // PerformTransaction performs a transaction
-func (a Adapter) PerformTransaction(transaction func(adapter Adapter) error) error {
+func (a Adapter) PerformTransaction(transaction func(storage interfaces.Storage) error) error {
 	// transaction
-	err := a.db.dbClient.UseSession(context.Background(), func(sessionContext mongo.SessionContext) error {
-		err := sessionContext.StartTransaction()
-		if err != nil {
-			a.abortTransaction(sessionContext)
-			return errors.WrapErrorAction(logutils.ActionStart, logutils.TypeTransaction, nil, err)
-		}
-
+	callback := func(sessionContext mongo.SessionContext) (interface{}, error) {
 		adapter := a.withContext(sessionContext)
-		err = transaction(adapter)
+
+		err := transaction(adapter)
 		if err != nil {
-			a.abortTransaction(sessionContext)
-			return errors.WrapErrorAction("performing", logutils.TypeTransaction, nil, err)
+			if wrappedErr, ok := err.(*errors.Error); ok && wrappedErr.Internal() != nil {
+				return nil, wrappedErr.Internal()
+			}
+			return nil, err
 		}
 
-		err = sessionContext.CommitTransaction(sessionContext)
-		if err != nil {
-			a.abortTransaction(sessionContext)
-			return errors.WrapErrorAction(logutils.ActionCommit, logutils.TypeTransaction, nil, err)
-		}
-		return nil
-	})
-
-	return err
-}
-
-func (a *Adapter) abortTransaction(sessionContext mongo.SessionContext) {
-	err := sessionContext.AbortTransaction(sessionContext)
-	if err != nil {
-		a.db.logger.Errorf("error aborting a transaction: %s", err)
+		return nil, nil
 	}
+
+	session, err := a.db.dbClient.StartSession()
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionStart, "mongo session", nil, err)
+	}
+	context := context.Background()
+	defer session.EndSession(context)
+
+	_, err = session.WithTransaction(context, callback)
+	if err != nil {
+		return errors.WrapErrorAction("performing", logutils.TypeTransaction, nil, err)
+	}
+	return nil
 }
 
 func filterArgs(filter bson.M) *logutils.FieldArgs {

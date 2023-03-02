@@ -33,11 +33,10 @@ type AnalyticsAPIsHandler struct {
 }
 
 func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	surveyTypeRaw := r.URL.Query().Get("survey_type")
-	if surveyTypeRaw == "" {
+	surveyType := r.URL.Query().Get("survey_type")
+	if surveyType == "" {
 		return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("survey_type"), nil, http.StatusBadRequest, false)
 	}
-	surveyTypes := []string{surveyTypeRaw}
 
 	timeOffsetRaw := r.URL.Query().Get("time_offset")
 	var timeOffset int // hours
@@ -80,7 +79,7 @@ func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.R
 		endDate = &now
 	}
 
-	resData, err := h.app.Client.GetSurveyResponses(nil, nil, nil, nil, surveyTypes, startDate, endDate, nil, nil)
+	resData, err := h.app.Analytics.GetSurveyResponses(surveyType, startDate, endDate)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}

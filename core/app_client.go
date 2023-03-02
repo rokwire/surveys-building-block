@@ -61,8 +61,8 @@ func (a appClient) GetSurveyResponse(id string, orgID string, appID string, user
 }
 
 // GetSurveyResponses returns the survey responses matching the provided filters
-func (a appClient) GetSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	return a.app.storage.GetSurveyResponses(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
+func (a appClient) GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return a.app.storage.GetSurveyResponses(&orgID, &appID, &userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 }
 
 // CreateSurveyResponse creates a new survey response

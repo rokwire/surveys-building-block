@@ -15,5 +15,7 @@ OptionData:
   $ref: "./surveys/OptionData.yaml"
 SurveyResponse:
   $ref: "./surveys/SurveyResponse.yaml"
+SurveyResponseAnonymous:
+  $ref: "./surveys/SurveyResponseAnonymous.yaml"
 AlertContact:
   $ref: "./surveys/AlertContact.yaml"
