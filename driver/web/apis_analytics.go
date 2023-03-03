@@ -91,7 +91,7 @@ func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.R
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypeQueryParam, &logutils.ListArgs{"end_date", "time_offset"}, nil, http.StatusBadRequest, false)
 	}
 
-	if startDate == nil && endDate == nil {
+	if startDate == nil || endDate == nil {
 		now := time.Now()
 		offsetHours := now.Add(time.Duration(-timeOffset) * time.Hour)
 		startDate = &offsetHours
