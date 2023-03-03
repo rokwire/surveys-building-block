@@ -69,12 +69,12 @@ func (a *Adapter) RegisterStorageListener(listener interfaces.StorageListener) {
 }
 
 // Creates a new Adapter with provided context
-func (a Adapter) withContext(context mongo.SessionContext) *Adapter {
+func (a *Adapter) withContext(context mongo.SessionContext) *Adapter {
 	return &Adapter{db: a.db, context: context, cachedConfigs: a.cachedConfigs, configsLock: a.configsLock}
 }
 
 // cacheConfigs caches the configs from the DB
-func (a Adapter) cacheConfigs() error {
+func (a *Adapter) cacheConfigs() error {
 	a.db.logger.Info("cacheConfigs...")
 
 	configs, err := a.loadConfigs()
@@ -87,7 +87,7 @@ func (a Adapter) cacheConfigs() error {
 	return nil
 }
 
-func (a Adapter) setCachedConfigs(configs []model.Config) {
+func (a *Adapter) setCachedConfigs(configs []model.Config) {
 	a.configsLock.Lock()
 	defer a.configsLock.Unlock()
 
@@ -125,7 +125,7 @@ func parseConfigsData[T model.ConfigData](config *model.Config) error {
 	return nil
 }
 
-func (a Adapter) getCachedConfig(id string, configType string, appID string, orgID string) (*model.Config, error) {
+func (a *Adapter) getCachedConfig(id string, configType string, appID string, orgID string) (*model.Config, error) {
 	a.configsLock.RLock()
 	defer a.configsLock.RUnlock()
 
@@ -149,7 +149,7 @@ func (a Adapter) getCachedConfig(id string, configType string, appID string, org
 	return nil, nil
 }
 
-func (a Adapter) getCachedConfigs(configType *string) ([]model.Config, error) {
+func (a *Adapter) getCachedConfigs(configType *string) ([]model.Config, error) {
 	a.configsLock.RLock()
 	defer a.configsLock.RUnlock()
 
@@ -181,7 +181,7 @@ func (a Adapter) getCachedConfigs(configType *string) ([]model.Config, error) {
 }
 
 // loadConfigs loads configs
-func (a Adapter) loadConfigs() ([]model.Config, error) {
+func (a *Adapter) loadConfigs() ([]model.Config, error) {
 	filter := bson.M{}
 
 	var configs []model.Config
@@ -194,22 +194,22 @@ func (a Adapter) loadConfigs() ([]model.Config, error) {
 }
 
 // FindConfigByID gets a config from cache by its ID
-func (a Adapter) FindConfigByID(id string) (*model.Config, error) {
+func (a *Adapter) FindConfigByID(id string) (*model.Config, error) {
 	return a.getCachedConfig(id, "", "", "")
 }
 
 // FindConfig finds the config for the specified type, appID, and orgID
-func (a Adapter) FindConfig(configType string, appID string, orgID string) (*model.Config, error) {
+func (a *Adapter) FindConfig(configType string, appID string, orgID string) (*model.Config, error) {
 	return a.getCachedConfig("", configType, appID, orgID)
 }
 
 // FindConfigs finds all configs for the specified type
-func (a Adapter) FindConfigs(configType *string) ([]model.Config, error) {
+func (a *Adapter) FindConfigs(configType *string) ([]model.Config, error) {
 	return a.getCachedConfigs(configType)
 }
 
 // InsertConfig inserts the provided config
-func (a Adapter) InsertConfig(config model.Config) error {
+func (a *Adapter) InsertConfig(config model.Config) error {
 	_, err := a.db.configs.InsertOneWithContext(a.context, config)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionInsert, model.TypeConfig, nil, err)
@@ -219,7 +219,7 @@ func (a Adapter) InsertConfig(config model.Config) error {
 }
 
 // DeleteConfig deletes a config
-func (a Adapter) DeleteConfig(id string) error {
+func (a *Adapter) DeleteConfig(id string) error {
 	filter := bson.M{"_id": id}
 
 	res, err := a.db.configs.DeleteOneWithContext(a.context, filter, nil)
@@ -234,7 +234,7 @@ func (a Adapter) DeleteConfig(id string) error {
 }
 
 // PerformTransaction performs a transaction
-func (a Adapter) PerformTransaction(transaction func(storage interfaces.Storage) error) error {
+func (a *Adapter) PerformTransaction(transaction func(storage interfaces.Storage) error) error {
 	// transaction
 	callback := func(sessionContext mongo.SessionContext) (interface{}, error) {
 		adapter := a.withContext(sessionContext)
