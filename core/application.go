@@ -18,6 +18,7 @@ import (
 	"application/core/interfaces"
 	"application/core/model"
 
+	"github.com/rokwire/core-auth-library-go/v3/authutils"
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
@@ -64,11 +65,14 @@ func (a *Application) Start() {
 // GetEnvConfigs retrieves the cached database env configs
 func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 	// Load env configs from database
-	config, err := a.storage.GetConfig(model.ConfigIDEnv)
+	config, err := a.storage.FindConfig(model.ConfigTypeEnv, authutils.AllApps, authutils.AllOrgs)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, nil, err)
 	}
-	return config.DataAsEnvConfig()
+	if config == nil {
+		return nil, errors.ErrorData(logutils.StatusMissing, model.TypeConfig, &logutils.FieldArgs{"type": model.ConfigTypeEnv, "app_id": authutils.AllApps, "org_id": authutils.AllOrgs})
+	}
+	return model.GetConfigData[model.EnvConfigData](*config)
 }
 
 // NewApplication creates new Application

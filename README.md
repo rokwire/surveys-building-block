@@ -21,9 +21,9 @@ The API documentation is available here: https://api-dev.rokwire.illinois.edu/su
 ## Set Up
 
 ### Prerequisites
-MongoDB v4.2.2+
+MongoDB v4.4+
 
-Go v1.18+
+Go v1.20+
 
 ### Environment variables
 The following Environment variables are supported. The service will not start unless those marked as Required are supplied.
@@ -146,3 +146,10 @@ This repository is configured with a [pre-commit](https://pre-commit.com/) hook 
 $ git pull  # Pull in pre-commit configuration & baseline 
 $ pip install pre-commit 
 $ pre-commit install
+```
+
+If detect-secrets returns an error, ensure that the value it detected is not a secret, then run the following to update the secrets baseline file to match the current state of the codebase:
+
+```
+detect-secrets scan --baseline .secrets.baseline
+```

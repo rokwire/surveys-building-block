@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package web
+package core_test
 
-import "application/core"
+import (
+	"application/core/interfaces"
+	"application/core/interfaces/mocks"
 
-// SystemAPIsHandler handles the rest system admin APIs implementation
-type SystemAPIsHandler struct {
-	app *core.Application
-}
+	"github.com/stretchr/testify/mock"
+)
 
-// NewSystemAPIsHandler creates new system admin API handler instance
-func NewSystemAPIsHandler(app *core.Application) SystemAPIsHandler {
-	return SystemAPIsHandler{app: app}
+func mockPerformTransaction(storage *mocks.Storage) {
+	storage.On("PerformTransaction", mock.AnythingOfType("func(interfaces.Storage) error")).Return(func(arg func(storage interfaces.Storage) error) error {
+		return arg(storage)
+	})
 }
