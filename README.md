@@ -153,3 +153,8 @@ If detect-secrets returns an error, ensure that the value it detected is not a s
 ```
 detect-secrets scan --baseline .secrets.baseline
 ```
+
+### Environment Variables
+All environment variables **MUST** be declared in the appropriate section of [app-env.json](app-env.json). Declare all secret environment variables in the `app_secret` section and all others in the `app_config` section. 
+
+If the default value of a config is known and should be consistent across environments, provide the value directly in this file. Please note that this **DOES NOT** apply to secrets, as secret values **MUST NOT** be pushed to this repository. For other configs and all secrets, provide a hint for all required values and set all optional values to an empty string (ie. `""`). 
