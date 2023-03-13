@@ -17,9 +17,6 @@ package web
 import (
 	"application/core"
 	"application/core/model"
-	"application/utils"
-	"crypto/subtle"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -37,20 +34,6 @@ type AnalyticsAPIsHandler struct {
 }
 
 func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	// validate static token by comparing it against env config
-	token, err := tokenauth.GetAccessToken(r)
-	if err != nil {
-		return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, nil, http.StatusUnauthorized, false)
-	}
-	envConfig, err := h.app.GetEnvConfigs()
-	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), nil, http.StatusInternalServerError, false)
-	}
-	hashedToken := utils.SHA256Hash([]byte(token))
-	if subtle.ConstantTimeCompare([]byte(base64.StdEncoding.EncodeToString(hashedToken)), []byte(envConfig.SplunkToken)) == 0 {
-		return l.HTTPResponseErrorAction(logutils.ActionValidate, logutils.TypeToken, nil, nil, http.StatusUnauthorized, false)
-	}
-
 	surveyTypesRaw := r.URL.Query().Get("survey_types")
 	var surveyTypes []string
 	if len(surveyTypesRaw) > 0 {
@@ -103,14 +86,7 @@ func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.R
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
 
-	anonResData := make([]model.SurveyResponseAnonymous, len(resData))
-	for i, surveyRes := range resData {
-		anonResData[i] = model.SurveyResponseAnonymous{ID: surveyRes.Survey.ID, CreatorID: surveyRes.Survey.CreatorID, AppID: surveyRes.Survey.AppID,
-			OrgID: surveyRes.Survey.OrgID, Title: surveyRes.Survey.Title, Type: surveyRes.Survey.Type, SurveyStats: surveyRes.Survey.SurveyStats,
-			DateCreated: surveyRes.Survey.DateCreated, DateUpdated: surveyRes.Survey.DateUpdated}
-	}
-
-	data, err := json.Marshal(anonResData)
+	data, err := json.Marshal(resData)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}

@@ -73,7 +73,7 @@ type Admin interface {
 
 // Analytics exposes Analytics APIs for the driver adapters
 type Analytics interface {
-	GetSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error)
+	GetSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponseAnonymous, error)
 }
 
 // BBs exposes Building Block APIs for the driver adapters

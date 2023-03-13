@@ -108,7 +108,7 @@ func (a Adapter) Start() {
 
 	// Analytics APIs
 	analyticsRouter := mainRouter.PathPrefix("/analytics").Subrouter()
-	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, nil)).Methods("GET")
+	analyticsRouter.HandleFunc("/survey-responses", a.wrapFunc(a.analyticsAPIsHandler.getAnonymousSurveyResponses, a.auth.analytics)).Methods("GET")
 
 	// BB APIs
 	// bbsRouter := mainRouter.PathPrefix("/bbs").Subrouter()
@@ -180,7 +180,9 @@ func (a Adapter) wrapFunc(handler handlerFunc, authorization tokenauth.Handler) 
 				return
 			}
 
-			logObj.SetContext("account_id", claims.Subject)
+			if claims != nil {
+				logObj.SetContext("account_id", claims.Subject)
+			}
 			response = handler(logObj, req, claims)
 		} else {
 			response = handler(logObj, req, nil)
@@ -198,7 +200,7 @@ func NewWebAdapter(baseURL string, port string, serviceID string, app *core.Appl
 		logger.Fatalf("error parsing docs yaml - %s", err.Error())
 	}
 
-	auth, err := NewAuth(serviceRegManager)
+	auth, err := NewAuth(serviceRegManager, app)
 	if err != nil {
 		logger.Fatalf("error creating auth - %s", err.Error())
 	}

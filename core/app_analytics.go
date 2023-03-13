@@ -17,6 +17,9 @@ package core
 import (
 	"application/core/model"
 	"time"
+
+	"github.com/rokwire/logging-library-go/v2/errors"
+	"github.com/rokwire/logging-library-go/v2/logutils"
 )
 
 // appAnalytics contains analytics implementations
@@ -26,8 +29,21 @@ type appAnalytics struct {
 
 // Survey Response
 // GetSurveyResponses returns the survey responses matching the provided filters
-func (a appAnalytics) GetSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponse, error) {
-	return a.app.storage.GetSurveyResponses(nil, nil, nil, nil, surveyTypes, startDate, endDate, nil, nil)
+func (a appAnalytics) GetSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponseAnonymous, error) {
+	// GetSurveyResponses returns the survey responses matching the provided filters
+	responses, err := a.app.storage.GetSurveyResponses(nil, nil, nil, nil, surveyTypes, startDate, endDate, nil, nil)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err)
+	}
+
+	anonResData := make([]model.SurveyResponseAnonymous, len(responses))
+	for i, surveyRes := range responses {
+		anonResData[i] = model.SurveyResponseAnonymous{ID: surveyRes.Survey.ID, CreatorID: surveyRes.Survey.CreatorID, AppID: surveyRes.Survey.AppID,
+			OrgID: surveyRes.Survey.OrgID, Title: surveyRes.Survey.Title, Type: surveyRes.Survey.Type, SurveyStats: surveyRes.Survey.SurveyStats,
+			DateCreated: surveyRes.Survey.DateCreated, DateUpdated: surveyRes.Survey.DateUpdated}
+	}
+
+	return anonResData, nil
 }
 
 // newAppAnalytics creates new appAnalytics
