@@ -21,10 +21,11 @@ import (
 	"application/driver/web"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
-	"github.com/rokwire/core-auth-library-go/v2/authservice"
-	"github.com/rokwire/core-auth-library-go/v2/envloader"
-	"github.com/rokwire/core-auth-library-go/v2/sigauth"
+	"github.com/rokwire/core-auth-library-go/v3/keys"
+
+	"github.com/rokwire/core-auth-library-go/v3/authservice"
+	"github.com/rokwire/core-auth-library-go/v3/envloader"
+	"github.com/rokwire/core-auth-library-go/v3/sigauth"
 	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
@@ -46,13 +47,13 @@ func main() {
 	logger := logs.NewLogger(serviceID, &loggerOpts)
 	envLoader := envloader.NewEnvLoader(Version, logger)
 
-	envPrefix := strings.ToUpper(serviceID) + "_"
+	envPrefix := strings.ReplaceAll(strings.ToUpper(serviceID), "-", "_") + "_"
 	port := envLoader.GetAndLogEnvVar(envPrefix+"PORT", false, false)
 	if len(port) == 0 {
 		port = "80"
 	}
 
-	// MongoDB adapter
+	// mongoDB adapter
 	mongoDBAuth := envLoader.GetAndLogEnvVar(envPrefix+"MONGO_AUTH", true, true)
 	mongoDBName := envLoader.GetAndLogEnvVar(envPrefix+"MONGO_DATABASE", true, false)
 	mongoTimeout := envLoader.GetAndLogEnvVar(envPrefix+"MONGO_TIMEOUT", false, false)
@@ -78,7 +79,12 @@ func main() {
 		logger.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
 
-	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceRegLoader)
+	var serviceRegManager *authservice.ServiceRegManager
+	if strings.HasPrefix(baseURL, "http://localhost") {
+		serviceRegManager, err = authservice.NewTestServiceRegManager(&authService, serviceRegLoader)
+	} else {
+		serviceRegManager, err = authservice.NewServiceRegManager(&authService, serviceRegLoader)
+	}
 	if err != nil {
 		logger.Fatalf("Error initializing service registration manager: %v", err)
 	}
@@ -86,12 +92,14 @@ func main() {
 	// Service account
 	serviceAccountID := envLoader.GetAndLogEnvVar(envPrefix+"SERVICE_ACCOUNT_ID", true, false)
 	privKeyRaw := envLoader.GetAndLogEnvVar(envPrefix+"PRIV_KEY", true, true)
-	privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
-	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privKeyRaw))
+	// privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
+
+	privKey, err := keys.NewPrivKey(keys.RS256, privKeyRaw)
 	if err != nil {
 		logger.Fatalf("Error parsing priv key: %v", err)
 	}
-	signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false)
+
+	signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false, false)
 	if err != nil {
 		logger.Fatalf("Error initializing signature auth: %v", err)
 	}

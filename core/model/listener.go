@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package web
+package model
 
-import "application/core"
+// DefaultStorageListener default storage listener implementation
+type DefaultStorageListener struct{}
 
-// SystemAPIsHandler handles the rest system admin APIs implementation
-type SystemAPIsHandler struct {
-	app *core.Application
-}
+// OnConfigsUpdated notifies that the configs collection has been updated
+func (d *DefaultStorageListener) OnConfigsUpdated() {}
 
-// NewSystemAPIsHandler creates new system admin API handler instance
-func NewSystemAPIsHandler(app *core.Application) SystemAPIsHandler {
-	return SystemAPIsHandler{app: app}
-}
+// OnExamplesUpdated notifies that the examples collection has been updated
+func (d *DefaultStorageListener) OnExamplesUpdated() {}

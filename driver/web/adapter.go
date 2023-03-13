@@ -25,8 +25,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/gorilla/mux"
-	"github.com/rokwire/core-auth-library-go/v2/authservice"
-	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
+	"github.com/rokwire/core-auth-library-go/v3/authservice"
+	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
@@ -87,11 +87,18 @@ func (a Adapter) Start() {
 
 	// Admin APIs
 	adminRouter := mainRouter.PathPrefix("/admin").Subrouter()
+	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.getConfig, a.auth.admin.Permissions)).Methods("GET")
+	adminRouter.HandleFunc("/configs", a.wrapFunc(a.adminAPIsHandler.getConfigs, a.auth.admin.Permissions)).Methods("GET")
+	adminRouter.HandleFunc("/configs", a.wrapFunc(a.adminAPIsHandler.createConfig, a.auth.admin.Permissions)).Methods("POST")
+	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.updateConfig, a.auth.admin.Permissions)).Methods("PUT")
+	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.deleteConfig, a.auth.admin.Permissions)).Methods("DELETE")
+
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.getSurveys, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.getSurvey, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.createSurvey, a.auth.admin.Permissions)).Methods("POST")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.updateSurvey, a.auth.admin.Permissions)).Methods("PUT")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.deleteSurvey, a.auth.admin.Permissions)).Methods("DELETE")
+
 	adminRouter.HandleFunc("/alert-contacts", a.wrapFunc(a.adminAPIsHandler.getAlertContacts, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/alert-contacts/{id}", a.wrapFunc(a.adminAPIsHandler.getAlertContact, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/alert-contacts", a.wrapFunc(a.adminAPIsHandler.createAlertContact, a.auth.admin.Permissions)).Methods("POST")
@@ -105,10 +112,7 @@ func (a Adapter) Start() {
 	// tpsRouter := mainRouter.PathPrefix("/tps").Subrouter()
 
 	// System APIs
-	systemRouter := mainRouter.PathPrefix("/system").Subrouter()
-	systemRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.systemAPIsHandler.getConfig, a.auth.system.Permissions)).Methods("GET")
-	systemRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.systemAPIsHandler.saveConfig, a.auth.system.Permissions)).Methods("PUT")
-	systemRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.systemAPIsHandler.deleteConfig, a.auth.system.Permissions)).Methods("DELETE")
+	// systemRouter := mainRouter.PathPrefix("/system").Subrouter()
 
 	a.logger.Fatalf("Error serving: %v", http.ListenAndServe(":"+a.port, router))
 }
