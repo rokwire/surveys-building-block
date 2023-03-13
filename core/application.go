@@ -18,7 +18,7 @@ import (
 	"application/core/interfaces"
 	"application/core/model"
 
-	"github.com/rokwire/core-auth-library-go/v2/authutils"
+	"github.com/rokwire/core-auth-library-go/v3/authutils"
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
@@ -71,7 +71,7 @@ func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, nil, err)
 	}
 	if config == nil {
-		return nil, errors.ErrorData(logutils.StatusMissing, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv))
+		return nil, errors.ErrorData(logutils.StatusMissing, model.TypeConfig, &logutils.FieldArgs{"type": model.ConfigTypeEnv, "app_id": authutils.AllApps, "org_id": authutils.AllOrgs})
 	}
 	return model.GetConfigData[model.EnvConfigData](*config)
 }

@@ -43,6 +43,11 @@ paths:
     $ref: "./resources/client/survey-alerts.yaml"  
 
   # Admin
+  /api/admin/configs:
+    $ref: "./resources/admin/configs.yaml"
+  /api/admin/configs/{id}:
+    $ref: "./resources/admin/configs-id.yaml"
+
   /api/admin/surveys:
     $ref: "./resources/admin/surveys.yaml"     
   /api/admin/surveys/{id}:
@@ -65,10 +70,6 @@ paths:
   #   $ref: "./resources/tps/examples-id.yaml"
 
   # System
-  /api/system/configs:
-    $ref: "./resources/system/configs.yaml"
-  /api/system/configs/{id}:
-    $ref: "./resources/system/configs-id.yaml"
     
 components:
   securitySchemes:

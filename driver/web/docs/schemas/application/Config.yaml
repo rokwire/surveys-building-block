@@ -15,8 +15,10 @@ properties:
   type:
     type: string
   app_id:
+    readOnly: true
     type: string
   org_id:
+    readOnly: true
     type: string
   system:
     type: boolean

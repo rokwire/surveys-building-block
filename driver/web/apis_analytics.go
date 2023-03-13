@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
+	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
 )
@@ -38,7 +38,7 @@ type AnalyticsAPIsHandler struct {
 
 func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
 	// validate static token by comparing it against env config
-	token, _, err := tokenauth.GetRequestTokens(r)
+	token, err := tokenauth.GetAccessToken(r)
 	if err != nil {
 		return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, nil, http.StatusUnauthorized, false)
 	}

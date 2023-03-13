@@ -26,8 +26,10 @@ const (
 	TypeConfig logutils.MessageDataType = "config"
 	// TypeConfigData config data type
 	TypeConfigData logutils.MessageDataType = "config data"
+	// TypeEnvConfigData env configs type
+	TypeEnvConfigData logutils.MessageDataType = "env config data"
 
-	// ConfigTypeEnv is the config type for EnvConfigData
+	// ConfigTypeEnv is the Config Type for EnvConfigData
 	ConfigTypeEnv string = "env"
 )
 

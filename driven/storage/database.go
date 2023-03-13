@@ -110,7 +110,7 @@ func (d *database) start() error {
 func (d *database) applyConfigsChecks(configs *collectionWrapper) error {
 	d.logger.Info("apply configs checks.....")
 
-	err := configs.AddIndex(bson.D{primitive.E{Key: "type", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "org_id", Value: 1}}, true)
+	err := configs.AddIndex(nil, bson.D{primitive.E{Key: "type", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "org_id", Value: 1}}, true)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (d *database) applyConfigsChecks(configs *collectionWrapper) error {
 func (d *database) applySurveysChecks(surveys *collectionWrapper) error {
 	d.logger.Info("apply surveys checks.....")
 
-	err := surveys.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "creator_id", Value: 1}}, false)
+	err := surveys.AddIndex(nil, bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "creator_id", Value: 1}}, false)
 	if err != nil {
 		return err
 	}
@@ -134,12 +134,12 @@ func (d *database) applySurveysChecks(surveys *collectionWrapper) error {
 func (d *database) applySurveyResponsesChecks(surveyResponses *collectionWrapper) error {
 	d.logger.Info("apply survey responses checks.....")
 
-	err := surveyResponses.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "user_id", Value: 1}}, false)
+	err := surveyResponses.AddIndex(nil, bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "user_id", Value: 1}}, false)
 	if err != nil {
 		return err
 	}
 
-	err = surveyResponses.AddIndex(bson.D{primitive.E{Key: "survey._id", Value: 1}}, false)
+	err = surveyResponses.AddIndex(nil, bson.D{primitive.E{Key: "survey._id", Value: 1}}, false)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (d *database) applySurveyResponsesChecks(surveyResponses *collectionWrapper
 func (d *database) applyAlertContactsChecks(alertContacts *collectionWrapper) error {
 	d.logger.Info("apply alert contacts checks.....")
 
-	err := alertContacts.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "key", Value: 1}}, false)
+	err := alertContacts.AddIndex(nil, bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "key", Value: 1}}, false)
 	if err != nil {
 		return err
 	}

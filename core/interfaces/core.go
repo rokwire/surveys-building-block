@@ -17,6 +17,8 @@ package interfaces
 import (
 	"application/core/model"
 	"time"
+
+	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 )
 
 // Default exposes client APIs for the driver adapters
@@ -47,6 +49,13 @@ type Client interface {
 
 // Admin exposes administrative APIs for the driver adapters
 type Admin interface {
+	// Configs
+	GetConfig(id string, claims *tokenauth.Claims) (*model.Config, error)
+	GetConfigs(configType *string, claims *tokenauth.Claims) ([]model.Config, error)
+	CreateConfig(config model.Config, claims *tokenauth.Claims) (*model.Config, error)
+	UpdateConfig(config model.Config, claims *tokenauth.Claims) error
+	DeleteConfig(id string, claims *tokenauth.Claims) error
+
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
@@ -77,8 +86,4 @@ type TPS interface {
 
 // System exposes system administrative APIs for the driver adapters
 type System interface {
-	GetConfig(id string) (*model.Config, error)
-	GetConfigs(configType *string) ([]model.Config, error)
-	CreateConfig(config model.Config) error
-	DeleteConfig(id string) error
 }

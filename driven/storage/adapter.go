@@ -30,6 +30,7 @@ import (
 	"golang.org/x/sync/syncmap"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -185,7 +186,7 @@ func (a *Adapter) loadConfigs() ([]model.Config, error) {
 	filter := bson.M{}
 
 	var configs []model.Config
-	err := a.db.configs.FindWithContext(a.context, filter, &configs, nil)
+	err := a.db.configs.Find(a.context, filter, &configs, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeConfig, nil, err)
 	}
@@ -193,14 +194,14 @@ func (a *Adapter) loadConfigs() ([]model.Config, error) {
 	return configs, nil
 }
 
-// FindConfigByID gets a config from cache by its ID
-func (a *Adapter) FindConfigByID(id string) (*model.Config, error) {
-	return a.getCachedConfig(id, "", "", "")
-}
-
 // FindConfig finds the config for the specified type, appID, and orgID
 func (a *Adapter) FindConfig(configType string, appID string, orgID string) (*model.Config, error) {
 	return a.getCachedConfig("", configType, appID, orgID)
+}
+
+// FindConfigByID finds the config for the specified ID
+func (a *Adapter) FindConfigByID(id string) (*model.Config, error) {
+	return a.getCachedConfig(id, "", "", "")
 }
 
 // FindConfigs finds all configs for the specified type
@@ -208,9 +209,9 @@ func (a *Adapter) FindConfigs(configType *string) ([]model.Config, error) {
 	return a.getCachedConfigs(configType)
 }
 
-// InsertConfig inserts the provided config
+// InsertConfig inserts a new config
 func (a *Adapter) InsertConfig(config model.Config) error {
-	_, err := a.db.configs.InsertOneWithContext(a.context, config)
+	_, err := a.db.configs.InsertOne(a.context, config)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionInsert, model.TypeConfig, nil, err)
 	}
@@ -218,16 +219,33 @@ func (a *Adapter) InsertConfig(config model.Config) error {
 	return nil
 }
 
-// DeleteConfig deletes a config
-func (a *Adapter) DeleteConfig(id string) error {
-	filter := bson.M{"_id": id}
-
-	res, err := a.db.configs.DeleteOneWithContext(a.context, filter, nil)
-	if err != nil {
-		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeConfig, filterArgs(filter), err)
+// UpdateConfig updates an existing config
+func (a *Adapter) UpdateConfig(config model.Config) error {
+	filter := bson.M{"_id": config.ID}
+	update := bson.D{
+		primitive.E{Key: "$set", Value: bson.D{
+			primitive.E{Key: "type", Value: config.Type},
+			primitive.E{Key: "app_id", Value: config.AppID},
+			primitive.E{Key: "org_id", Value: config.OrgID},
+			primitive.E{Key: "system", Value: config.System},
+			primitive.E{Key: "data", Value: config.Data},
+			primitive.E{Key: "date_updated", Value: config.DateUpdated},
+		}},
 	}
-	if res.DeletedCount != 1 {
-		return errors.ErrorData(logutils.StatusMissing, model.TypeConfig, filterArgs(filter))
+	_, err := a.db.configs.UpdateOne(a.context, filter, update, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionUpdate, model.TypeConfig, &logutils.FieldArgs{"id": config.ID}, err)
+	}
+
+	return nil
+}
+
+// DeleteConfig deletes a configuration from storage
+func (a *Adapter) DeleteConfig(id string) error {
+	delFilter := bson.M{"_id": id}
+	_, err := a.db.configs.DeleteMany(a.context, delFilter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeConfig, &logutils.FieldArgs{"id": id}, err)
 	}
 
 	return nil

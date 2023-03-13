@@ -12,16 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package web
-
-import "application/core"
-
-// SystemAPIsHandler handles the rest system admin APIs implementation
-type SystemAPIsHandler struct {
-	app *core.Application
-}
-
-// NewSystemAPIsHandler creates new system admin API handler instance
-func NewSystemAPIsHandler(app *core.Application) SystemAPIsHandler {
-	return SystemAPIsHandler{app: app}
-}
+package core_test
