@@ -146,7 +146,7 @@ func (a Adapter) loadConfigs() ([]model.Config, error) {
 	filter := bson.M{}
 
 	var configs []model.Config
-	err := a.db.configs.FindWithContext(a.context, filter, &configs, nil)
+	err := a.db.configs.Find(a.context, filter, &configs, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeConfig, nil, err)
 	}
@@ -161,7 +161,7 @@ func (a Adapter) GetConfig(id string) (*model.Config, error) {
 
 // SaveConfig saves provided configs
 func (a Adapter) SaveConfig(configs model.Config) error {
-	_, err := a.db.configs.InsertOneWithContext(a.context, configs)
+	_, err := a.db.configs.InsertOne(a.context, configs)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionInsert, model.TypeConfig, nil, err)
 	}
@@ -173,7 +173,7 @@ func (a Adapter) SaveConfig(configs model.Config) error {
 func (a Adapter) DeleteConfig(id string) error {
 	filter := bson.M{"_id": id}
 
-	res, err := a.db.configs.DeleteOneWithContext(a.context, filter, nil)
+	res, err := a.db.configs.DeleteOne(a.context, filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeConfig, filterArgs(filter), err)
 	}
