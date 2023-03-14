@@ -2,7 +2,7 @@ FROM golang:1.20-alpine as builder
 
 ENV CGO_ENABLED=0
 
-RUN apk add --no-cache --update make
+RUN apk add --no-cache --update make git
 
 RUN mkdir /app
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN make
 FROM alpine:3.17.2
 
 #we need timezone database
-RUN apk --no-cache add tzdata
+RUN apk add --no-cache --update tzdata
 
 COPY --from=builder /app/bin/application /
 COPY --from=builder /app/driver/web/docs/gen/def.yaml /driver/web/docs/gen/def.yaml
@@ -27,7 +27,6 @@ COPY --from=builder /app/driver/web/system_permission_policy.csv /driver/web/sys
 
 COPY --from=builder /app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_scope.conf /app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_scope.conf
 COPY --from=builder /app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_string.conf /app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_string.conf
-
 
 COPY --from=builder /etc/passwd /etc/passwd
 
