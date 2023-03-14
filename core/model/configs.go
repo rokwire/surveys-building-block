@@ -47,7 +47,7 @@ type Config struct {
 
 // EnvConfigData contains environment configs for this service
 type EnvConfigData struct {
-	SplunkToken string `json:"splunk_token" bson:"splunk_token"`
+	AnalyticsToken string `json:"analytics_token" bson:"analytics_token"`
 }
 
 // GetConfigData returns a pointer to the given config's Data as the given type T

@@ -209,7 +209,7 @@ func (a *analyticsTokenAuth) Check(req *http.Request) (int, *tokenauth.Claims, e
 		return http.StatusInternalServerError, nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
 	}
 	hashedToken := utils.SHA256Hash([]byte(token))
-	if subtle.ConstantTimeCompare([]byte(base64.StdEncoding.EncodeToString(hashedToken)), []byte(envConfig.SplunkToken)) == 0 {
+	if subtle.ConstantTimeCompare([]byte(base64.StdEncoding.EncodeToString(hashedToken)), []byte(envConfig.AnalyticsToken)) == 0 {
 		return http.StatusForbidden, nil, errors.WrapErrorData(logutils.StatusInvalid, logutils.TypeToken, nil, err)
 	}
 	return http.StatusOK, nil, nil
