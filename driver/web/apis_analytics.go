@@ -81,7 +81,7 @@ func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.R
 		endDate = &now
 	}
 
-	resData, err := h.app.Analytics.GetSurveyResponses(surveyTypes, startDate, endDate)
+	resData, err := h.app.Analytics.GetAnonymousSurveyResponses(surveyTypes, startDate, endDate)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
