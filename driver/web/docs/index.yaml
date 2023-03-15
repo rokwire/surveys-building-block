@@ -57,6 +57,9 @@ paths:
   /api/admin/alert-contacts/{id}:
     $ref: "./resources/admin/alert-contactids.yaml" 
 
+  # Analytics
+  /api/analytics/survey-responses:
+    $ref: "./resources/analytics/survey-responses.yaml"  
 
   # BBs
   # /api/bbs/examples/{id}:

@@ -42,12 +42,12 @@ type Config struct {
 	System      bool        `json:"system" bson:"system"`
 	Data        interface{} `json:"data" bson:"data"`
 	DateCreated time.Time   `json:"date_created" bson:"date_created"`
-	DateUpdated *time.Time  `json:"date_updated" bson:"date_updated"`
+	DateUpdated *time.Time  `json:"date_updated,omitempty" bson:"date_updated"`
 }
 
 // EnvConfigData contains environment configs for this service
 type EnvConfigData struct {
-	ExampleEnv string `json:"example_env" bson:"example_env"`
+	AnalyticsToken string `json:"analytics_token" bson:"analytics_token"`
 }
 
 // GetConfigData returns a pointer to the given config's Data as the given type T

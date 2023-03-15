@@ -374,15 +374,15 @@ func (_m *Storage) GetSurveyResponse(id string, orgID string, appID string, user
 }
 
 // GetSurveyResponses provides a mock function with given fields: orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset
-func (_m *Storage) GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+func (_m *Storage) GetSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	ret := _m.Called(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 
 	var r0 []model.SurveyResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, string, []string, []string, *time.Time, *time.Time, *int, *int) ([]model.SurveyResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(*string, *string, *string, []string, []string, *time.Time, *time.Time, *int, *int) ([]model.SurveyResponse, error)); ok {
 		return rf(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string, []string, []string, *time.Time, *time.Time, *int, *int) []model.SurveyResponse); ok {
+	if rf, ok := ret.Get(0).(func(*string, *string, *string, []string, []string, *time.Time, *time.Time, *int, *int) []model.SurveyResponse); ok {
 		r0 = rf(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
@@ -390,7 +390,7 @@ func (_m *Storage) GetSurveyResponses(orgID string, appID string, userID string,
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, []string, []string, *time.Time, *time.Time, *int, *int) error); ok {
+	if rf, ok := ret.Get(1).(func(*string, *string, *string, []string, []string, *time.Time, *time.Time, *int, *int) error); ok {
 		r1 = rf(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 	} else {
 		r1 = ret.Error(1)

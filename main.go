@@ -90,36 +90,42 @@ func main() {
 	}
 
 	// Service account
-	serviceAccountID := envLoader.GetAndLogEnvVar(envPrefix+"SERVICE_ACCOUNT_ID", true, false)
-	privKeyRaw := envLoader.GetAndLogEnvVar(envPrefix+"PRIV_KEY", true, true)
-	// privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
+	var serviceAccountManager *authservice.ServiceAccountManager
 
-	privKey, err := keys.NewPrivKey(keys.RS256, privKeyRaw)
+	serviceAccountID := envLoader.GetAndLogEnvVar(envPrefix+"SERVICE_ACCOUNT_ID", false, false)
+	privKeyRaw := envLoader.GetAndLogEnvVar(envPrefix+"PRIV_KEY", false, true)
+	privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
+	privKey, err := keys.NewPrivKey(keys.PS256, privKeyRaw)
 	if err != nil {
-		logger.Fatalf("Error parsing priv key: %v", err)
-	}
+		logger.Errorf("Error parsing priv key: %v", err)
+	} else if serviceAccountID == "" {
+		logger.Errorf("Missing service account id")
+	} else {
+		signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false, false)
+		if err != nil {
+			logger.Fatalf("Error initializing signature auth: %v", err)
+		}
 
-	signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false, false)
-	if err != nil {
-		logger.Fatalf("Error initializing signature auth: %v", err)
-	}
+		serviceAccountLoader, err := authservice.NewRemoteServiceAccountLoader(&authService, serviceAccountID, signatureAuth)
+		if err != nil {
+			logger.Fatalf("Error initializing remote service account loader: %v", err)
+		}
 
-	serviceAccountLoader, err := authservice.NewRemoteServiceAccountLoader(&authService, serviceAccountID, signatureAuth)
-	if err != nil {
-		logger.Fatalf("Error initializing remote service account loader: %v", err)
-	}
-
-	serviceAccountManager, err := authservice.NewServiceAccountManager(&authService, serviceAccountLoader)
-	if err != nil {
-		logger.Fatalf("Error initializing service account manager: %v", err)
+		serviceAccountManager, err = authservice.NewServiceAccountManager(&authService, serviceAccountLoader)
+		if err != nil {
+			logger.Fatalf("Error initializing service account manager: %v", err)
+		}
 	}
 
 	// Notifications adapter
+	notificationHost := ""
 	notificationsReg, err := serviceRegManager.GetServiceReg("notifications")
 	if err != nil {
-		logger.Fatalf("error finding notifications service reg: %s", err)
+		logger.Errorf("error finding notifications service reg: %s", err)
+	} else {
+		notificationHost = notificationsReg.Host
 	}
-	notificationsAdapter, err := notifications.NewNotificationsAdapter(notificationsReg.Host, serviceAccountManager, logger)
+	notificationsAdapter, err := notifications.NewNotificationsAdapter(notificationHost, serviceAccountManager, logger)
 	if err != nil {
 		logger.Fatalf("Error initializing notifications adapter: %v", err)
 	}

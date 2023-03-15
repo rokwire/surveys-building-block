@@ -51,7 +51,7 @@ func TestApplication_Start(t *testing.T) {
 }
 
 func TestApplication_GetEnvConfigs(t *testing.T) {
-	data := model.EnvConfigData{ExampleEnv: "example"}
+	data := model.EnvConfigData{AnalyticsToken: "example"}
 	config := model.Config{Type: model.ConfigTypeEnv, AppID: authutils.AllApps, OrgID: authutils.AllOrgs, Data: data, DateCreated: time.Now(), DateUpdated: nil}
 
 	storage := mocks.NewStorage(t)

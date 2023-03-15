@@ -41,13 +41,14 @@ type Application struct {
 	version string
 	build   string
 
-	Default interfaces.Default // expose to the drivers adapters
-	Client  interfaces.Client  // expose to the drivers adapters
-	Admin   interfaces.Admin   // expose to the drivers adapters
-	BBs     interfaces.BBs     // expose to the drivers adapters
-	TPS     interfaces.TPS     // expose to the drivers adapters
-	System  interfaces.System  // expose to the drivers adapters
-	shared  Shared
+	Default   interfaces.Default   // expose to the drivers adapters
+	Client    interfaces.Client    // expose to the drivers adapters
+	Admin     interfaces.Admin     // expose to the drivers adapters
+	Analytics interfaces.Analytics // expose to the drivers adapters
+	BBs       interfaces.BBs       // expose to the drivers adapters
+	TPS       interfaces.TPS       // expose to the drivers adapters
+	System    interfaces.System    // expose to the drivers adapters
+	shared    Shared
 
 	logger *logs.Logger
 
@@ -83,6 +84,7 @@ func NewApplication(version string, build string, storage interfaces.Storage, no
 	application.Default = newAppDefault(&application)
 	application.Client = newAppClient(&application)
 	application.Admin = newAppAdmin(&application)
+	application.Analytics = newAppAnalytics(&application)
 	application.BBs = newAppBBs(&application)
 	application.TPS = newAppTPS(&application)
 	application.System = newAppSystem(&application)

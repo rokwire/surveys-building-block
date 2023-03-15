@@ -63,6 +63,19 @@ type Survey struct {
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 }
 
+// SurveyResponseAnonymous represents an anonymized survey response
+type SurveyResponseAnonymous struct {
+	ID          string       `json:"id"`
+	CreatorID   string       `json:"creator_id"`
+	OrgID       string       `json:"org_id"`
+	AppID       string       `json:"app_id"`
+	Title       string       `json:"title"`
+	Type        string       `json:"type"`
+	SurveyStats *SurveyStats `json:"stats"`
+	DateCreated time.Time    `json:"date_created"`
+	DateUpdated *time.Time   `json:"date_updated,omitempty"`
+}
+
 // SurveyStats are stats of a Survey
 type SurveyStats struct {
 	Total         int                    `json:"total" bson:"total"`

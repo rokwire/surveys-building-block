@@ -49,6 +49,13 @@ type Client interface {
 
 // Admin exposes administrative APIs for the driver adapters
 type Admin interface {
+	// Configs
+	GetConfig(id string, claims *tokenauth.Claims) (*model.Config, error)
+	GetConfigs(configType *string, claims *tokenauth.Claims) ([]model.Config, error)
+	CreateConfig(config model.Config, claims *tokenauth.Claims) (*model.Config, error)
+	UpdateConfig(config model.Config, claims *tokenauth.Claims) error
+	DeleteConfig(id string, claims *tokenauth.Claims) error
+
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
@@ -62,12 +69,11 @@ type Admin interface {
 	CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error)
 	UpdateAlertContact(alertContact model.AlertContact) error
 	DeleteAlertContact(id string, orgID string, appID string) error
+}
 
-	GetConfig(id string, claims *tokenauth.Claims) (*model.Config, error)
-	GetConfigs(configType *string, claims *tokenauth.Claims) ([]model.Config, error)
-	CreateConfig(config model.Config, claims *tokenauth.Claims) (*model.Config, error)
-	UpdateConfig(config model.Config, claims *tokenauth.Claims) error
-	DeleteConfig(id string, claims *tokenauth.Claims) error
+// Analytics exposes Analytics APIs for the driver adapters
+type Analytics interface {
+	GetAnonymousSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponseAnonymous, error)
 }
 
 // BBs exposes Building Block APIs for the driver adapters
