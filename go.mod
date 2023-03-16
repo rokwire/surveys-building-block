@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
-	github.com/rokwire/core-auth-library-go/v3 v3.0.0
+	github.com/rokwire/core-auth-library-go/v3 v3.0.1
 	github.com/rokwire/logging-library-go/v2 v2.2.0
 	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/http-swagger v1.3.3
@@ -17,7 +17,7 @@ require (
 require (
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/aws/aws-sdk-go v1.44.220 // indirect
+	github.com/aws/aws-sdk-go v1.44.222 // indirect
 	github.com/casbin/casbin/v2 v2.65.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect

@@ -106,8 +106,8 @@ func newClientAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth
 		return http.StatusOK, nil
 	}
 
-	auth := tokenauth.NewScopeHandler(*clientTokenAuth, check)
-	return &auth, nil
+	auth := tokenauth.NewScopeHandler(clientTokenAuth, check)
+	return auth, nil
 }
 
 func newAdminAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.StandardHandler, error) {
@@ -125,8 +125,8 @@ func newAdminAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.
 		return http.StatusOK, nil
 	}
 
-	auth := tokenauth.NewStandardHandler(*adminTokenAuth, check)
-	return &auth, nil
+	auth := tokenauth.NewStandardHandler(adminTokenAuth, check)
+	return auth, nil
 }
 
 func newBBsAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.StandardHandler, error) {
@@ -148,8 +148,8 @@ func newBBsAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.St
 		return http.StatusOK, nil
 	}
 
-	auth := tokenauth.NewStandardHandler(*bbsTokenAuth, check)
-	return &auth, nil
+	auth := tokenauth.NewStandardHandler(bbsTokenAuth, check)
+	return auth, nil
 }
 
 func newTPSAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.StandardHandler, error) {
@@ -171,8 +171,8 @@ func newTPSAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.St
 		return http.StatusOK, nil
 	}
 
-	auth := tokenauth.NewStandardHandler(*tpsTokenAuth, check)
-	return &auth, nil
+	auth := tokenauth.NewStandardHandler(tpsTokenAuth, check)
+	return auth, nil
 }
 
 func newSystemAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth.StandardHandler, error) {
@@ -190,8 +190,8 @@ func newSystemAuth(serviceRegManager *authservice.ServiceRegManager) (*tokenauth
 		return http.StatusOK, nil
 	}
 
-	auth := tokenauth.NewStandardHandler(*systemTokenAuth, check)
-	return &auth, nil
+	auth := tokenauth.NewStandardHandler(systemTokenAuth, check)
+	return auth, nil
 }
 
 type analyticsTokenAuth struct {

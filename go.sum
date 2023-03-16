@@ -2,8 +2,10 @@ github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible h1
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
-github.com/aws/aws-sdk-go v1.44.220 h1:yAj99qAt0Htjle9Up3DglgHfOP77lmFPrElA4jKnrBo=
-github.com/aws/aws-sdk-go v1.44.220/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
+github.com/aws/aws-sdk-go v1.44.221 h1:yndn4uvLolKXPoXIwKHhO5XtwlTnJfXLBKXs84C5+hQ=
+github.com/aws/aws-sdk-go v1.44.221/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
+github.com/aws/aws-sdk-go v1.44.222 h1:hagcC+MrGo60DKEbX0g6/ge4pIj7vBbsIb+vrhA/54I=
+github.com/aws/aws-sdk-go v1.44.222/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/casbin/casbin/v2 v2.65.2 h1:a8XUm1Xls9sXc4RISPFEDQZrqpsv5y1KwwB174W7i74=
 github.com/casbin/casbin/v2 v2.65.2/go.mod h1:vByNa/Fchek0KZUgG5wEsl7iFsiviAYKRtgrQfcJqHg=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
@@ -74,8 +76,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
-github.com/rokwire/core-auth-library-go/v3 v3.0.0 h1:KMIYRtpDF+od+bu/MSokCE3vQFF0hilJC2Wcsm71pc0=
-github.com/rokwire/core-auth-library-go/v3 v3.0.0/go.mod h1:SFIeQwnoGfEPi/yUJoqGrtrBhWy89s/T3ay+UVeDnTs=
+github.com/rokwire/core-auth-library-go/v3 v3.0.1 h1:7kZqnXq3lsb8sU+YxXEtHXjmxvFd5X/VpqQKiy/RnqA=
+github.com/rokwire/core-auth-library-go/v3 v3.0.1/go.mod h1:VtpVajbA8JPjOzvEFQpxOm4pfok4z/8a2WshErTZd7s=
 github.com/rokwire/logging-library-go/v2 v2.2.0 h1:SKFq+rrl+li1RhEhB7CV+pVcptu/nurX9/DWj/oRaw4=
 github.com/rokwire/logging-library-go/v2 v2.2.0/go.mod h1:6QSqTlk5nNQcZweqg0sLCCoIwpRpTu3AmOi7EJy38Tg=
 github.com/rwtodd/Go.Sed v0.0.0-20210816025313-55464686f9ef/go.mod h1:8AEUvGVi2uQ5b24BIhcr0GCcpd/RNAFWaN2CJFrWIIQ=

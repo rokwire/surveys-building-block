@@ -79,12 +79,7 @@ func main() {
 		logger.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
 
-	var serviceRegManager *authservice.ServiceRegManager
-	if strings.HasPrefix(baseURL, "http://localhost") {
-		serviceRegManager, err = authservice.NewTestServiceRegManager(&authService, serviceRegLoader)
-	} else {
-		serviceRegManager, err = authservice.NewServiceRegManager(&authService, serviceRegLoader)
-	}
+	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceRegLoader, !strings.HasPrefix(baseURL, "http://localhost"))
 	if err != nil {
 		logger.Fatalf("Error initializing service registration manager: %v", err)
 	}
