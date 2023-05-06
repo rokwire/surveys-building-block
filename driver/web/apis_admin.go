@@ -18,14 +18,15 @@ import (
 	"application/core"
 	"application/core/model"
 	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/rokwire/core-auth-library-go/v3/authutils"
 	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 // AdminAPIsHandler handles the rest Admin APIs implementation
@@ -208,7 +209,7 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		offset = intParsed
 	}
 
-	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset)
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
