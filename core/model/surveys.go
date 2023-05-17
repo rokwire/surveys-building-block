@@ -88,7 +88,8 @@ type SurveyStats struct {
 
 // SurveyData is data stored for a Survey
 type SurveyData struct {
-	Section             *string     `json:"section" bson:"section"`
+	Section             *string     `json:"section,omitempty" bson:"section,omitempty"`
+	Sections            []string    `json:"sections,omitempty" bson:"sections,omitempty"`
 	AllowSkip           bool        `json:"allow_skip" bson:"allow_skip"`
 	Text                string      `json:"text" bson:"text"`
 	MoreInfo            string      `json:"more_info" bson:"more_info"`
