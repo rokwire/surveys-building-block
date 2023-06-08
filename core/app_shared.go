@@ -96,8 +96,31 @@ func (a appShared) updateSurvey(survey model.Survey, userID string) error {
 	return nil
 }
 
-func (a appShared) deleteSurvey(id string, orgID string, appID string, creatorID *string) error {
-	return a.app.storage.DeleteSurvey(id, orgID, appID, creatorID)
+func (a appShared) deleteSurvey(id string, orgID string, appID string, userID *string) error {
+	// TODO get user token
+	userToken := ""
+
+	oldSurvey, err := a.app.storage.GetSurvey(id, orgID, appID)
+	if err != nil {
+		// TODO send error
+	}
+
+	if oldSurvey.CreatorID == *userID {
+		return a.app.storage.DeleteSurvey(id, orgID, appID, userID)
+	}
+
+	for _, groupID := range oldSurvey.GroupIDs {
+		group, err := a.app.groups.GetGroupDetails(userToken, groupID)
+		if err != nil {
+			// TODO something
+		}
+		if (group.IsCurrentUserAdmin(*userID)) {
+			return a.app.storage.DeleteSurvey(id, orgID, appID, userID)
+		}
+	}
+
+	// TODO return error
+	return nil
 }
 
 func sendNotificationsToUserList(a appShared, survey model.Survey, user model.User) {
