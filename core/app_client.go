@@ -16,6 +16,7 @@ package core
 
 import (
 	"application/core/model"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -74,6 +75,38 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 	surveyResponse.ID = uuid.NewString()
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
+
+	if surveyResponse.Survey.Sensitive {
+		return a.app.storage.CreateSurveyResponse(surveyResponse)
+	}
+
+	a.app.notifications.SendNotification(model.NotificationMessage{
+		OrgID:      surveyResponse.Survey.OrgID,
+		AppID:      surveyResponse.Survey.AppID,
+		Recipients: []model.NotificationMessageRecipient{
+			model.NotificationMessageRecipient {
+				UserID: surveyResponse.Survey.CreatorID,
+				Mute: false,
+			},
+		},
+		Sender: &model.Sender{
+			Type: "user",
+			User: &model.UserRef{
+				UserID: surveyResponse.UserID,
+			},
+		},
+		Topic:   "survey",
+		Subject: "Illinois",
+		Body:    fmt.Sprintf("Survey '%s' has been created", surveyResponse.Survey.Title),
+		Data: map[string]string{
+			"type":        surveyResponse.Survey.Type,
+			"operation":   "survey_created",
+			"entity_type": "survey",
+			"entity_id":   surveyResponse.Survey.ID.Hex(),
+			"entity_name": surveyResponse.Survey.Title,
+		},
+	})
+
 	return a.app.storage.CreateSurveyResponse(surveyResponse)
 }
 
