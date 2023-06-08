@@ -35,13 +35,13 @@ func (a appClient) GetSurvey(id string, orgID string, appID string) (*model.Surv
 }
 
 // GetSurvey returns surveys matching the provided query
-func (a appClient) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
-	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset)
+func (a appClient) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
 }
 
 // CreateSurvey creates a new survey
-func (a appClient) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey)
+func (a appClient) CreateSurvey(survey model.Survey, user model.User) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, user)
 }
 
 // UpdateSurvey updates the provided survey
