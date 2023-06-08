@@ -41,7 +41,12 @@ func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, 
 		return nil, nil
 	}
 
-	if group.IsCurrentUserAdmin(userID) || group.CreatorID == userID {
+	survey, err := a.app.storage.GetSurvey(id, orgID, appID)
+	if err != nil {
+		return nil, nil
+	}
+
+	if (group.IsCurrentUserAdmin(userID) || group.CreatorID == userID) && !survey.Sensitive {
 		return a.app.storage.GetAllSurveyResponses(&orgID, &appID, &id, startDate, endDate, limit, offset)
 	}
 
