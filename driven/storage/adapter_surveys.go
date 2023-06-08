@@ -36,13 +36,16 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurveys gets matching surveys
-func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
+func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error) {
 	filter := bson.M{"org_id": orgID, "app_id": appID}
 	if len(surveyIDs) > 0 {
 		filter["_id"] = bson.M{"$in": surveyIDs}
 	}
 	if len(surveyTypes) > 0 {
 		filter["type"] = bson.M{"$in": surveyTypes}
+	}
+	if len(groupID) > 0 {
+		filter["group_ids"] = bson.M{"$in": []string{groupID}}
 	}
 
 	opts := options.Find()
@@ -60,7 +63,7 @@ func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, sur
 	return results, nil
 }
 
-// CreateSurvey creates a poll
+// CreateSurvey creates a survey
 func (a *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 	_, err := a.db.surveys.InsertOne(a.context, survey)
 	if err != nil {
@@ -79,14 +82,14 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			filter["creator_id"] = survey.CreatorID
 		}
 		update := bson.M{"$set": bson.M{
-			"title":                 survey.Title,
-			"more_info":             survey.MoreInfo,
-			"data":                  survey.Data,
-			"scored":                survey.Scored,
-			"result_rules":          survey.ResultRules,
-			"type":                  survey.Type,
-			"stats":                 survey.SurveyStats,
-			"sensitive":             survey.Sensitive,
+			"title":        survey.Title,
+			"more_info":    survey.MoreInfo,
+			"data":         survey.Data,
+			"scored":       survey.Scored,
+			"result_rules": survey.ResultRules,
+			"type":         survey.Type,
+			"stats":        survey.SurveyStats,
+			// "sensitive":             survey.Sensitive,
 			"default_data_key":      survey.DefaultDataKey,
 			"default_data_key_rule": survey.DefaultDataKeyRule,
 			"constants":             survey.Constants,
