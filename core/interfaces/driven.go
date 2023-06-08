@@ -34,7 +34,7 @@ type Storage interface {
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey, admin bool) error
+	UpdateSurvey(survey model.Survey) error
 	DeleteSurvey(id string, orgID string, appID string, creatorID *string) error
 
 	GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error)

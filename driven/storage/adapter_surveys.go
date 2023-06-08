@@ -74,13 +74,13 @@ func (a *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 }
 
 // UpdateSurvey updates a survey
-func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
+func (a *Adapter) UpdateSurvey(survey model.Survey) error {
 	if len(survey.ID) > 0 {
 		now := time.Now().UTC()
 		filter := bson.M{"_id": survey.ID, "org_id": survey.OrgID, "app_id": survey.AppID}
-		if !admin {
-			filter["creator_id"] = survey.CreatorID
-		}
+		// if !admin {
+		// 	filter["creator_id"] = survey.CreatorID
+		// }
 		update := bson.M{"$set": bson.M{
 			"title":        survey.Title,
 			"more_info":    survey.MoreInfo,
@@ -113,9 +113,9 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 // DeleteSurvey deletes a survey
 func (a *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID *string) error {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
-	if creatorID != nil {
-		filter["creator_id"] = creatorID
-	}
+	// if creatorID != nil {
+	// 	filter["creator_id"] = creatorID
+	// }
 	res, err := a.db.surveys.DeleteOne(a.context, filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurvey, filterArgs(filter), err)

@@ -50,8 +50,8 @@ func (a appClient) CreateSurvey(survey model.Survey, user model.User) (*model.Su
 }
 
 // UpdateSurvey updates the provided survey
-func (a appClient) UpdateSurvey(survey model.Survey) error {
-	return a.app.shared.updateSurvey(survey, false)
+func (a appClient) UpdateSurvey(survey model.Survey, userID string) error {
+	return a.app.shared.updateSurvey(survey, userID)
 }
 
 // DeleteSurvey deletes the survey with the specified ID

@@ -32,7 +32,7 @@ type Client interface {
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey, user model.User) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey) error
+	UpdateSurvey(survey model.Survey, userID string) error
 	DeleteSurvey(id string, orgID string, appID string, userID string) error
 
 	// Survey Response
@@ -62,7 +62,7 @@ type Admin interface {
 	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error)
 	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 	CreateSurvey(survey model.Survey, user model.User) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey) error
+	UpdateSurvey(survey model.Survey, userID string) error
 	DeleteSurvey(id string, orgID string, appID string) error
 
 	// Alert Contacts

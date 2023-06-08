@@ -69,8 +69,31 @@ func (a appShared) createSurvey(survey model.Survey, user model.User) (*model.Su
 	return a.app.storage.CreateSurvey(survey)
 }
 
-func (a appShared) updateSurvey(survey model.Survey, admin bool) error {
-	return a.app.storage.UpdateSurvey(survey, admin)
+func (a appShared) updateSurvey(survey model.Survey, userID string) error {
+	// TODO get user token
+	userToken := ""
+
+	oldSurvey, err := a.app.storage.GetSurvey(survey.ID, survey.OrgID, survey.AppID)
+	if err != nil {
+		// TODO send error
+	}
+
+	if oldSurvey.CreatorID == userID {
+		return a.app.storage.UpdateSurvey(survey)
+	}
+
+	for _, groupID := range oldSurvey.GroupIDs {
+		group, err := a.app.groups.GetGroupDetails(userToken, groupID)
+		if err != nil {
+			// TODO something
+		}
+		if (group.IsCurrentUserAdmin(userID)) {
+			return a.app.storage.UpdateSurvey(survey)
+		}
+	}
+
+	// TODO return error
+	return nil
 }
 
 func (a appShared) deleteSurvey(id string, orgID string, appID string, creatorID *string) error {
