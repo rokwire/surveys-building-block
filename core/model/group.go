@@ -16,6 +16,7 @@ type Group struct {
 	ImageURL        string `json:"image_url"`
 	WebURL          string `json:"web_url"`
 	Tags            string `json:"tags"`
+	CreatorID       string `json:"creator_id"`
 	CurrentMember   *struct {
 		ID                       string `json:"id"`
 		ClientID                 string `json:"client_id"`
@@ -96,9 +97,9 @@ type GroupMember struct {
 
 	Status string `json:"status" bson:"status"` //admin, pending, member, rejected
 
-	RejectReason  string         `json:"reject_reason" bson:"reject_reason"`
+	RejectReason string `json:"reject_reason" bson:"reject_reason"`
 	// MemberAnswers []MemberAnswer `json:"member_answers" bson:"member_answers"`
-	SyncID        string         `json:"sync_id" bson:"sync_id"` //ID of sync that last updated this membership
+	SyncID string `json:"sync_id" bson:"sync_id"` //ID of sync that last updated this membership
 
 	NotificationsPreferences NotificationsPreferences `json:"notifications_preferences" bson:"notifications_preferences"`
 

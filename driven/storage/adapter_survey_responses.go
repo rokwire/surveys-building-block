@@ -80,6 +80,45 @@ func (a *Adapter) GetUserSurveyResponses(orgID *string, appID *string, userID *s
 	return results, nil
 }
 
+// GetAllSurveyResponses gets all survey responses for a survey
+func (a *Adapter) GetAllSurveyResponses(orgID *string, appID *string, surveyID *string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	filter := bson.M{}
+	if orgID != nil {
+		filter["org_id"] = orgID
+	}
+	if appID != nil {
+		filter["app_id"] = appID
+	}
+
+	if len(*surveyID) > 0 {
+		filter["survey._id"] = bson.M{"$in": surveyID}
+	}
+	if startDate != nil || endDate != nil {
+		dateFilter := bson.M{}
+		if startDate != nil {
+			dateFilter["$gte"] = startDate
+		}
+		if endDate != nil {
+			dateFilter["$lt"] = endDate
+		}
+		filter["date_created"] = dateFilter
+	}
+
+	opts := options.Find().SetSort(bson.M{"date_created": -1})
+	if limit != nil {
+		opts.SetLimit(int64(*limit))
+	}
+	if offset != nil {
+		opts.SetSkip(int64(*offset))
+	}
+	var results []model.SurveyResponse
+	err := a.db.surveyResponses.Find(a.context, filter, &results, opts)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeSurveyResponse, filterArgs(filter), err)
+	}
+	return results, nil
+}
+
 // CreateSurveyResponse creates a new survey response
 func (a *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
 	_, err := a.db.surveyResponses.InsertOne(a.context, surveyResponse)

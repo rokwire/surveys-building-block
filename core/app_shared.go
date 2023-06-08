@@ -32,7 +32,20 @@ func (a appShared) getSurvey(id string, orgID string, appID string) (*model.Surv
 }
 
 func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error) {
-	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset)
+	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
+}
+
+func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	group, err := a.app.groups.GetGroupDetails(userToken, groupID)
+	if err != nil {
+		return nil, nil
+	}
+
+	if group.IsCurrentUserAdmin(userID) || group.CreatorID == userID {
+		return a.app.storage.GetAllSurveyResponses(&orgID, &appID, &id, startDate, endDate, limit, offset)
+	}
+
+	return nil, nil
 }
 
 func (a appShared) createSurvey(survey model.Survey, user model.User) (*model.Survey, error) {
@@ -51,6 +64,14 @@ func (a appShared) createSurvey(survey model.Survey, user model.User) (*model.Su
 	return a.app.storage.CreateSurvey(survey)
 }
 
+func (a appShared) updateSurvey(survey model.Survey, admin bool) error {
+	return a.app.storage.UpdateSurvey(survey, admin)
+}
+
+func (a appShared) deleteSurvey(id string, orgID string, appID string, creatorID *string) error {
+	return a.app.storage.DeleteSurvey(id, orgID, appID, creatorID)
+}
+
 func sendNotificationsToUserList(a appShared, survey model.Survey, user model.User) {
 	messageRecipients := make([]model.NotificationMessageRecipient, len(survey.UserIDs))
 	for i, userID := range survey.UserIDs {
@@ -62,8 +83,8 @@ func sendNotificationsToUserList(a appShared, survey model.Survey, user model.Us
 	}
 
 	a.app.notifications.SendNotification(model.NotificationMessage{
-		OrgID: survey.OrgID,
-		AppID: survey.AppID,
+		OrgID:      survey.OrgID,
+		AppID:      survey.AppID,
 		Recipients: messageRecipients,
 		Sender: &model.Sender{
 			Type: "user",
@@ -94,11 +115,11 @@ func sendNotificationsToGroup(a appShared, survey model.Survey, user model.User,
 	for i, member := range *members {
 		messageRecipients[i] = model.UserRef{
 			UserID: member.ClientID,
-			Name: member.Name,
+			Name:   member.Name,
 		}
 	}
 
-	a.app.groups.SendGroupNotification(groupID, model.GroupNotification {
+	a.app.groups.SendGroupNotification(groupID, model.GroupNotification{
 		Members: messageRecipients,
 		Sender: &model.Sender{
 			Type: "user",
@@ -119,14 +140,6 @@ func sendNotificationsToGroup(a appShared, survey model.Survey, user model.User,
 			"entity_name": survey.Title,
 		},
 	})
-}
-
-func (a appShared) updateSurvey(survey model.Survey, admin bool) error {
-	return a.app.storage.UpdateSurvey(survey, admin)
-}
-
-func (a appShared) deleteSurvey(id string, orgID string, appID string, creatorID *string) error {
-	return a.app.storage.DeleteSurvey(id, orgID, appID, creatorID)
 }
 
 // newAppShared creates new appShared

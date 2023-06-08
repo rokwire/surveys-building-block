@@ -75,7 +75,7 @@ func (a Adapter) Start() {
 	// Client APIs
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.getSurveys, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.getSurvey, a.auth.client.User)).Methods("GET")
-	mainRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.clientAPIsHandler.getSurveyAllResponses, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.clientAPIsHandler.getAllSurveyResponses, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.createSurvey, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurvey, a.auth.client.User)).Methods("PUT")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurvey, a.auth.client.User)).Methods("DELETE")
@@ -95,6 +95,7 @@ func (a Adapter) Start() {
 	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.updateConfig, a.auth.admin.Permissions)).Methods("PUT")
 	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.deleteConfig, a.auth.admin.Permissions)).Methods("DELETE")
 
+	mainRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.adminAPIsHandler.getAllSurveyResponses, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.getSurveys, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.getSurvey, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.createSurvey, a.auth.admin.Permissions)).Methods("POST")

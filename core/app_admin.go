@@ -41,6 +41,10 @@ func (a appAdmin) GetSurveys(orgID string, appID string, surveyIDs []string, sur
 	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
 }
 
+func (a appAdmin) GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return a.app.shared.getAllSurveyResponses(id, orgID, appID, userToken, userID, groupID, startDate, endDate, limit, offset)
+}
+
 // CreateSurvey creates a new survey
 func (a appAdmin) CreateSurvey(survey model.Survey, user model.User) (*model.Survey, error) {
 	return a.app.shared.createSurvey(survey, user)
