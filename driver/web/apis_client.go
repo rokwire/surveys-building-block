@@ -173,7 +173,7 @@ func (h ClientAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *to
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) getSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getUserSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("survey_ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -222,7 +222,7 @@ func (h ClientAPIsHandler) getSurveyResponses(l *logs.Log, r *http.Request, clai
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyIDs, surveyTypes, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Client.GetUserSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyIDs, surveyTypes, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
