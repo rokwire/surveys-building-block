@@ -16,6 +16,7 @@ package main
 
 import (
 	"application/core"
+	"application/driven/groups"
 	"application/driven/notifications"
 	"application/driven/storage"
 	"application/driver/web"
@@ -125,8 +126,22 @@ func main() {
 		logger.Fatalf("Error initializing notifications adapter: %v", err)
 	}
 
+	internalAPIKey := envLoader.GetAndLogEnvVar("INTERNAL_API_KEY", false, true)
+	// Groups adapter
+	groupsHost := ""
+	groupsReg, err := serviceRegManager.GetServiceReg("groups")
+	if err != nil {
+		logger.Errorf("error finding groups service reg: %s", err)
+	} else {
+		groupsHost = groupsReg.Host
+	}
+	groupsAdapter, err := groups.NewGroupsAdapter(groupsHost, internalAPIKey, logger)
+	if err != nil {
+		logger.Fatalf("Error initializing groups adapter: %v", err)
+	}
+
 	// Application
-	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter, logger)
+	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter, groupsAdapter, logger)
 	application.Start()
 
 	// Web adapter
