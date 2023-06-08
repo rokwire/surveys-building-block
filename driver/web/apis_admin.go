@@ -232,7 +232,11 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
 
-	createdItem, err := h.app.Admin.CreateSurvey(item)
+	createdItem, err := h.app.Admin.CreateSurvey(item, model.User{
+		// TODO: figure out token
+		Token: claims.Subject,
+		Claims: claims,
+	})
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

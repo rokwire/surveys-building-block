@@ -85,7 +85,10 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset)
+	groupID := r.URL.Query().Get("group_id")
+
+
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset, groupID)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -110,7 +113,11 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 	item.CreatorID = claims.Subject
 	item.Type = "user"
 
-	createdItem, err := h.app.Client.CreateSurvey(item)
+	createdItem, err := h.app.Client.CreateSurvey(item, model.User{
+		// TODO: figure out token
+		Token: claims.Subject,
+		Claims: claims,
+	})
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
