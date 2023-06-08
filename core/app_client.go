@@ -76,6 +76,40 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
 
+	// TODO get user token
+	userToken := ""
+
+	survey, err := a.app.storage.GetSurvey(surveyResponse.Survey.ID, surveyResponse.Survey.OrgID, surveyResponse.Survey.AppID)
+	if err != nil {
+		// TODO send error
+	}
+
+	// check if user is in group of survey
+	for _, groupID := range survey.GroupIDs {
+		members, err := a.app.groups.GetGroupMembers(userToken, groupID)
+		if err != nil {
+			// TODO something
+		}
+		for _, member := range *members {
+			// What is client ID vs ID?
+			if member.ID == surveyResponse.UserID {
+				return createSurveyResponse(surveyResponse, a)
+			}
+		}
+	}
+
+	// check if user is in user list of survey
+	for _, userID := range survey.UserIDs {
+		if userID == surveyResponse.UserID {
+			return createSurveyResponse(surveyResponse, a)
+		}
+	}
+
+	// TODO return error
+	return nil, nil
+}
+
+func createSurveyResponse(surveyResponse model.SurveyResponse, a appClient) (*model.SurveyResponse, error) {
 	if surveyResponse.Survey.Sensitive {
 		return a.app.storage.CreateSurveyResponse(surveyResponse)
 	}
