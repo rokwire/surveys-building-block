@@ -32,7 +32,7 @@ type Storage interface {
 	DeleteConfig(id string) error
 
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
+	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey, admin bool) error
 	DeleteSurvey(id string, orgID string, appID string, creatorID *string) error
@@ -62,4 +62,18 @@ type StorageListener interface {
 type Notifications interface {
 	SendNotification(notification model.NotificationMessage)
 	SendMail(toEmail string, subject string, body string)
+}
+
+type Groups interface {
+	// GetGroupsMembership gets all groups user is part of
+	GetGroupsMembership(userToken string) (*model.GroupMembership, error)
+
+	// GetGroupMembers gets all members in a group
+	GetGroupMembers(userToken string, groupID string) (*[]model.GroupMember, error)
+	
+	// GetGroupDetails retrieves group details
+	GetGroupDetails(userToken string, groupID string) (*model.Group, error)
+	
+	// SendGroupNotification Sends a notification to members of a group
+	SendGroupNotification(groupID string, notification model.GroupNotification)
 }
