@@ -40,13 +40,17 @@ func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, su
 func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	var allResponses []model.SurveyResponse
 
+	survey, err := a.app.storage.GetSurvey(id, orgID, appID)
+	if err != nil {
+		return nil, err
+	}
+
+	if survey.CreatorID == userID {
+		return a.app.storage.GetAllSurveyResponses(&orgID, &appID, &id, startDate, endDate, limit, offset)
+	}
+
 	for _, groupID := range groupIDs {
 		group, err := a.app.groups.GetGroupDetails(userToken, groupID)
-		if err != nil {
-			return nil, err
-		}
-
-		survey, err := a.app.storage.GetSurvey(id, orgID, appID)
 		if err != nil {
 			return nil, err
 		}
@@ -56,9 +60,7 @@ func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, 
 			if err != nil {
 				return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypePermission, nil, fmt.Errorf("cannot get responses"))
 			}
-			for _, response := range responses {
-				allResponses = append(allResponses, response)
-			}
+			allResponses = append(allResponses, responses...)
 		}
 	}
 
