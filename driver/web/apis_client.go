@@ -41,7 +41,7 @@ func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *token
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	resData, err := h.app.Client.GetSurvey(id, claims.OrgID, claims.AppID)
+	resData, err := h.app.Client.GetSurvey(id, claims.OrgID, claims.AppID, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -91,7 +91,7 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		groupIDs = strings.Split(groupIDsRaw, ",")
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset, groupIDs)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, claims.Subject, token, surveyIDs, surveyTypes, &limit, &offset, groupIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

@@ -32,13 +32,13 @@ type appAdmin struct {
 
 // Surveys
 // GetSurvey returns the survey with the provided ID
-func (a appAdmin) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
-	return a.app.shared.getSurvey(id, orgID, appID)
+func (a appAdmin) GetSurvey(id string, orgID string, appID string, userID string, userToken string) (*model.Survey, error) {
+	return a.app.shared.getSurvey(id, orgID, appID, userID, userToken)
 }
 
 // GetSurvey returns surveys matching the provided query
-func (a appAdmin) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
-	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
+func (a appAdmin) GetSurveys(orgID string, appID string, userID string, userToken string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, userID, userToken, surveyIDs, surveyTypes, limit, offset, groupIDs)
 }
 
 func (a appAdmin) GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {

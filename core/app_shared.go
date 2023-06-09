@@ -29,12 +29,68 @@ type appShared struct {
 	app *Application
 }
 
-func (a appShared) getSurvey(id string, orgID string, appID string) (*model.Survey, error) {
-	return a.app.storage.GetSurvey(id, orgID, appID)
+func (a appShared) getSurvey(id string, orgID string, appID string, userID string, userToken string) (*model.Survey, error) {
+	survey, err := a.app.storage.GetSurvey(id, orgID, appID)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypeResult, nil, err)
+	}
+
+	if len(survey.UserIDs) > 0 {
+		for _, elem := range survey.UserIDs {
+			if elem == userID {
+				return survey, nil
+			}
+		}
+	} else {
+		for _, groupID := range survey.GroupIDs {
+			members, err := a.app.groups.GetGroupMembers(userToken, groupID)
+			if err != nil {
+				return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypeResult, nil, err)
+			}
+
+			for _, member := range *members {
+				if member.ClientID == userID {
+					return survey, nil
+				}
+			}
+		}
+	}
+
+	return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypePermission, nil, fmt.Errorf("no permission to get survey"))
 }
 
-func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
-	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
+func (a appShared) getSurveys(orgID string, appID string, userID string, userToken string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
+	surveys, err := a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	var responseSurveys []model.Survey
+
+	for _, survey := range surveys {
+		if len(survey.UserIDs) > 0 {
+			for _, elem := range survey.UserIDs {
+				if elem == userID {
+					responseSurveys = append(responseSurveys, survey)
+				}
+			}
+		} else {
+			for _, groupID := range survey.GroupIDs {
+				members, err := a.app.groups.GetGroupMembers(userToken, groupID)
+				if err != nil {
+					return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypeResult, nil, err)
+				}
+
+				for _, member := range *members {
+					if member.ClientID == userID {
+						responseSurveys = append(responseSurveys, survey)
+					}
+				}
+			}
+		}
+	}
+
+	return responseSurveys, nil
 }
 
 func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
