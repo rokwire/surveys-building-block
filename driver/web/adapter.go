@@ -57,7 +57,7 @@ type Adapter struct {
 	logger *logs.Logger
 }
 
-type handlerFunc = func(*logs.Log, *http.Request, *tokenauth.Claims) logs.HTTPResponse
+type handlerFunc = func(*logs.Log, *http.Request, *tokenauth.Claims, string) logs.HTTPResponse
 
 // Start starts the module
 func (a Adapter) Start() {
@@ -185,9 +185,16 @@ func (a Adapter) wrapFunc(handler handlerFunc, authorization tokenauth.Handler) 
 			if claims != nil {
 				logObj.SetContext("account_id", claims.Subject)
 			}
-			response = handler(logObj, req, claims)
+
+			token, err := tokenauth.GetAccessToken(req)
+			if err != nil {
+				logObj.SendHTTPResponse(w, logObj.HTTPResponseErrorAction(logutils.ActionGet, logutils.TypeToken, nil, err, http.StatusBadRequest, true))
+				return
+			}
+
+			response = handler(logObj, req, claims, token)
 		} else {
-			response = handler(logObj, req, nil)
+			response = handler(logObj, req, nil, "")
 		}
 
 		logObj.SendHTTPResponse(w, response)

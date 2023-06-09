@@ -46,18 +46,18 @@ func (a appAdmin) GetAllSurveyResponses(id string, orgID string, appID string, u
 }
 
 // CreateSurvey creates a new survey
-func (a appAdmin) CreateSurvey(survey model.Survey, user model.User) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey, user)
+func (a appAdmin) CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, userName, userToken)
 }
 
 // UpdateSurvey updates the provided survey
-func (a appAdmin) UpdateSurvey(survey model.Survey, userID string) error {
-	return a.app.shared.updateSurvey(survey, userID)
+func (a appAdmin) UpdateSurvey(survey model.Survey, userID string, userToken string) error {
+	return a.app.shared.updateSurvey(survey, userID, userToken)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appAdmin) DeleteSurvey(id string, orgID string, appID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, nil)
+func (a appAdmin) DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, userToken)
 }
 
 // GetAlertContacts returns all alert contacts for the provided app/org

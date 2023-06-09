@@ -1,13 +1,5 @@
 package model
 
-import "github.com/rokwire/core-auth-library-go/v3/tokenauth"
-
-// User auth wrapper
-type User struct {
-	Token  string
-	Claims *tokenauth.Claims
-}
-
 // UserRef reference for a concrete user which is member of a group
 type UserRef struct {
 	UserID string `json:"user_id"`

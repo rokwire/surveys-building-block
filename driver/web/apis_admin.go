@@ -35,7 +35,7 @@ type AdminAPIsHandler struct {
 	app *core.Application
 }
 
-func (h AdminAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	params := mux.Vars(r)
 	id := params["id"]
 	if len(id) <= 0 {
@@ -55,7 +55,7 @@ func (h AdminAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *tokena
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getConfigs(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getConfigs(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var configType *string
 	typeParam := r.URL.Query().Get("type")
 	if len(typeParam) > 0 {
@@ -83,7 +83,7 @@ type adminUpdateConfigsRequest struct {
 	Type    string      `json:"type"`
 }
 
-func (h AdminAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var requestData adminUpdateConfigsRequest
 	err := json.NewDecoder(r.Body).Decode(&requestData)
 	if err != nil {
@@ -113,7 +113,7 @@ func (h AdminAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) updateConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) updateConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	params := mux.Vars(r)
 	id := params["id"]
 	if len(id) <= 0 {
@@ -144,7 +144,7 @@ func (h AdminAPIsHandler) updateConfig(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) deleteConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	params := mux.Vars(r)
 	id := params["id"]
 	if len(id) <= 0 {
@@ -159,7 +159,7 @@ func (h AdminAPIsHandler) deleteConfig(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -179,7 +179,7 @@ func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokena
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -225,7 +225,7 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyID := r.URL.Query().Get("id")
 
 	startDateRaw := r.URL.Query().Get("start_date")
@@ -269,8 +269,7 @@ func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, cl
 
 	groupID := r.URL.Query().Get("group_id")
 
-	// TODO: check user token
-	resData, err := h.app.Admin.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, claims.Id, claims.Subject, groupID, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Admin.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupID, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -283,7 +282,7 @@ func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, cl
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.Survey
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -294,11 +293,7 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
 
-	createdItem, err := h.app.Admin.CreateSurvey(item, model.User{
-		// TODO: figure out token
-		Token:  claims.Subject,
-		Claims: claims,
-	})
+	createdItem, err := h.app.Admin.CreateSurvey(item, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -312,7 +307,7 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 
 }
 
-func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -329,7 +324,7 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
 
-	err = h.app.Admin.UpdateSurvey(item, claims.Subject)
+	err = h.app.Admin.UpdateSurvey(item, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -337,14 +332,14 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	err := h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID)
+	err := h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -352,7 +347,7 @@ func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	resData, err := h.app.Admin.GetAlertContacts(claims.OrgID, claims.AppID)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
@@ -366,7 +361,7 @@ func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims 
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -386,7 +381,7 @@ func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.AlertContact
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -409,7 +404,7 @@ func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -434,7 +429,7 @@ func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) deleteAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {

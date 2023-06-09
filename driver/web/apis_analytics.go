@@ -33,7 +33,7 @@ type AnalyticsAPIsHandler struct {
 	app *core.Application
 }
 
-func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AnalyticsAPIsHandler) getAnonymousSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyTypesRaw := r.URL.Query().Get("survey_types")
 	var surveyTypes []string
 	if len(surveyTypesRaw) > 0 {

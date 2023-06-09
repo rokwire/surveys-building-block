@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rokwire/logging-library-go/v2/logutils"
+	"github.com/rokwire/logging-library-go/v2/errors"
 )
 
 // appShared contains shared implementations
@@ -38,44 +40,41 @@ func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, su
 func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	group, err := a.app.groups.GetGroupDetails(userToken, groupID)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	survey, err := a.app.storage.GetSurvey(id, orgID, appID)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	if (group.IsCurrentUserAdmin(userID) || group.CreatorID == userID) && !survey.Sensitive {
 		return a.app.storage.GetAllSurveyResponses(&orgID, &appID, &id, startDate, endDate, limit, offset)
 	}
 
-	return nil, nil
+	return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypePermission, nil, fmt.Errorf("Cannot get responses"))
 }
 
-func (a appShared) createSurvey(survey model.Survey, user model.User) (*model.Survey, error) {
+func (a appShared) createSurvey(survey model.Survey, userName string, token string) (*model.Survey, error) {
 	survey.ID = uuid.NewString()
 	survey.DateCreated = time.Now().UTC()
 	survey.DateUpdated = nil
 
 	if len(survey.UserIDs) > 0 {
-		sendNotificationsToUserList(a, survey, user)
+		a.sendNotificationsToUserList(survey, survey.CreatorID, userName)
 	} else if len(survey.GroupIDs) > 0 {
 		for _, groupID := range survey.GroupIDs {
-			sendNotificationsToGroup(a, survey, user, groupID)
+			a.sendNotificationsToGroup(survey, survey.CreatorID, userName, token, groupID)
 		}
 	}
 
 	return a.app.storage.CreateSurvey(survey)
 }
 
-func (a appShared) updateSurvey(survey model.Survey, userID string) error {
-	// TODO get user token
-	userToken := ""
-
+func (a appShared) updateSurvey(survey model.Survey, userID string, userToken string) error {
 	oldSurvey, err := a.app.storage.GetSurvey(survey.ID, survey.OrgID, survey.AppID)
 	if err != nil {
-		// TODO send error
+		errors.WrapErrorAction(logutils.ActionDelete, logutils.TypeResult, nil, fmt.Errorf("Cannot find survey"))
 	}
 
 	if oldSurvey.CreatorID == userID {
@@ -87,26 +86,23 @@ func (a appShared) updateSurvey(survey model.Survey, userID string) error {
 		if err != nil {
 			// TODO something
 		}
-		if (group.IsCurrentUserAdmin(userID)) {
+		if err == nil && group.IsCurrentUserAdmin(userID) {
 			return a.app.storage.UpdateSurvey(survey)
 		}
 	}
 
-	// TODO return error
-	return nil
+	return errors.WrapErrorAction(logutils.ActionUpdate, logutils.TypePermission, nil, fmt.Errorf("Cannot edit survey"))
 }
 
-func (a appShared) deleteSurvey(id string, orgID string, appID string, userID *string) error {
-	// TODO get user token
-	userToken := ""
+func (a appShared) deleteSurvey(id string, orgID string, appID string, userID string, userToken string) error {
 
 	oldSurvey, err := a.app.storage.GetSurvey(id, orgID, appID)
 	if err != nil {
-		// TODO send error
+		errors.WrapErrorAction(logutils.ActionDelete, logutils.TypeResult, nil, fmt.Errorf("Cannot find survey"))
 	}
 
-	if oldSurvey.CreatorID == *userID {
-		return a.app.storage.DeleteSurvey(id, orgID, appID, userID)
+	if oldSurvey.CreatorID == userID {
+		return a.app.storage.DeleteSurvey(id, orgID, appID, &userID)
 	}
 
 	for _, groupID := range oldSurvey.GroupIDs {
@@ -114,16 +110,16 @@ func (a appShared) deleteSurvey(id string, orgID string, appID string, userID *s
 		if err != nil {
 			// TODO something
 		}
-		if (group.IsCurrentUserAdmin(*userID)) {
-			return a.app.storage.DeleteSurvey(id, orgID, appID, userID)
+		if err == nil && group.IsCurrentUserAdmin(userID) {
+			return a.app.storage.DeleteSurvey(id, orgID, appID, &userID)
 		}
 	}
 
 	// TODO return error
-	return nil
+	return errors.WrapErrorAction(logutils.ActionDelete, logutils.TypePermission, nil, fmt.Errorf("Cannot delete survey"))
 }
 
-func sendNotificationsToUserList(a appShared, survey model.Survey, user model.User) {
+func (a appShared) sendNotificationsToUserList(survey model.Survey, userID string, userName string) {
 	messageRecipients := make([]model.NotificationMessageRecipient, len(survey.UserIDs))
 	for i, userID := range survey.UserIDs {
 		messageRecipients[i] = model.NotificationMessageRecipient{
@@ -140,8 +136,8 @@ func sendNotificationsToUserList(a appShared, survey model.Survey, user model.Us
 		Sender: &model.Sender{
 			Type: "user",
 			User: &model.UserRef{
-				UserID: user.Claims.Subject,
-				Name:   user.Claims.Name,
+				UserID: userID,
+				Name:   userName,
 			},
 		},
 		Topic:   "survey",
@@ -151,14 +147,14 @@ func sendNotificationsToUserList(a appShared, survey model.Survey, user model.Us
 			"type":        survey.Type,
 			"operation":   "survey_created",
 			"entity_type": "survey",
-			"entity_id":   survey.ID.Hex(),
+			"entity_id":   survey.ID,
 			"entity_name": survey.Title,
 		},
 	})
 }
 
-func sendNotificationsToGroup(a appShared, survey model.Survey, user model.User, groupID string) {
-	members, err := a.app.groups.GetGroupMembers(user.Token, groupID)
+func (a appShared) sendNotificationsToGroup(survey model.Survey, userID string, userName string, userToken string, groupID string) {
+	members, err := a.app.groups.GetGroupMembers(userToken, groupID)
 	if err != nil {
 		return
 	}
@@ -175,8 +171,8 @@ func sendNotificationsToGroup(a appShared, survey model.Survey, user model.User,
 		Sender: &model.Sender{
 			Type: "user",
 			User: &model.UserRef{
-				UserID: user.Claims.Subject,
-				Name:   user.Claims.Name,
+				UserID: userID,
+				Name:   userName,
 			},
 		},
 		Topic:   "survey",
@@ -187,7 +183,7 @@ func sendNotificationsToGroup(a appShared, survey model.Survey, user model.User,
 			"type":        "survey",
 			"operation":   "survey_created",
 			"entity_type": "survey",
-			"entity_id":   survey.ID.Hex(),
+			"entity_id":   survey.ID,
 			"entity_name": survey.Title,
 		},
 	})

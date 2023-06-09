@@ -14,6 +14,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
+require github.com/rokwire/logging-library-go v1.0.0 // indirect
+
 require (
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -38,6 +40,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/rokwire/core-auth-library-go v1.0.9
+	github.com/rokwire/core-auth-library-go/v2 v2.2.0
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/swaggo/files v1.0.0 // indirect

@@ -34,7 +34,7 @@ type ClientAPIsHandler struct {
 	app *core.Application
 }
 
-func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -54,7 +54,7 @@ func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *token
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -100,7 +100,7 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyID := r.URL.Query().Get("id")
 
 	groupID := r.URL.Query().Get("group_id")
@@ -144,8 +144,7 @@ func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, c
 		offset = intParsed
 	}
 
-	// TODO: check user token
-	resData, err := h.app.Client.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, claims.Id, claims.Subject, groupID, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Client.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupID, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -158,7 +157,7 @@ func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, c
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.Survey
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -170,11 +169,7 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 	item.CreatorID = claims.Subject
 	item.Type = "user"
 
-	createdItem, err := h.app.Client.CreateSurvey(item, model.User{
-		// TODO: figure out token
-		Token:  claims.Subject,
-		Claims: claims,
-	})
+	createdItem, err := h.app.Client.CreateSurvey(item, claims.Name, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -188,7 +183,7 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 
 }
 
-func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -206,7 +201,7 @@ func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *to
 	item.AppID = claims.AppID
 	item.Type = "user"
 
-	err = h.app.Client.UpdateSurvey(item, claims.Subject)
+	err = h.app.Client.UpdateSurvey(item, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -214,14 +209,14 @@ func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *to
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	err := h.app.Client.DeleteSurvey(id, claims.OrgID, claims.AppID, claims.Subject)
+	err := h.app.Client.DeleteSurvey(id, claims.OrgID, claims.AppID, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -229,7 +224,7 @@ func (h ClientAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *to
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) getUserSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getUserSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("survey_ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -291,7 +286,7 @@ func (h ClientAPIsHandler) getUserSurveyResponses(l *logs.Log, r *http.Request, 
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h ClientAPIsHandler) getSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -311,7 +306,7 @@ func (h ClientAPIsHandler) getSurveyResponse(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h ClientAPIsHandler) createSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) createSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.Survey
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -322,7 +317,7 @@ func (h ClientAPIsHandler) createSurveyResponse(l *logs.Log, r *http.Request, cl
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
 
-	createdItem, err := h.app.Client.CreateSurveyResponse(model.SurveyResponse{UserID: claims.Subject, AppID: claims.AppID, OrgID: claims.OrgID, Survey: item})
+	createdItem, err := h.app.Client.CreateSurveyResponse(model.SurveyResponse{UserID: claims.Subject, AppID: claims.AppID, OrgID: claims.OrgID, Survey: item, DateCreated: time.Now().UTC(), DateUpdated: nil}, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
@@ -335,7 +330,7 @@ func (h ClientAPIsHandler) createSurveyResponse(l *logs.Log, r *http.Request, cl
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h ClientAPIsHandler) updateSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) updateSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -361,7 +356,7 @@ func (h ClientAPIsHandler) updateSurveyResponse(l *logs.Log, r *http.Request, cl
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) deleteSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) deleteSurveyResponse(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -376,7 +371,7 @@ func (h ClientAPIsHandler) deleteSurveyResponse(l *logs.Log, r *http.Request, cl
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) deleteSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) deleteSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("survey_ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -414,7 +409,7 @@ func (h ClientAPIsHandler) deleteSurveyResponses(l *logs.Log, r *http.Request, c
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) createSurveyAlert(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) createSurveyAlert(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.SurveyAlert
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {

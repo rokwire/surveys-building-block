@@ -45,18 +45,18 @@ func (a appClient) GetAllSurveyResponses(id string, orgID string, appID string, 
 }
 
 // CreateSurvey creates a new survey
-func (a appClient) CreateSurvey(survey model.Survey, user model.User) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey, user)
+func (a appClient) CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, userName, userToken)
 }
 
 // UpdateSurvey updates the provided survey
-func (a appClient) UpdateSurvey(survey model.Survey, userID string) error {
-	return a.app.shared.updateSurvey(survey, userID)
+func (a appClient) UpdateSurvey(survey model.Survey, userID string, userToken string) error {
+	return a.app.shared.updateSurvey(survey, userID, userToken)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, &userID)
+func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, userToken)
 }
 
 // Survey Response
@@ -71,17 +71,14 @@ func (a appClient) GetUserSurveyResponses(orgID string, appID string, userID str
 }
 
 // CreateSurveyResponse creates a new survey response
-func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, userToken string) (*model.SurveyResponse, error) {
 	surveyResponse.ID = uuid.NewString()
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
 
-	// TODO get user token
-	userToken := ""
-
 	survey, err := a.app.storage.GetSurvey(surveyResponse.Survey.ID, surveyResponse.Survey.OrgID, surveyResponse.Survey.AppID)
 	if err != nil {
-		// TODO send error
+		errors.WrapErrorAction(logutils.ActionFind, logutils.TypeError, nil, fmt.Errorf("cannot find survey"))
 	}
 
 	// check if user is in group of survey
@@ -89,11 +86,11 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 		members, err := a.app.groups.GetGroupMembers(userToken, groupID)
 		if err != nil {
 			// TODO something
-		}
-		for _, member := range *members {
-			// What is client ID vs ID?
-			if member.ID == surveyResponse.UserID {
-				return createSurveyResponse(surveyResponse, a)
+		} else {
+			for _, member := range *members {
+				if member.ClientID == surveyResponse.UserID {
+					return createSurveyResponse(surveyResponse, a)
+				}
 			}
 		}
 	}
@@ -106,7 +103,7 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 	}
 
 	// TODO return error
-	return nil, nil
+	return nil, errors.WrapErrorAction(logutils.ActionCreate, logutils.TypePermission, nil, fmt.Errorf("cannot create survey"))
 }
 
 func createSurveyResponse(surveyResponse model.SurveyResponse, a appClient) (*model.SurveyResponse, error) {
@@ -118,7 +115,7 @@ func createSurveyResponse(surveyResponse model.SurveyResponse, a appClient) (*mo
 		OrgID:      surveyResponse.Survey.OrgID,
 		AppID:      surveyResponse.Survey.AppID,
 		Recipients: []model.NotificationMessageRecipient{
-			model.NotificationMessageRecipient {
+			{
 				UserID: surveyResponse.Survey.CreatorID,
 				Mute: false,
 			},
@@ -136,7 +133,7 @@ func createSurveyResponse(surveyResponse model.SurveyResponse, a appClient) (*mo
 			"type":        surveyResponse.Survey.Type,
 			"operation":   "survey_created",
 			"entity_type": "survey",
-			"entity_id":   surveyResponse.Survey.ID.Hex(),
+			"entity_id":   surveyResponse.Survey.ID,
 			"entity_name": surveyResponse.Survey.Title,
 		},
 	})
