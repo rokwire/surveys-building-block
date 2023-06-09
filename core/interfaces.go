@@ -23,7 +23,7 @@ import (
 type Shared interface {
 	// Surveys
 	getSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error)
+	getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error)
 	getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 	createSurvey(survey model.Survey, userName string, token string) (*model.Survey, error)
 	updateSurvey(survey model.Survey, userID string, userToken string) error

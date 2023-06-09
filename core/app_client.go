@@ -36,8 +36,8 @@ func (a appClient) GetSurvey(id string, orgID string, appID string) (*model.Surv
 }
 
 // GetSurvey returns surveys matching the provided query
-func (a appClient) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error) {
-	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
+func (a appClient) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
 }
 
 func (a appClient) GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {

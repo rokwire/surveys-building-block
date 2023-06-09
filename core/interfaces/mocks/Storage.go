@@ -399,25 +399,25 @@ func (_m *Storage) GetSurveyResponse(id string, orgID string, appID string, user
 	return r0, r1
 }
 
-// GetSurveys provides a mock function with given fields: orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID
-func (_m *Storage) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error) {
-	ret := _m.Called(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
+// GetSurveys provides a mock function with given fields: orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs
+func (_m *Storage) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
+	ret := _m.Called(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
 
 	var r0 []model.Survey
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, []string, []string, *int, *int, string) ([]model.Survey, error)); ok {
-		return rf(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
+	if rf, ok := ret.Get(0).(func(string, string, []string, []string, *int, *int, []string) ([]model.Survey, error)); ok {
+		return rf(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, []string, []string, *int, *int, string) []model.Survey); ok {
-		r0 = rf(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
+	if rf, ok := ret.Get(0).(func(string, string, []string, []string, *int, *int, []string) []model.Survey); ok {
+		r0 = rf(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]model.Survey)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, []string, []string, *int, *int, string) error); ok {
-		r1 = rf(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
+	if rf, ok := ret.Get(1).(func(string, string, []string, []string, *int, *int, []string) error); ok {
+		r1 = rf(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupIDs)
 	} else {
 		r1 = ret.Error(1)
 	}

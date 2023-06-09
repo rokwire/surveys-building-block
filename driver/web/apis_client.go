@@ -85,9 +85,13 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		offset = intParsed
 	}
 
-	groupID := r.URL.Query().Get("group_id")
+	groupIDsRaw := r.URL.Query().Get("group_ids")
+	var groupIDs []string
+	if len(groupIDsRaw) > 0 {
+		groupIDs = strings.Split(groupIDsRaw, ",")
+	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset, groupID)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset, groupIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
