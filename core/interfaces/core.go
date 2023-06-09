@@ -38,7 +38,7 @@ type Client interface {
 	// Survey Response
 	GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error)
 	GetUserSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
-	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 	CreateSurveyResponse(surveyResponse model.SurveyResponse, userToken string) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(surveyResponse model.SurveyResponse) error
 	DeleteSurveyResponse(id string, orgID string, appID string, userID string) error
@@ -60,7 +60,7 @@ type Admin interface {
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupID string) ([]model.Survey, error)
-	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 	CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey, userID string, userToken string) error
 	DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error

@@ -267,9 +267,13 @@ func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, cl
 		offset = intParsed
 	}
 
-	groupID := r.URL.Query().Get("group_id")
+	groupIDsRaw := r.URL.Query().Get("group_ids")
+	var groupIDs []string
+	if len(groupIDsRaw) > 0 {
+		groupIDs = strings.Split(groupIDsRaw, ",")
+	}
 
-	resData, err := h.app.Admin.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupID, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Admin.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupIDs, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

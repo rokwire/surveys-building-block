@@ -103,7 +103,11 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyID := r.URL.Query().Get("id")
 
-	groupID := r.URL.Query().Get("group_id")
+	groupIDsRaw := r.URL.Query().Get("group_ids")
+	var groupIDs []string
+	if len(groupIDsRaw) > 0 {
+		groupIDs = strings.Split(groupIDsRaw, ",")
+	}
 
 	startDateRaw := r.URL.Query().Get("start_date")
 	var startDate *time.Time
@@ -144,7 +148,7 @@ func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, c
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupID, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Client.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupIDs, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

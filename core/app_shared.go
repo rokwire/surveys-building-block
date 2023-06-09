@@ -37,22 +37,32 @@ func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, su
 	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset, groupID)
 }
 
-func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	group, err := a.app.groups.GetGroupDetails(userToken, groupID)
-	if err != nil {
-		return nil, err
+func (a appShared) getAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	var allResponses []model.SurveyResponse
+
+	for _, groupID := range groupIDs {
+		group, err := a.app.groups.GetGroupDetails(userToken, groupID)
+		if err != nil {
+			return nil, err
+		}
+
+		survey, err := a.app.storage.GetSurvey(id, orgID, appID)
+		if err != nil {
+			return nil, err
+		}
+
+		if (group.IsCurrentUserAdmin(userID) || group.CreatorID == userID) && !survey.Sensitive {
+			responses, err := a.app.storage.GetAllSurveyResponses(&orgID, &appID, &id, startDate, endDate, limit, offset)
+			if err != nil {
+				return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypePermission, nil, fmt.Errorf("cannot get responses"))
+			}
+			for _, response := range responses {
+				allResponses = append(allResponses, response)
+			}
+		}
 	}
 
-	survey, err := a.app.storage.GetSurvey(id, orgID, appID)
-	if err != nil {
-		return nil, err
-	}
-
-	if (group.IsCurrentUserAdmin(userID) || group.CreatorID == userID) && !survey.Sensitive {
-		return a.app.storage.GetAllSurveyResponses(&orgID, &appID, &id, startDate, endDate, limit, offset)
-	}
-
-	return nil, errors.WrapErrorAction(logutils.ActionGet, logutils.TypePermission, nil, fmt.Errorf("Cannot get responses"))
+	return allResponses, nil
 }
 
 func (a appShared) createSurvey(survey model.Survey, userName string, token string) (*model.Survey, error) {
@@ -74,7 +84,7 @@ func (a appShared) createSurvey(survey model.Survey, userName string, token stri
 func (a appShared) updateSurvey(survey model.Survey, userID string, userToken string) error {
 	oldSurvey, err := a.app.storage.GetSurvey(survey.ID, survey.OrgID, survey.AppID)
 	if err != nil {
-		errors.WrapErrorAction(logutils.ActionDelete, logutils.TypeResult, nil, fmt.Errorf("Cannot find survey"))
+		errors.WrapErrorAction(logutils.ActionDelete, logutils.TypeResult, nil, fmt.Errorf("cannot find survey"))
 	}
 
 	if oldSurvey.CreatorID == userID {
@@ -91,14 +101,14 @@ func (a appShared) updateSurvey(survey model.Survey, userID string, userToken st
 		}
 	}
 
-	return errors.WrapErrorAction(logutils.ActionUpdate, logutils.TypePermission, nil, fmt.Errorf("Cannot edit survey"))
+	return errors.WrapErrorAction(logutils.ActionUpdate, logutils.TypePermission, nil, fmt.Errorf("cannot edit survey"))
 }
 
 func (a appShared) deleteSurvey(id string, orgID string, appID string, userID string, userToken string) error {
 
 	oldSurvey, err := a.app.storage.GetSurvey(id, orgID, appID)
 	if err != nil {
-		errors.WrapErrorAction(logutils.ActionDelete, logutils.TypeResult, nil, fmt.Errorf("Cannot find survey"))
+		errors.WrapErrorAction(logutils.ActionDelete, logutils.TypeResult, nil, fmt.Errorf("cannot find survey"))
 	}
 
 	if oldSurvey.CreatorID == userID {
@@ -116,7 +126,7 @@ func (a appShared) deleteSurvey(id string, orgID string, appID string, userID st
 	}
 
 	// TODO return error
-	return errors.WrapErrorAction(logutils.ActionDelete, logutils.TypePermission, nil, fmt.Errorf("Cannot delete survey"))
+	return errors.WrapErrorAction(logutils.ActionDelete, logutils.TypePermission, nil, fmt.Errorf("cannot delete survey"))
 }
 
 func (a appShared) sendNotificationsToUserList(survey model.Survey, userID string, userName string) {
