@@ -70,6 +70,7 @@ func (g *Group) IsCurrentUserAdmin(currentUserID string) bool {
 	return false
 }
 
+// UserGroup mapping to check group membership
 type UserGroup struct {
 	ID               string `json:"id"`
 	Title            string `json:"title"`
@@ -108,6 +109,7 @@ type GroupMember struct {
 	DateAttended *time.Time `json:"date_attended" bson:"date_attended"`
 } //@name GroupMembership
 
+// NotificationsPreferences shows the mapping for notification preferences
 type NotificationsPreferences struct {
 	OverridePreferences bool `json:"override_preferences" bson:"override_preferences"`
 	AllMute             bool `json:"all_mute" bson:"all_mute"`

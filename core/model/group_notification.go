@@ -6,7 +6,7 @@ type GroupNotification struct {
 	Members        []UserRef         `json:"members"`
 	Sender         *Sender           `json:"sender"`
 	Subject        string            `json:"subject"`
-	Topic          string           `json:"topic"`
+	Topic          string            `json:"topic"`
 	Body           string            `json:"body"`
 	Data           map[string]string `json:"data"`
 } // @name GroupNotification

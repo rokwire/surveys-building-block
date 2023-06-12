@@ -87,6 +87,7 @@ func (a *Adapter) GetGroupsMembership(userToken string) (*model.GroupMembership,
 	return &membership, nil
 }
 
+// GetGroupMembers retrieves all group members from a group
 func (a *Adapter) GetGroupMembers(userToken string, groupID string) (*[]model.GroupMember, error) {
 	if len(groupID) == 0 {
 		return nil, nil

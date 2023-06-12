@@ -112,12 +112,12 @@ func createSurveyResponse(surveyResponse model.SurveyResponse, a appClient) (*mo
 	}
 
 	a.app.notifications.SendNotification(model.NotificationMessage{
-		OrgID:      surveyResponse.Survey.OrgID,
-		AppID:      surveyResponse.Survey.AppID,
+		OrgID: surveyResponse.Survey.OrgID,
+		AppID: surveyResponse.Survey.AppID,
 		Recipients: []model.NotificationMessageRecipient{
 			{
 				UserID: surveyResponse.Survey.CreatorID,
-				Mute: false,
+				Mute:   false,
 			},
 		},
 		Sender: &model.Sender{

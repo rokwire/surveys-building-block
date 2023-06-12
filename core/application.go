@@ -54,7 +54,7 @@ type Application struct {
 
 	storage       interfaces.Storage
 	notifications interfaces.Notifications
-	groups interfaces.Groups
+	groups        interfaces.Groups
 }
 
 // Start starts the core part of the application
