@@ -1,9 +1,9 @@
 get:
   tags:
     - Client
-  summary: Retrieves survey responses for the current user
+  summary: Retrieves survey responses filtered by params
   description: |
-    Retrieves survey responses for the current user
+    Retrieves survey responses filtered by params
   security:
     - bearerAuth: []
   parameters:

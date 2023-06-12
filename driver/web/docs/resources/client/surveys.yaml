@@ -39,6 +39,14 @@ get:
       explode: false
       schema:
         type: number
+    - name: group_ids
+      in: query
+      description: A comma-separated list of group ids to retrieve
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: string
   responses:
     200:
       description: Success
