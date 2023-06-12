@@ -53,6 +53,8 @@ type Survey struct {
 	Type               string                 `json:"type" bson:"type"`
 	SurveyStats        *SurveyStats           `json:"stats" bson:"stats"`
 	Sensitive          bool                   `json:"sensitive" bson:"sensitive"`
+	GroupIDs           []string               `json:"group_ids" bson:"group_ids"`
+	UserIDs            []string               `json:"user_ids" bson:"user_ids"`
 	DefaultDataKey     *string                `json:"default_data_key" bson:"default_data_key"`
 	DefaultDataKeyRule *string                `json:"default_data_key_rule" bson:"default_data_key_rule"`
 	Constants          map[string]interface{} `json:"constants" bson:"constants"`

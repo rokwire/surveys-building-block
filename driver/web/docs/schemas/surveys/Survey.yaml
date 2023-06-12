@@ -32,6 +32,14 @@ properties:
     $ref: "./SurveyStats.yaml"
   sensitive:
     type: boolean
+  group_ids:
+    type: array
+      items:
+        type: string
+  user_ids:
+    type: array
+    items:
+      type: string
   default_data_key:
     type: string
   default_data_key_rule:

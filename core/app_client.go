@@ -16,6 +16,7 @@ package core
 
 import (
 	"application/core/model"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -30,28 +31,32 @@ type appClient struct {
 
 // Surveys
 // GetSurvey returns the survey with the provided ID
-func (a appClient) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
-	return a.app.shared.getSurvey(id, orgID, appID)
+func (a appClient) GetSurvey(id string, orgID string, appID string, userID string, userToken string) (*model.Survey, error) {
+	return a.app.shared.getSurvey(id, orgID, appID, userID, userToken)
 }
 
 // GetSurvey returns surveys matching the provided query
-func (a appClient) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
-	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset)
+func (a appClient) GetSurveys(orgID string, appID string, userID string, userToken string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, userID, userToken, surveyIDs, surveyTypes, limit, offset, groupIDs)
+}
+
+func (a appClient) GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return a.app.shared.getAllSurveyResponses(id, orgID, appID, userToken, userID, groupIDs, startDate, endDate, limit, offset)
 }
 
 // CreateSurvey creates a new survey
-func (a appClient) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey)
+func (a appClient) CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, userName, userToken)
 }
 
 // UpdateSurvey updates the provided survey
-func (a appClient) UpdateSurvey(survey model.Survey) error {
-	return a.app.shared.updateSurvey(survey, false)
+func (a appClient) UpdateSurvey(survey model.Survey, userID string, userToken string) error {
+	return a.app.shared.updateSurvey(survey, userID, userToken)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, &userID)
+func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, userToken)
 }
 
 // Survey Response
@@ -60,16 +65,79 @@ func (a appClient) GetSurveyResponse(id string, orgID string, appID string, user
 	return a.app.storage.GetSurveyResponse(id, orgID, appID, userID)
 }
 
-// GetSurveyResponses returns the survey responses matching the provided filters
-func (a appClient) GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	return a.app.storage.GetSurveyResponses(&orgID, &appID, &userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
+// GetSurveyResponses returns the user's survey responses matching the provided filters
+func (a appClient) GetUserSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return a.app.storage.GetUserSurveyResponses(&orgID, &appID, &userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 }
 
 // CreateSurveyResponse creates a new survey response
-func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, userToken string) (*model.SurveyResponse, error) {
 	surveyResponse.ID = uuid.NewString()
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
+
+	survey, err := a.app.storage.GetSurvey(surveyResponse.Survey.ID, surveyResponse.Survey.OrgID, surveyResponse.Survey.AppID)
+	if err != nil {
+		errors.WrapErrorAction(logutils.ActionFind, logutils.TypeError, nil, fmt.Errorf("cannot find survey"))
+	}
+
+	// check if user is in group of survey
+	for _, groupID := range survey.GroupIDs {
+		members, err := a.app.groups.GetGroupMembers(userToken, groupID)
+		if err != nil {
+			// TODO something
+		} else {
+			for _, member := range *members {
+				if member.ClientID == surveyResponse.UserID {
+					return createSurveyResponse(surveyResponse, a)
+				}
+			}
+		}
+	}
+
+	// check if user is in user list of survey
+	for _, userID := range survey.UserIDs {
+		if userID == surveyResponse.UserID {
+			return createSurveyResponse(surveyResponse, a)
+		}
+	}
+
+	// TODO return error
+	return nil, errors.WrapErrorAction(logutils.ActionCreate, logutils.TypePermission, nil, fmt.Errorf("cannot create survey"))
+}
+
+func createSurveyResponse(surveyResponse model.SurveyResponse, a appClient) (*model.SurveyResponse, error) {
+	if surveyResponse.Survey.Sensitive {
+		return a.app.storage.CreateSurveyResponse(surveyResponse)
+	}
+
+	a.app.notifications.SendNotification(model.NotificationMessage{
+		OrgID: surveyResponse.Survey.OrgID,
+		AppID: surveyResponse.Survey.AppID,
+		Recipients: []model.NotificationMessageRecipient{
+			{
+				UserID: surveyResponse.Survey.CreatorID,
+				Mute:   false,
+			},
+		},
+		Sender: &model.Sender{
+			Type: "user",
+			User: &model.UserRef{
+				UserID: surveyResponse.UserID,
+			},
+		},
+		Topic:   "survey",
+		Subject: "Illinois",
+		Body:    fmt.Sprintf("Survey '%s' has been created", surveyResponse.Survey.Title),
+		Data: map[string]string{
+			"type":        surveyResponse.Survey.Type,
+			"operation":   "survey_created",
+			"entity_type": "survey",
+			"entity_id":   surveyResponse.Survey.ID,
+			"entity_name": surveyResponse.Survey.Title,
+		},
+	})
+
 	return a.app.storage.CreateSurveyResponse(surveyResponse)
 }
 

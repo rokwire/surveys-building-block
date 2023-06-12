@@ -32,28 +32,32 @@ type appAdmin struct {
 
 // Surveys
 // GetSurvey returns the survey with the provided ID
-func (a appAdmin) GetSurvey(id string, orgID string, appID string) (*model.Survey, error) {
-	return a.app.shared.getSurvey(id, orgID, appID)
+func (a appAdmin) GetSurvey(id string, orgID string, appID string, userID string, userToken string) (*model.Survey, error) {
+	return a.app.shared.getSurvey(id, orgID, appID, userID, userToken)
 }
 
 // GetSurvey returns surveys matching the provided query
-func (a appAdmin) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
-	return a.app.shared.getSurveys(orgID, appID, surveyIDs, surveyTypes, limit, offset)
+func (a appAdmin) GetSurveys(orgID string, appID string, userID string, userToken string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, userID, userToken, surveyIDs, surveyTypes, limit, offset, groupIDs)
+}
+
+func (a appAdmin) GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return a.app.shared.getAllSurveyResponses(id, orgID, appID, userToken, userID, groupIDs, startDate, endDate, limit, offset)
 }
 
 // CreateSurvey creates a new survey
-func (a appAdmin) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey)
+func (a appAdmin) CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, userName, userToken)
 }
 
 // UpdateSurvey updates the provided survey
-func (a appAdmin) UpdateSurvey(survey model.Survey) error {
-	return a.app.shared.updateSurvey(survey, true)
+func (a appAdmin) UpdateSurvey(survey model.Survey, userID string, userToken string) error {
+	return a.app.shared.updateSurvey(survey, userID, userToken)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appAdmin) DeleteSurvey(id string, orgID string, appID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, nil)
+func (a appAdmin) DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, userToken)
 }
 
 // GetAlertContacts returns all alert contacts for the provided app/org

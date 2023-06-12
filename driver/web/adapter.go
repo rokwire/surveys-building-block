@@ -57,7 +57,7 @@ type Adapter struct {
 	logger *logs.Logger
 }
 
-type handlerFunc = func(*logs.Log, *http.Request, *tokenauth.Claims) logs.HTTPResponse
+type handlerFunc = func(*logs.Log, *http.Request, *tokenauth.Claims, string) logs.HTTPResponse
 
 // Start starts the module
 func (a Adapter) Start() {
@@ -75,11 +75,12 @@ func (a Adapter) Start() {
 	// Client APIs
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.getSurveys, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.getSurvey, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.clientAPIsHandler.getAllSurveyResponses, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.createSurvey, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurvey, a.auth.client.User)).Methods("PUT")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurvey, a.auth.client.User)).Methods("DELETE")
 	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.getSurveyResponse, a.auth.client.User)).Methods("GET")
-	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.getSurveyResponses, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.getUserSurveyResponses, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.createSurveyResponse, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurveyResponse, a.auth.client.User)).Methods("PUT")
 	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurveyResponse, a.auth.client.User)).Methods("DELETE")
@@ -94,6 +95,7 @@ func (a Adapter) Start() {
 	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.updateConfig, a.auth.admin.Permissions)).Methods("PUT")
 	adminRouter.HandleFunc("/configs/{id}", a.wrapFunc(a.adminAPIsHandler.deleteConfig, a.auth.admin.Permissions)).Methods("DELETE")
 
+	mainRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.adminAPIsHandler.getAllSurveyResponses, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.getSurveys, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.getSurvey, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.createSurvey, a.auth.admin.Permissions)).Methods("POST")
@@ -183,9 +185,16 @@ func (a Adapter) wrapFunc(handler handlerFunc, authorization tokenauth.Handler) 
 			if claims != nil {
 				logObj.SetContext("account_id", claims.Subject)
 			}
-			response = handler(logObj, req, claims)
+
+			token, err := tokenauth.GetAccessToken(req)
+			if err != nil {
+				logObj.SendHTTPResponse(w, logObj.HTTPResponseErrorAction(logutils.ActionGet, logutils.TypeToken, nil, err, http.StatusBadRequest, true))
+				return
+			}
+
+			response = handler(logObj, req, claims, token)
 		} else {
-			response = handler(logObj, req, nil)
+			response = handler(logObj, req, nil, "")
 		}
 
 		logObj.SendHTTPResponse(w, response)

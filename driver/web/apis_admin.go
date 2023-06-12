@@ -18,14 +18,16 @@ import (
 	"application/core"
 	"application/core/model"
 	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/rokwire/core-auth-library-go/v3/authutils"
 	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 // AdminAPIsHandler handles the rest Admin APIs implementation
@@ -33,7 +35,7 @@ type AdminAPIsHandler struct {
 	app *core.Application
 }
 
-func (h AdminAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	params := mux.Vars(r)
 	id := params["id"]
 	if len(id) <= 0 {
@@ -53,7 +55,7 @@ func (h AdminAPIsHandler) getConfig(l *logs.Log, r *http.Request, claims *tokena
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getConfigs(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getConfigs(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var configType *string
 	typeParam := r.URL.Query().Get("type")
 	if len(typeParam) > 0 {
@@ -81,7 +83,7 @@ type adminUpdateConfigsRequest struct {
 	Type    string      `json:"type"`
 }
 
-func (h AdminAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var requestData adminUpdateConfigsRequest
 	err := json.NewDecoder(r.Body).Decode(&requestData)
 	if err != nil {
@@ -111,7 +113,7 @@ func (h AdminAPIsHandler) createConfig(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) updateConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) updateConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	params := mux.Vars(r)
 	id := params["id"]
 	if len(id) <= 0 {
@@ -142,7 +144,7 @@ func (h AdminAPIsHandler) updateConfig(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) deleteConfig(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	params := mux.Vars(r)
 	id := params["id"]
 	if len(id) <= 0 {
@@ -157,14 +159,14 @@ func (h AdminAPIsHandler) deleteConfig(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	resData, err := h.app.Admin.GetSurvey(id, claims.OrgID, claims.AppID)
+	resData, err := h.app.Admin.GetSurvey(id, claims.OrgID, claims.AppID, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -177,7 +179,7 @@ func (h AdminAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *tokena
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -208,7 +210,13 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		offset = intParsed
 	}
 
-	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset)
+	groupIDsRaw := r.URL.Query().Get("group_ids")
+	var groupIDs []string
+	if len(groupIDsRaw) > 0 {
+		groupIDs = strings.Split(groupIDsRaw, ",")
+	}
+
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, claims.Subject, token, surveyIDs, surveyTypes, &limit, &offset, groupIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -221,7 +229,68 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
+	surveyID := r.URL.Query().Get("id")
+
+	startDateRaw := r.URL.Query().Get("start_date")
+	var startDate *time.Time
+	if len(startDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, startDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("start_date"), nil, http.StatusBadRequest, false)
+		}
+		startDate = &dateParsed
+	}
+	endDateRaw := r.URL.Query().Get("end_date")
+	var endDate *time.Time
+	if len(endDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, endDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("end_date"), nil, http.StatusBadRequest, false)
+		}
+		endDate = &dateParsed
+	}
+
+	limitRaw := r.URL.Query().Get("limit")
+	limit := 20
+	if len(limitRaw) > 0 {
+		intParsed, err := strconv.Atoi(limitRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("limit"), nil, http.StatusBadRequest, false)
+		}
+		limit = intParsed
+	}
+
+	offsetRaw := r.URL.Query().Get("offset")
+	offset := 0
+	if len(offsetRaw) > 0 {
+		intParsed, err := strconv.Atoi(offsetRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("offset"), nil, http.StatusBadRequest, false)
+		}
+		offset = intParsed
+	}
+
+	groupIDsRaw := r.URL.Query().Get("group_ids")
+	var groupIDs []string
+	if len(groupIDsRaw) > 0 {
+		groupIDs = strings.Split(groupIDsRaw, ",")
+	}
+
+	resData, err := h.app.Admin.GetAllSurveyResponses(surveyID, claims.OrgID, claims.AppID, token, claims.Subject, groupIDs, startDate, endDate, &limit, &offset)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
+func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.Survey
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -232,7 +301,7 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
 
-	createdItem, err := h.app.Admin.CreateSurvey(item)
+	createdItem, err := h.app.Admin.CreateSurvey(item, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -246,7 +315,7 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 
 }
 
-func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -262,9 +331,8 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.ID = id
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
-	item.CreatorID = claims.Subject
 
-	err = h.app.Admin.UpdateSurvey(item)
+	err = h.app.Admin.UpdateSurvey(item, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -272,14 +340,14 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	err := h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID)
+	err := h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID, claims.Subject, token)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -287,7 +355,7 @@ func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tok
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	resData, err := h.app.Admin.GetAlertContacts(claims.OrgID, claims.AppID)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeAlertContact, nil, err, http.StatusInternalServerError, true)
@@ -301,7 +369,7 @@ func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims 
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -321,7 +389,7 @@ func (h AdminAPIsHandler) getAlertContact(l *logs.Log, r *http.Request, claims *
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	var item model.AlertContact
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -344,7 +412,7 @@ func (h AdminAPIsHandler) createAlertContact(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccessJSON(data)
 }
 
-func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {
@@ -369,7 +437,7 @@ func (h AdminAPIsHandler) updateAlertContact(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccess()
 }
 
-func (h AdminAPIsHandler) deleteAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h AdminAPIsHandler) deleteAlertContact(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if len(id) <= 0 {

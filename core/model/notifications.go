@@ -23,12 +23,13 @@ type NotificationMessage struct {
 	Subject  string            `json:"subject"`
 	Body     string            `json:"body"`
 	Data     map[string]string `json:"data"`
+	Sender   *Sender           `json:"sender"`
 
 	//recipients related
 	Recipients               []NotificationMessageRecipient  `json:"recipients"`
 	RecipientsCriteriaList   []NotificationRecipientCriteria `json:"recipients_criteria_list"`
 	RecipientAccountCriteria map[string]interface{}          `json:"recipient_account_criteria"`
-	Topic                    *string                         `json:"topic"`
+	Topic                    string                          `json:"topic"`
 }
 
 // NotificationMessageRecipient represents a recipient of a Notifications BB message

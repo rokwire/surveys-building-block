@@ -36,13 +36,16 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurveys gets matching surveys
-func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
+func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error) {
 	filter := bson.M{"org_id": orgID, "app_id": appID}
 	if len(surveyIDs) > 0 {
 		filter["_id"] = bson.M{"$in": surveyIDs}
 	}
 	if len(surveyTypes) > 0 {
 		filter["type"] = bson.M{"$in": surveyTypes}
+	}
+	if len(groupIDs) > 0 {
+		filter["group_ids"] = bson.M{"$in": groupIDs}
 	}
 
 	opts := options.Find()
@@ -60,7 +63,7 @@ func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, sur
 	return results, nil
 }
 
-// CreateSurvey creates a poll
+// CreateSurvey creates a survey
 func (a *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 	_, err := a.db.surveys.InsertOne(a.context, survey)
 	if err != nil {
@@ -71,22 +74,22 @@ func (a *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 }
 
 // UpdateSurvey updates a survey
-func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
+func (a *Adapter) UpdateSurvey(survey model.Survey) error {
 	if len(survey.ID) > 0 {
 		now := time.Now().UTC()
 		filter := bson.M{"_id": survey.ID, "org_id": survey.OrgID, "app_id": survey.AppID}
-		if !admin {
-			filter["creator_id"] = survey.CreatorID
-		}
+		// if !admin {
+		// 	filter["creator_id"] = survey.CreatorID
+		// }
 		update := bson.M{"$set": bson.M{
-			"title":                 survey.Title,
-			"more_info":             survey.MoreInfo,
-			"data":                  survey.Data,
-			"scored":                survey.Scored,
-			"result_rules":          survey.ResultRules,
-			"type":                  survey.Type,
-			"stats":                 survey.SurveyStats,
-			"sensitive":             survey.Sensitive,
+			"title":        survey.Title,
+			"more_info":    survey.MoreInfo,
+			"data":         survey.Data,
+			"scored":       survey.Scored,
+			"result_rules": survey.ResultRules,
+			"type":         survey.Type,
+			"stats":        survey.SurveyStats,
+			// "sensitive":             survey.Sensitive,
 			"default_data_key":      survey.DefaultDataKey,
 			"default_data_key_rule": survey.DefaultDataKeyRule,
 			"constants":             survey.Constants,
@@ -110,9 +113,9 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 // DeleteSurvey deletes a survey
 func (a *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID *string) error {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
-	if creatorID != nil {
-		filter["creator_id"] = creatorID
-	}
+	// if creatorID != nil {
+	// 	filter["creator_id"] = creatorID
+	// }
 	res, err := a.db.surveys.DeleteOne(a.context, filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurvey, filterArgs(filter), err)

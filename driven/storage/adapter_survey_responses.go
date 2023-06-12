@@ -35,8 +35,8 @@ func (a *Adapter) GetSurveyResponse(id string, orgID string, appID string, userI
 	return &entry, nil
 }
 
-// GetSurveyResponses gets matching surveys for a user
-func (a *Adapter) GetSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+// GetUserSurveyResponses gets matching surveys for a user
+func (a *Adapter) GetUserSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	filter := bson.M{}
 	if userID != nil {
 		filter["user_id"] = userID
@@ -53,6 +53,45 @@ func (a *Adapter) GetSurveyResponses(orgID *string, appID *string, userID *strin
 	}
 	if len(surveyTypes) > 0 {
 		filter["survey.type"] = bson.M{"$in": surveyTypes}
+	}
+	if startDate != nil || endDate != nil {
+		dateFilter := bson.M{}
+		if startDate != nil {
+			dateFilter["$gte"] = startDate
+		}
+		if endDate != nil {
+			dateFilter["$lt"] = endDate
+		}
+		filter["date_created"] = dateFilter
+	}
+
+	opts := options.Find().SetSort(bson.M{"date_created": -1})
+	if limit != nil {
+		opts.SetLimit(int64(*limit))
+	}
+	if offset != nil {
+		opts.SetSkip(int64(*offset))
+	}
+	var results []model.SurveyResponse
+	err := a.db.surveyResponses.Find(a.context, filter, &results, opts)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionFind, model.TypeSurveyResponse, filterArgs(filter), err)
+	}
+	return results, nil
+}
+
+// GetAllSurveyResponses gets all survey responses for a survey
+func (a *Adapter) GetAllSurveyResponses(orgID *string, appID *string, surveyID *string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	filter := bson.M{}
+	if orgID != nil {
+		filter["org_id"] = orgID
+	}
+	if appID != nil {
+		filter["app_id"] = appID
+	}
+
+	if len(*surveyID) > 0 {
+		filter["survey._id"] = bson.M{"$in": surveyID}
 	}
 	if startDate != nil || endDate != nil {
 		dateFilter := bson.M{}

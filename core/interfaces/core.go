@@ -29,16 +29,17 @@ type Default interface {
 // Client exposes client APIs for the driver adapters
 type Client interface {
 	// Surveys
-	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
-	CreateSurvey(survey model.Survey) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey) error
-	DeleteSurvey(id string, orgID string, appID string, userID string) error
+	GetSurvey(id string, orgID string, appID string, userID string, userToken string) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, userID string, userToken string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error)
+	CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error)
+	UpdateSurvey(survey model.Survey, userID string, userToken string) error
+	DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error
 
 	// Survey Response
 	GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error)
-	GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
-	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
+	GetUserSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	CreateSurveyResponse(surveyResponse model.SurveyResponse, userToken string) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(surveyResponse model.SurveyResponse) error
 	DeleteSurveyResponse(id string, orgID string, appID string, userID string) error
 	DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error
@@ -57,11 +58,12 @@ type Admin interface {
 	DeleteConfig(id string, claims *tokenauth.Claims) error
 
 	// Surveys
-	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
-	CreateSurvey(survey model.Survey) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey) error
-	DeleteSurvey(id string, orgID string, appID string) error
+	GetSurvey(id string, orgID string, appID string, userID string, userToken string) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, userID string, userToken string, surveyIDs []string, surveyTypes []string, limit *int, offset *int, groupIDs []string) ([]model.Survey, error)
+	GetAllSurveyResponses(id string, orgID string, appID string, userToken string, userID string, groupIDs []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	CreateSurvey(survey model.Survey, userName string, userToken string) (*model.Survey, error)
+	UpdateSurvey(survey model.Survey, userID string, userToken string) error
+	DeleteSurvey(id string, orgID string, appID string, userID string, userToken string) error
 
 	// Alert Contacts
 	GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error)

@@ -27,7 +27,7 @@ type DefaultAPIsHandler struct {
 	app *core.Application
 }
 
-func (h DefaultAPIsHandler) version(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h DefaultAPIsHandler) version(l *logs.Log, r *http.Request, claims *tokenauth.Claims, token string) logs.HTTPResponse {
 	return l.HTTPResponseSuccessMessage(h.app.Default.GetVersion())
 }
 
