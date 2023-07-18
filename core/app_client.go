@@ -100,6 +100,11 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 	surveyResponse.ID = uuid.NewString()
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
+
+	if len(surveyResponse.Survey.CalendarEventID) > 0 {
+		// TODO: check if user attended calendar event
+	}
+
 	return a.app.storage.CreateSurveyResponse(surveyResponse)
 }
 

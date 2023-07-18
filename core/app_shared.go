@@ -38,6 +38,11 @@ func (a appShared) createSurvey(survey model.Survey) (*model.Survey, error) {
 	survey.ID = uuid.NewString()
 	survey.DateCreated = time.Now().UTC()
 	survey.DateUpdated = nil
+
+	if len(survey.CalendarEventID) > 0 {
+		// TODO: check if user is admin of calendar event
+	}
+
 	return a.app.storage.CreateSurvey(survey)
 }
 
