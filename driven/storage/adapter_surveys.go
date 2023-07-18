@@ -36,13 +36,16 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurveys gets matching surveys
-func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
+func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error) {
 	filter := bson.M{"org_id": orgID, "app_id": appID}
 	if len(surveyIDs) > 0 {
 		filter["_id"] = bson.M{"$in": surveyIDs}
 	}
 	if len(surveyTypes) > 0 {
 		filter["type"] = bson.M{"$in": surveyTypes}
+	}
+	if len(calendarEventID) > 0 {
+		filter["calendar_event_id"] = bson.M{"$in": calendarEventID}
 	}
 
 	opts := options.Find()

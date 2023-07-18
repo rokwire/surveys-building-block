@@ -189,6 +189,12 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		surveyTypes = strings.Split(surveyTypesRaw, ",")
 	}
 
+	var calendarEventID *string
+	calendarEventIDParam := r.URL.Query().Get("calendar_event_id")
+	if len(calendarEventIDParam) > 0 {
+		calendarEventID = &calendarEventIDParam
+	}
+
 	limitRaw := r.URL.Query().Get("limit")
 	limit := 20
 	if len(limitRaw) > 0 {
@@ -208,7 +214,7 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		offset = intParsed
 	}
 
-	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, &limit, &offset)
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, calendarEventID, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
