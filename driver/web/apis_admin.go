@@ -189,11 +189,7 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		surveyTypes = strings.Split(surveyTypesRaw, ",")
 	}
 
-	var calendarEventID *string
-	calendarEventIDParam := r.URL.Query().Get("calendar_event_id")
-	if len(calendarEventIDParam) > 0 {
-		calendarEventID = &calendarEventIDParam
-	}
+	calendarEventID := r.URL.Query().Get("calendar_event_id")
 
 	limitRaw := r.URL.Query().Get("limit")
 	limit := 20

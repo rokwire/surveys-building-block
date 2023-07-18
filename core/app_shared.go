@@ -30,8 +30,8 @@ func (a appShared) getSurvey(id string, orgID string, appID string) (*model.Surv
 	return a.app.storage.GetSurvey(id, orgID, appID)
 }
 
-func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, calendarEventID *string, limit *int, offset *int) ([]model.Survey, error) {
-	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, *calendarEventID, limit, offset)
+func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error) {
+	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, calendarEventID, limit, offset)
 }
 
 func (a appShared) createSurvey(survey model.Survey) (*model.Survey, error) {
