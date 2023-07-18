@@ -18,14 +18,16 @@ import (
 	"application/core"
 	"application/core/model"
 	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/rokwire/core-auth-library-go/v3/authutils"
 	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 // AdminAPIsHandler handles the rest Admin APIs implementation
@@ -287,6 +289,61 @@ func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tok
 	}
 
 	return l.HTTPResponseSuccess()
+}
+
+func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	surveyID := r.URL.Query().Get("id")
+
+	startDateRaw := r.URL.Query().Get("start_date")
+	var startDate *time.Time
+	if len(startDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, startDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("start_date"), nil, http.StatusBadRequest, false)
+		}
+		startDate = &dateParsed
+	}
+
+	endDateRaw := r.URL.Query().Get("end_date")
+ 	var endDate *time.Time
+ 	if len(endDateRaw) > 0 {
+ 		dateParsed, err := time.Parse(time.RFC3339, endDateRaw)
+ 		if err != nil {
+ 			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("end_date"), nil, http.StatusBadRequest, false)
+ 		}
+ 		endDate = &dateParsed
+ 	}
+
+ 	limitRaw := r.URL.Query().Get("limit")
+ 	limit := 20
+ 	if len(limitRaw) > 0 {
+ 		intParsed, err := strconv.Atoi(limitRaw)
+ 		if err != nil {
+ 			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("limit"), nil, http.StatusBadRequest, false)
+ 		}
+ 		limit = intParsed
+ 	}
+
+	offsetRaw := r.URL.Query().Get("offset")
+ 	offset := 0
+ 	if len(offsetRaw) > 0 {
+ 		intParsed, err := strconv.Atoi(offsetRaw)
+ 		if err != nil {
+ 			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("offset"), nil, http.StatusBadRequest, false)
+ 		}
+ 		offset = intParsed
+ 	}
+
+ 	resData, err := h.app.Admin.GetAllSurveyResponses(claims.OrgID, claims.AppID, surveyID, startDate, endDate, &limit, &offset)
+ 	if err != nil {
+ 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+ 	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+	return l.HTTPResponseSuccessJSON(data)
 }
 
 func (h AdminAPIsHandler) getAlertContacts(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {

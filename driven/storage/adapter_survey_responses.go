@@ -36,7 +36,7 @@ func (a *Adapter) GetSurveyResponse(id string, orgID string, appID string, userI
 }
 
 // GetUserSurveyResponses gets matching surveys for a user
-func (a *Adapter) GetUserSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+func (a *Adapter) GetSurveyResponses(orgID *string, appID *string, userID *string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	filter := bson.M{}
 	if userID != nil {
 		filter["user_id"] = userID
@@ -79,6 +79,8 @@ func (a *Adapter) GetUserSurveyResponses(orgID *string, appID *string, userID *s
 	}
 	return results, nil
 }
+
+
 
 // CreateSurveyResponse creates a new survey response
 func (a *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {

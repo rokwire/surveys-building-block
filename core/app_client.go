@@ -60,9 +60,21 @@ func (a appClient) GetSurveyResponse(id string, orgID string, appID string, user
 	return a.app.storage.GetSurveyResponse(id, orgID, appID, userID)
 }
 
-// GetUserSurveyResponses returns the survey responses matching the provided filters
+// GetUserSurveyResponses returns the survey responses matching the provided filters for a specific user
 func (a appClient) GetUserSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	return a.app.storage.GetUserSurveyResponses(&orgID, &appID, &userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
+	return a.app.storage.GetSurveyResponses(&orgID, &appID, &userID, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
+}
+
+// GetAllSurveyResponses returns the survey responses matching the provided filters
+func (a appClient) GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	var allResponses []model.SurveyResponse
+
+	// TODO: If user is admin of calendar event
+	if false {
+		return a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string {surveyID}, nil, startDate, endDate, limit, offset)
+	}
+
+	return allResponses, nil
 }
 
 // CreateSurveyResponse creates a new survey response
