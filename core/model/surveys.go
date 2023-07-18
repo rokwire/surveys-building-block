@@ -61,6 +61,7 @@ type Survey struct {
 	ResponseKeys       []string               `json:"response_keys" bson:"response_keys"`
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
+	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response

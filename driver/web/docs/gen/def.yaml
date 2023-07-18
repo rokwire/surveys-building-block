@@ -1229,6 +1229,8 @@ components:
           type: string
           readOnly: true
           nullable: true
+        calendar_event_id:
+          type: string
     SurveyData:
       type: object
       properties:
