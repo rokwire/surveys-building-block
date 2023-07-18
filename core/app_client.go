@@ -68,10 +68,28 @@ func (a appClient) GetUserSurveyResponses(orgID string, appID string, userID str
 // GetAllSurveyResponses returns the survey responses matching the provided filters
 func (a appClient) GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	var allResponses []model.SurveyResponse
+	var err error
 
-	// TODO: If user is admin of calendar event
+	survey, err := a.app.shared.getSurvey(surveyID, orgID, appID)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Check if user is admin of calendar event if survey associated with one
 	if false {
-		return a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string {surveyID}, nil, startDate, endDate, limit, offset)
+		allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string {surveyID}, nil, startDate, endDate, limit, offset)
+
+		// if user is not admin then throw error
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// If survey is anonymous strip userIDs
+	if survey.Anonymous {
+		for i := range allResponses {
+			allResponses[i].UserID = ""
+		}
 	}
 
 	return allResponses, nil

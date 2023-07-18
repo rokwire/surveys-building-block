@@ -43,7 +43,22 @@ func (a appAdmin) GetSurveys(orgID string, appID string, surveyIDs []string, sur
 
 // GetAllSurveyResponses returns survey responses matching the provided query
 func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	return a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string {surveyID}, nil, startDate, endDate, limit, offset)
+	var allResponses []model.SurveyResponse
+	var err error
+
+	survey, err := a.app.shared.getSurvey(surveyID, orgID, appID)
+	if err != nil {
+		return nil, err
+	}
+
+	// If survey is anonymous strip userIDs
+	if survey.Anonymous {
+		for i := range allResponses {
+			allResponses[i].UserID = ""
+		}
+	}
+
+	return allResponses, nil
 }
 
 // CreateSurvey creates a new survey
