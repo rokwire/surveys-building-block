@@ -211,7 +211,7 @@ func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, c
  		offset = intParsed
  	}
 
- 	resData, err := h.app.Client.GetAllSurveyResponses(claims.OrgID, claims.AppID, surveyID, startDate, endDate, &limit, &offset)
+ 	resData, err := h.app.Client.GetAllSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyID, startDate, endDate, &limit, &offset)
  	if err != nil {
  		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
  	}

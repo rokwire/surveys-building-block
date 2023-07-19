@@ -67,5 +67,5 @@ type Notifications interface {
 
 // Calendar is the interface for accessing the Calendar BB
 type Calendar interface {
-	GetEventUsers(appID string, orgID string, eventID string, users []calendar.User, registered *bool, role string, attended *bool)
+	GetEventUsers(orgID string, appID string, eventID string, users []calendar.User, registered *bool, role string, attended *bool) ([]calendar.EventPerson, error)
 }

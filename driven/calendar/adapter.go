@@ -44,17 +44,16 @@ func NewCalendarAdapter(notificationHost string, serviceAccountManager *authserv
 }
 
 // GetEventUsers gets the event users through Calendar BB
-func (a *Adapter) GetEventUsers(appID string, orgID string, eventID string, users []User, registered *bool, role string, attended *bool) {
+func (a *Adapter) GetEventUsers(orgID string, appID string, eventID string, users []User, registered *bool, role string, attended *bool) ([]EventPerson, error) {
 	if a.serviceAccountManager == nil {
-		a.logger.Error("service account manager is nil")
-		return
+		return nil, errors.Newf("service account manager is nil")
 	}
 
-	go a.logger.Error(fmt.Sprint(a.getEventUsers(appID, orgID, eventID, users, registered, role, attended)))
+	return a.getEventUsers(orgID, appID, eventID, users, registered, role, attended)
 }
 
 // gets the event users through Calendar BB
-func (a *Adapter) getEventUsers(appID string, orgID string, eventID string, users []User, registered *bool, role string, attended *bool) ([]EventPerson, error) {
+func (a *Adapter) getEventUsers(orgID string, appID string, eventID string, users []User, registered *bool, role string, attended *bool) ([]EventPerson, error) {
 	url := fmt.Sprintf("%s/event/%s/users", a.baseURL, eventID)
 
 	bodyData := map[string]interface{}{}
