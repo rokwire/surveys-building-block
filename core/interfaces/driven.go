@@ -16,6 +16,7 @@ package interfaces
 
 import (
 	"application/core/model"
+	"application/driven/calendar"
 	"time"
 )
 
@@ -62,4 +63,9 @@ type StorageListener interface {
 type Notifications interface {
 	SendNotification(notification model.NotificationMessage)
 	SendMail(toEmail string, subject string, body string)
+}
+
+// Calendar is the interface for accessing the Calendar BB
+type Calendar interface {
+	GetEventUsers(appID string, orgID string, eventID string, users []calendar.User, registered *bool, role string, attended *bool)
 }
