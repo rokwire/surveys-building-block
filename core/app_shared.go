@@ -43,12 +43,12 @@ func (a appShared) createSurvey(survey model.Survey) (*model.Survey, error) {
 
 	if len(survey.CalendarEventID) > 0 {
 		// check if user is admin of calendar event
-		user := calendar.User { AccountID: survey.CreatorID }// TODO: Add networkID
+		user := calendar.User{AccountID: survey.CreatorID} // TODO: Add networkID
 		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
 		if err != nil {
 			return nil, err
 		}
-		if len(eventUsers) == 0 {// user is not admin
+		if len(eventUsers) == 0 { // user is not admin
 			return nil, errors.Newf("account is not admin of calendar event")
 		}
 	}

@@ -78,17 +78,17 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 
 	// Check if user is admin of calendar event if survey associated with one
 	if len(survey.CalendarEventID) > 0 {
-		user := calendar.User { AccountID: userID }// TODO: Add networkID
+		user := calendar.User{AccountID: userID} // TODO: Add networkID
 		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
 		if err != nil {
 			return nil, err
 		}
-		if len(eventUsers) == 0 {// user is not admin
+		if len(eventUsers) == 0 { // user is not admin
 			return nil, errors.Newf("account is not admin of calendar event")
 		}
 	}
-	
-	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string {surveyID}, nil, startDate, endDate, limit, offset)
+
+	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -111,13 +111,13 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 
 	if len(surveyResponse.Survey.CalendarEventID) > 0 {
 		// check if user attended calendar event
-		user := calendar.User { AccountID: surveyResponse.UserID }// TODO: Add networkID
+		user := calendar.User{AccountID: surveyResponse.UserID} // TODO: Add networkID
 		attended := true
 		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, surveyResponse.Survey.CalendarEventID, []calendar.User{user}, nil, "", &attended)
 		if err != nil {
 			return nil, err
 		}
-		if len(eventUsers) == 0 {// user has not attended
+		if len(eventUsers) == 0 { // user has not attended
 			return nil, errors.Newf("account is not attended calendar event")
 		}
 	}

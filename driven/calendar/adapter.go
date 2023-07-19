@@ -24,6 +24,7 @@ type Adapter struct {
 
 // TODO: adjust API definitions because it is work in progress
 
+// EventPerson is defined from Calendar API
 type EventPerson struct {
 	User             User       `json:"user"`
 	Registered       bool       `json:"registered"`
@@ -33,6 +34,7 @@ type EventPerson struct {
 	Time             *time.Time `json:"time"`
 }
 
+// User defines users from EventPerson struct
 type User struct {
 	AccountID  string `json:"account_id"`
 	ExternalID string `json:"external_id"`

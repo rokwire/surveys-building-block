@@ -54,7 +54,7 @@ type Application struct {
 
 	storage       interfaces.Storage
 	notifications interfaces.Notifications
-	calendar interfaces.Calendar
+	calendar      interfaces.Calendar
 }
 
 // Start starts the core part of the application
