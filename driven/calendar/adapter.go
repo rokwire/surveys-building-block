@@ -56,7 +56,7 @@ func (a *Adapter) GetEventUsers(orgID string, appID string, eventID string, user
 
 // gets the event users through Calendar BB
 func (a *Adapter) getEventUsers(orgID string, appID string, eventID string, users []User, registered *bool, role string, attended *bool) ([]EventPerson, error) {
-	url := fmt.Sprintf("%s/event/%s/users", a.baseURL, eventID)
+	url := fmt.Sprintf("%s/api/bbs/event/%s/users", a.baseURL, eventID)
 
 	bodyData := map[string]interface{}{}
 
@@ -79,7 +79,7 @@ func (a *Adapter) getEventUsers(orgID string, appID string, eventID string, user
 		return nil, errors.WrapErrorAction(logutils.ActionMarshal, logutils.TypeRequestBody, nil, err)
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyBytes))
+	req, err := http.NewRequest("GET", url, bytes.NewReader(bodyBytes))
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionCreate, logutils.TypeRequest, nil, err)
 	}
