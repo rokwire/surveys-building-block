@@ -118,7 +118,7 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 			return nil, err
 		}
 		if len(eventUsers) == 0 { // user has not attended
-			return nil, errors.Newf("account is not attended calendar event")
+			return nil, errors.Newf("account has not attended calendar event")
 		}
 	}
 
