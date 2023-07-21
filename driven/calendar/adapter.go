@@ -60,9 +60,7 @@ func (a *Adapter) getEventUsers(orgID string, appID string, eventID string, user
 
 	bodyData := map[string]interface{}{}
 
-	if len(users) > 0 {
-		bodyData["users"] = users
-	}
+	bodyData["users"] = users
 
 	if registered != nil {
 		bodyData["registered"] = *registered
