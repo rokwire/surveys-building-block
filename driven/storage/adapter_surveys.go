@@ -45,7 +45,7 @@ func (a *Adapter) GetSurveys(orgID string, appID string, surveyIDs []string, sur
 		filter["type"] = bson.M{"$in": surveyTypes}
 	}
 	if len(calendarEventID) > 0 {
-		filter["calendar_event_id"] = bson.M{"$in": calendarEventID}
+		filter["calendar_event_id"] = calendarEventID
 	}
 
 	opts := options.Find()
