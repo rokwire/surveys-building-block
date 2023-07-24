@@ -31,6 +31,9 @@ const (
 
 	// ConfigTypeEnv is the Config Type for EnvConfigData
 	ConfigTypeEnv string = "env"
+
+	// ConfigTypeAuth is the Config Type for AuthConfigData
+	ConfigTypeAuth string = "auth"
 )
 
 // Config contain generic configs
@@ -50,6 +53,11 @@ type EnvConfigData struct {
 	AnalyticsToken string `json:"analytics_token" bson:"analytics_token"`
 }
 
+// AuthConfigData contains auth configs for this service
+type AuthConfigData struct {
+	ExternalID string `json:"external_id" bson:"external_id"`
+}
+
 // GetConfigData returns a pointer to the given config's Data as the given type T
 func GetConfigData[T ConfigData](c Config) (*T, error) {
 	if data, ok := c.Data.(T); ok {
@@ -60,5 +68,5 @@ func GetConfigData[T ConfigData](c Config) (*T, error) {
 
 // ConfigData represents any set of data that may be stored in a config
 type ConfigData interface {
-	EnvConfigData | map[string]interface{}
+	AuthConfigData | EnvConfigData | map[string]interface{}
 }
