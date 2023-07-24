@@ -169,7 +169,8 @@ func (h ClientAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *to
 }
 
 func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	surveyID := r.URL.Query().Get("id")
+	vars := mux.Vars(r)
+	surveyID := vars["id"]
 
 	startDateRaw := r.URL.Query().Get("start_date")
 	var startDate *time.Time
@@ -211,7 +212,7 @@ func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, c
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetAllSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyID, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Client.GetAllSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyID, startDate, endDate, &limit, &offset, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -317,7 +318,7 @@ func (h ClientAPIsHandler) createSurveyResponse(l *logs.Log, r *http.Request, cl
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
 
-	createdItem, err := h.app.Client.CreateSurveyResponse(model.SurveyResponse{UserID: claims.Subject, AppID: claims.AppID, OrgID: claims.OrgID, Survey: item})
+	createdItem, err := h.app.Client.CreateSurveyResponse(model.SurveyResponse{UserID: claims.Subject, AppID: claims.AppID, OrgID: claims.OrgID, Survey: item}, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
