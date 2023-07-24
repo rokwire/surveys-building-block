@@ -67,7 +67,7 @@ func (a appClient) GetUserSurveyResponses(orgID string, appID string, userID str
 }
 
 // GetAllSurveyResponses returns the survey responses matching the provided filters
-func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int, externalIDs map[string]string) ([]model.SurveyResponse, error) {
 	var allResponses []model.SurveyResponse
 	var err error
 
@@ -78,7 +78,21 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 
 	// Check if user is admin of calendar event if survey associated with one
 	if len(survey.CalendarEventID) > 0 {
-		user := calendar.User{AccountID: userID} // TODO: Add networkID
+		// Get external ID
+		var externalID string
+		config, err := a.app.storage.FindConfig("auth", appID, orgID)
+		if err != nil {
+			return nil, err
+		}
+		if config != nil {
+			configData, err := model.GetConfigData[model.AuthConfigData](*config)
+			if err != nil {
+				return nil, err
+			}
+			externalID = externalIDs[configData.ExternalID]
+		}
+
+		user := calendar.User{AccountID: userID, ExternalID: externalID}
 		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
 		if err != nil {
 			return nil, err
@@ -104,27 +118,54 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 }
 
 // CreateSurveyResponse creates a new survey response
-func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, externalIDs map[string]string) (*model.SurveyResponse, error) {
 	surveyResponse.ID = uuid.NewString()
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
 
+	// Get survey from storage
 	survey, err := a.app.storage.GetSurvey(surveyResponse.Survey.ID, surveyResponse.OrgID, surveyResponse.AppID)
 	if err != nil {
 		return nil, err
 	}
+	// Populate survey with data from client request
+	survey.Data = surveyResponse.Survey.Data
+	survey.SurveyStats = surveyResponse.Survey.SurveyStats
+	survey.ResultJSON = surveyResponse.Survey.ResultJSON
+	surveyResponse.Survey = *survey
 
 	if len(survey.CalendarEventID) > 0 {
 		// check if user attended calendar event
-		user := calendar.User{AccountID: surveyResponse.UserID} // TODO: Add networkID
-		attended := true
-		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "", &attended)
+
+		// Get external ID
+		config, err := a.app.storage.FindConfig("auth", surveyResponse.AppID, surveyResponse.OrgID)
 		if err != nil {
 			return nil, err
 		}
-		if len(eventUsers) == 0 { // user has not attended
-			return nil, errors.Newf("account has not attended calendar event")
+		configData, err := model.GetConfigData[model.AuthConfigData](*config)
+		if err != nil {
+			return nil, err
 		}
+		externalID := externalIDs[configData.ExternalID]
+
+		user := calendar.User{AccountID: surveyResponse.UserID, ExternalID: externalID}
+		attended := true
+		registered := true
+		// This API ignores the filters so the attendance must be manually checked
+		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, survey.CalendarEventID, []calendar.User{user}, &registered, "", &attended)
+
+		if err != nil {
+			return nil, err
+		}
+		for _, eventUser := range eventUsers {
+			if eventUser.Attended {
+				return a.app.storage.CreateSurveyResponse(surveyResponse)
+			}
+		}
+		return nil, errors.Newf("account has not attended calendar event")
+		// if len(eventUsers) == 0 { // user has not attended
+		// 	return nil, errors.Newf("account has not attended calendar event")
+		// }
 	}
 
 	return a.app.storage.CreateSurveyResponse(surveyResponse)
