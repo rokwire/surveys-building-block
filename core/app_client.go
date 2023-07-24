@@ -109,11 +109,16 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 	surveyResponse.DateCreated = time.Now().UTC()
 	surveyResponse.DateUpdated = nil
 
-	if len(surveyResponse.Survey.CalendarEventID) > 0 {
+	survey, err := a.app.storage.GetSurvey(surveyResponse.Survey.ID, surveyResponse.OrgID, surveyResponse.AppID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(survey.CalendarEventID) > 0 {
 		// check if user attended calendar event
 		user := calendar.User{AccountID: surveyResponse.UserID} // TODO: Add networkID
 		attended := true
-		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, surveyResponse.Survey.CalendarEventID, []calendar.User{user}, nil, "", &attended)
+		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "", &attended)
 		if err != nil {
 			return nil, err
 		}
