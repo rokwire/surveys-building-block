@@ -89,7 +89,6 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"result_rules":          survey.ResultRules,
 			"type":                  survey.Type,
 			"stats":                 survey.SurveyStats,
-			"sensitive":             survey.Sensitive,
 			"default_data_key":      survey.DefaultDataKey,
 			"default_data_key_rule": survey.DefaultDataKeyRule,
 			"constants":             survey.Constants,
