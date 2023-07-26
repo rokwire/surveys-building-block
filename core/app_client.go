@@ -76,6 +76,11 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, err
 	}
 
+	// Check if survey is sensitive
+	if (survey.Sensitive) {
+		return nil, errors.Newf("Survey is sensitive and responses are not available")
+	}
+
 	// Check if user is admin of calendar event if survey associated with one
 	if len(survey.CalendarEventID) > 0 {
 		// Get external ID
@@ -97,8 +102,10 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		if err != nil {
 			return nil, err
 		}
-		if len(eventUsers) == 0 { // user is not admin
-			return nil, errors.Newf("account is not admin of calendar event")
+		for _, eventUser := range eventUsers {
+			if !((eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin") {
+				return nil, errors.Newf("account is not admin of calendar event")
+			}
 		}
 	}
 
