@@ -165,11 +165,10 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 			return nil, err
 		}
 		for _, eventUser := range eventUsers {
-			if eventUser.Attended {
-				return a.app.storage.CreateSurveyResponse(surveyResponse)
+			if !((eventUser.User.AccountID == surveyResponse.UserID || eventUser.User.ExternalID == externalID) && eventUser.Attended) {
+				return nil, errors.Newf("account has not attended calendar event")
 			}
 		}
-		return nil, errors.Newf("account has not attended calendar event")
 		// if len(eventUsers) == 0 { // user has not attended
 		// 	return nil, errors.Newf("account has not attended calendar event")
 		// }
