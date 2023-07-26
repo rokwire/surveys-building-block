@@ -41,8 +41,8 @@ func (a appClient) GetSurveys(orgID string, appID string, surveyIDs []string, su
 }
 
 // CreateSurvey creates a new survey
-func (a appClient) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey)
+func (a appClient) CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, externalIDs)
 }
 
 // UpdateSurvey updates the provided survey

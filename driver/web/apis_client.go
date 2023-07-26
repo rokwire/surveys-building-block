@@ -112,7 +112,7 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 	item.CreatorID = claims.Subject
 	item.Type = "user"
 
-	createdItem, err := h.app.Client.CreateSurvey(item)
+	createdItem, err := h.app.Client.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

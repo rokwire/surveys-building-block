@@ -36,21 +36,39 @@ func (a appShared) getSurveys(orgID string, appID string, surveyIDs []string, su
 	return a.app.storage.GetSurveys(orgID, appID, surveyIDs, surveyTypes, calendarEventID, limit, offset)
 }
 
-func (a appShared) createSurvey(survey model.Survey) (*model.Survey, error) {
+func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error) {
 	survey.ID = uuid.NewString()
 	survey.DateCreated = time.Now().UTC()
 	survey.DateUpdated = nil
 
 	if len(survey.CalendarEventID) > 0 {
 		// check if user is admin of calendar event
-		user := calendar.User{AccountID: survey.CreatorID} // TODO: Add networkID
+
+		// Get external ID
+		config, err := a.app.storage.FindConfig("auth", survey.AppID, survey.OrgID)
+		if err != nil {
+			return nil, err
+		}
+		configData, err := model.GetConfigData[model.AuthConfigData](*config)
+		if err != nil {
+			return nil, err
+		}
+		externalID := externalIDs[configData.ExternalID]
+
+		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID} // TODO: Add networkID
 		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
 		if err != nil {
 			return nil, err
 		}
-		if len(eventUsers) == 0 { // user is not admin
-			return nil, errors.Newf("account is not admin of calendar event")
+		for _, eventUser := range eventUsers {
+			if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin" {
+				return a.app.storage.CreateSurvey(survey)
+			}
 		}
+		return nil, errors.Newf("account not an admin of calendar event")
+		// if len(eventUsers) == 0 { // user is not admin
+		// 	return nil, errors.Newf("")
+		// }
 	}
 
 	return a.app.storage.CreateSurvey(survey)

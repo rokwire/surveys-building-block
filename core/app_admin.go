@@ -62,8 +62,8 @@ func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID str
 }
 
 // CreateSurvey creates a new survey
-func (a appAdmin) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey)
+func (a appAdmin) CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, externalIDs)
 }
 
 // UpdateSurvey updates the provided survey
