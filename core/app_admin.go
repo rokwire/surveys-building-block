@@ -42,34 +42,34 @@ func (a appAdmin) GetSurveys(orgID string, appID string, surveyIDs []string, sur
 }
 
 // GetAllSurveyResponses returns survey responses matching the provided query
-func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	var allResponses []model.SurveyResponse
-	var err error
+// func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+// 	var allResponses []model.SurveyResponse
+// 	var err error
 
-	survey, err := a.app.shared.getSurvey(surveyID, orgID, appID)
-	if err != nil {
-		return nil, err
-	}
+// 	survey, err := a.app.shared.getSurvey(surveyID, orgID, appID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	// Check if survey is sensitive
-	if survey.Sensitive {
-		return nil, errors.Newf("Survey is sensitive and responses are not available")
-	}
+// 	// Check if survey is sensitive
+// 	if survey.Sensitive {
+// 		return nil, errors.Newf("Survey is sensitive and responses are not available")
+// 	}
 
-	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
-	if err != nil {
-		return nil, err
-	}
+// 	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	// If survey is anonymous strip userIDs
-	if survey.Anonymous {
-		for i := range allResponses {
-			allResponses[i].UserID = ""
-		}
-	}
+// 	// If survey is anonymous strip userIDs
+// 	if survey.Anonymous {
+// 		for i := range allResponses {
+// 			allResponses[i].UserID = ""
+// 		}
+// 	}
 
-	return allResponses, nil
-}
+// 	return allResponses, nil
+// }
 
 // CreateSurvey creates a new survey
 func (a appAdmin) CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error) {

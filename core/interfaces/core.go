@@ -65,7 +65,7 @@ type Admin interface {
 	DeleteSurvey(id string, orgID string, appID string) error
 
 	// Survey Responses
-	GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	// GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 
 	// Alert Contacts
 	GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error)
