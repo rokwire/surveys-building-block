@@ -93,7 +93,7 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, err
 	}
 	if config != nil {
-		configData, err := model.GetConfigData[model.AuthConfigData](*config)
+		configData, err := model.GetConfigData[model.EnvConfigData](*config)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +153,7 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 		if err != nil {
 			return nil, err
 		}
-		configData, err := model.GetConfigData[model.AuthConfigData](*config)
+		configData, err := model.GetConfigData[model.EnvConfigData](*config)
 		if err != nil {
 			return nil, err
 		}

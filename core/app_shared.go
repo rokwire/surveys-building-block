@@ -49,13 +49,13 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 		if err != nil {
 			return nil, err
 		}
-		configData, err := model.GetConfigData[model.AuthConfigData](*config)
+		configData, err := model.GetConfigData[model.EnvConfigData](*config)
 		if err != nil {
 			return nil, err
 		}
 		externalID := externalIDs[configData.ExternalID]
 
-		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID} // TODO: Add networkID
+		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID}
 		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
 		if err != nil {
 			return nil, err

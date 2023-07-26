@@ -51,10 +51,6 @@ type Config struct {
 // EnvConfigData contains environment configs for this service
 type EnvConfigData struct {
 	AnalyticsToken string `json:"analytics_token" bson:"analytics_token"`
-}
-
-// AuthConfigData contains auth configs for this service
-type AuthConfigData struct {
 	ExternalID string `json:"external_id" bson:"external_id"`
 }
 
@@ -68,5 +64,5 @@ func GetConfigData[T ConfigData](c Config) (*T, error) {
 
 // ConfigData represents any set of data that may be stored in a config
 type ConfigData interface {
-	AuthConfigData | EnvConfigData | map[string]interface{}
+	EnvConfigData | map[string]interface{}
 }
