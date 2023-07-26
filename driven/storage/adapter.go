@@ -100,7 +100,7 @@ func (a *Adapter) setCachedConfigs(configs []model.Config) {
 		case model.ConfigTypeEnv:
 			err = parseConfigsData[model.EnvConfigData](&config)
 		case model.ConfigTypeAuth:
-			err = parseConfigsData[model.AuthConfigData](&config)
+			err = parseConfigsData[model.EnvConfigData](&config)
 		default:
 			err = parseConfigsData[map[string]interface{}](&config)
 		}
