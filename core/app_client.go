@@ -107,25 +107,25 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, err
 	}
 	for _, eventUser := range eventUsers {
-		if !((eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin") {
-			return nil, errors.Newf("account is not admin of calendar event")
+		if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin" {
+			// Get responses
+			allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
+			if err != nil {
+				return nil, err
+			}
+
+			// If survey is anonymous strip userIDs
+			if survey.Anonymous {
+				for i := range allResponses {
+					allResponses[i].UserID = ""
+				}
+			}
+
+			return allResponses, nil
 		}
 	}
 
-	// Get responses
-	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	// If survey is anonymous strip userIDs
-	if survey.Anonymous {
-		for i := range allResponses {
-			allResponses[i].UserID = ""
-		}
-	}
-
-	return allResponses, nil
+	return nil, errors.Newf("account is not admin of calendar event")
 }
 
 // CreateSurveyResponse creates a new survey response
@@ -169,10 +169,11 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 			return nil, err
 		}
 		for _, eventUser := range eventUsers {
-			if !((eventUser.User.AccountID == surveyResponse.UserID || eventUser.User.ExternalID == externalID) && eventUser.Attended) {
-				return nil, errors.Newf("account has not attended calendar event")
+			if (eventUser.User.AccountID == surveyResponse.UserID || eventUser.User.ExternalID == externalID) && eventUser.Attended {
+				return a.app.storage.CreateSurveyResponse(surveyResponse)
 			}
 		}
+		return nil, errors.Newf("account has not attended calendar event")
 		// if len(eventUsers) == 0 { // user has not attended
 		// 	return nil, errors.Newf("account has not attended calendar event")
 		// }
