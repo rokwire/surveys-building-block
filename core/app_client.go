@@ -81,34 +81,38 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, errors.Newf("Survey is sensitive and responses are not available")
 	}
 
-	// Check if user is admin of calendar event if survey associated with one
-	if len(survey.CalendarEventID) > 0 {
-		// Get external ID
-		var externalID string
-		config, err := a.app.storage.FindConfig("auth", appID, orgID)
-		if err != nil {
-			return nil, err
-		}
-		if config != nil {
-			configData, err := model.GetConfigData[model.AuthConfigData](*config)
-			if err != nil {
-				return nil, err
-			}
-			externalID = externalIDs[configData.ExternalID]
-		}
+	// If no calendar event is associated then user should not have access to respones
+	if len(survey.CalendarEventID) == 0 {
+		return nil, errors.Newf("Survey responses are not available. No calendar event associated")
+	}
 
-		user := calendar.User{AccountID: userID, ExternalID: externalID}
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
+	// Get external ID
+	var externalID string
+	config, err := a.app.storage.FindConfig("auth", appID, orgID)
+	if err != nil {
+		return nil, err
+	}
+	if config != nil {
+		configData, err := model.GetConfigData[model.AuthConfigData](*config)
 		if err != nil {
 			return nil, err
 		}
-		for _, eventUser := range eventUsers {
-			if !((eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin") {
-				return nil, errors.Newf("account is not admin of calendar event")
-			}
+		externalID = externalIDs[configData.ExternalID]
+	}
+	user := calendar.User{AccountID: userID, ExternalID: externalID}
+
+	// Check if user is admin of calendar event
+	eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, eventUser := range eventUsers {
+		if !((eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin") {
+			return nil, errors.Newf("account is not admin of calendar event")
 		}
 	}
 
+	// Get responses
 	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
 	if err != nil {
 		return nil, err
