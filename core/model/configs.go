@@ -51,7 +51,7 @@ type Config struct {
 // EnvConfigData contains environment configs for this service
 type EnvConfigData struct {
 	AnalyticsToken string `json:"analytics_token" bson:"analytics_token"`
-	ExternalID string `json:"external_id" bson:"external_id"`
+	ExternalID     string `json:"external_id" bson:"external_id"`
 }
 
 // GetConfigData returns a pointer to the given config's Data as the given type T

@@ -52,7 +52,7 @@ func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID str
 	}
 
 	// Check if survey is sensitive
-	if (survey.Sensitive) {
+	if survey.Sensitive {
 		return nil, errors.Newf("Survey is sensitive and responses are not available")
 	}
 
