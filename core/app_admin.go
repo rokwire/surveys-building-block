@@ -56,6 +56,11 @@ func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID str
 		return nil, errors.Newf("Survey is sensitive and responses are not available")
 	}
 
+	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
 	// If survey is anonymous strip userIDs
 	if survey.Anonymous {
 		for i := range allResponses {
