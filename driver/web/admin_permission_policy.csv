@@ -8,6 +8,7 @@ p, update_surveys, /surveys/api/admin/surveys, (GET)|(POST), Update surveys
 p, update_surveys, /surveys/api/admin/surveys/*, (GET)|(PUT),
 p, delete_surveys, /surveys/api/admin/surveys, (GET), Delete surveys
 p, delete_surveys, /surveys/api/admin/surveys/*, (GET)|(DELETE),
+p, get_survey_responses /surveys/api/admin/*/responses, (GET), Get survey responses
 
 p, all_alert_contacts, /surveys/api/admin/alert-contacts, (GET)|(POST)|(PUT)|(DELETE), All alert contact actions
 p, all_alert_contacts, /surveys/api/admin/alert-contacts/*, (GET)|(POST)|(PUT)|(DELETE),
