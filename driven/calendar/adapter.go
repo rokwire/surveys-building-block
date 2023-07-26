@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/rokwire/core-auth-library-go/v3/authservice"
 	"github.com/rokwire/logging-library-go/v2/errors"
@@ -26,12 +25,12 @@ type Adapter struct {
 
 // EventPerson is defined from Calendar API
 type EventPerson struct {
-	User             User       `json:"user"`
-	Registered       bool       `json:"registered"`
-	Role             string     `json:"role"`
-	RegistrationType string     `json:"registration_type"`
-	Attended         bool       `json:"attended"`
-	Time             *time.Time `json:"time"`
+	User             User   `json:"user"`
+	Registered       bool   `json:"registered"`
+	Role             string `json:"role"`
+	RegistrationType string `json:"registration_type"`
+	Attended         bool   `json:"attended"`
+	Time             int    `json:"time"`
 }
 
 // User defines users from EventPerson struct
