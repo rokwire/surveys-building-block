@@ -211,7 +211,7 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		offset = intParsed
 	}
 
-	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, surveyIDs, surveyTypes, calendarEventID, &limit, &offset)
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
