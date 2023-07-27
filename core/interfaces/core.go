@@ -58,7 +58,7 @@ type Admin interface {
 	DeleteConfig(id string, claims *tokenauth.Claims) error
 
 	// Surveys
-	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
+	GetSurvey(id string, orgID string, appID string) (*model.Survey, error
 	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey) error

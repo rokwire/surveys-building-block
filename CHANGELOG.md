@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Associate surveys with Calendar BB events [#19](https://github.com/rokwire/surveys-building-block/issues/19)
+
+### Added
+- Support survey creation tool [#14](https://github.com/rokwire/surveys-building-block/issues/14)
 ## [1.1.0] - 2023-03-15
 ### Added
 - Create survey response analytics API [#11](https://github.com/rokwire/surveys-building-block/issues/11)

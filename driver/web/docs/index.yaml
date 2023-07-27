@@ -32,7 +32,7 @@ paths:
 
   # Client
   /api/surveys:
-      $ref: "./resources/client/surveys.yaml"     
+    $ref: "./resources/client/surveys.yaml"     
   /api/surveys/{id}:
     $ref: "./resources/client/surveysid.yaml"
   /api/surveys/{id}/responses:
@@ -42,7 +42,9 @@ paths:
   /api/survey-responses/{id}:
     $ref: "./resources/client/survey-responsesid.yaml"   
   /api/survey-alerts:
-    $ref: "./resources/client/survey-alerts.yaml"  
+    $ref: "./resources/client/survey-alerts.yaml"
+  /api/creator/surveys:
+    $ref: "./resources/client/creator/surveys.yaml"
 
   # Admin
   /api/admin/configs:

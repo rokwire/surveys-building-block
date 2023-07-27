@@ -90,7 +90,8 @@ type SurveyStats struct {
 
 // SurveyData is data stored for a Survey
 type SurveyData struct {
-	Section             *string     `json:"section" bson:"section"`
+	Section             *string     `json:"section,omitempty" bson:"section,omitempty"`
+	Sections            []string    `json:"sections,omitempty" bson:"sections,omitempty"`
 	AllowSkip           bool        `json:"allow_skip" bson:"allow_skip"`
 	Text                string      `json:"text" bson:"text"`
 	MoreInfo            string      `json:"more_info" bson:"more_info"`
@@ -107,7 +108,7 @@ type SurveyData struct {
 	CorrectAnswer  interface{}   `json:"correct_answer,omitempty" bson:"correct_answer,omitempty"`
 	CorrectAnswers []interface{} `json:"correct_answers,omitempty" bson:"correct_answers,omitempty"`
 	Options        []OptionData  `json:"options,omitempty" bson:"options,omitempty"`
-	Actions        []ActionData  `json:"actions,omitempty" bson:"actions,omitempty"`
+	Actions        *[]ActionData `json:"actions,omitempty" bson:"actions,omitempty"`
 	SelfScore      *bool         `json:"self_score,omitempty" bson:"self_score,omitempty"`
 	MaximumScore   *float64      `json:"maximum_score,omitempty" bson:"maximum_score,omitempty"`
 	Style          *string       `json:"style,omitempty" bson:"style,omitempty"`
