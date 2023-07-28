@@ -31,9 +31,6 @@ const (
 
 	// ConfigTypeEnv is the Config Type for EnvConfigData
 	ConfigTypeEnv string = "env"
-
-	// ConfigTypeAuth is the Config Type for AuthConfigData
-	ConfigTypeAuth string = "auth"
 )
 
 // Config contain generic configs

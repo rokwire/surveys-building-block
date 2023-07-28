@@ -87,18 +87,11 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 	}
 
 	// Get external ID
-	var externalID string
-	config, err := a.app.storage.FindConfig("auth", appID, orgID)
+	envConfig, err := a.app.GetEnvConfigs()
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
 	}
-	if config != nil {
-		configData, err := model.GetConfigData[model.EnvConfigData](*config)
-		if err != nil {
-			return nil, err
-		}
-		externalID = externalIDs[configData.ExternalID]
-	}
+	externalID := externalIDs[envConfig.ExternalID]
 	user := calendar.User{AccountID: userID, ExternalID: externalID}
 
 	// Check if user is admin of calendar event
@@ -149,15 +142,11 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 		// check if user attended calendar event
 
 		// Get external ID
-		config, err := a.app.storage.FindConfig("auth", surveyResponse.AppID, surveyResponse.OrgID)
+		envConfig, err := a.app.GetEnvConfigs()
 		if err != nil {
-			return nil, err
+			return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
 		}
-		configData, err := model.GetConfigData[model.EnvConfigData](*config)
-		if err != nil {
-			return nil, err
-		}
-		externalID := externalIDs[configData.ExternalID]
+		externalID := externalIDs[envConfig.ExternalID]
 
 		user := calendar.User{AccountID: surveyResponse.UserID, ExternalID: externalID}
 		attended := true

@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rokwire/logging-library-go/v2/errors"
+	"github.com/rokwire/logging-library-go/v2/logutils"
 )
 
 // appShared contains shared implementations
@@ -44,16 +45,12 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 	if len(survey.CalendarEventID) > 0 {
 		// check if user is admin of calendar event
 
-		// Get external ID
-		config, err := a.app.storage.FindConfig("auth", survey.AppID, survey.OrgID)
+		// Get external ID field
+		envConfig, err := a.app.GetEnvConfigs()
 		if err != nil {
-			return nil, err
+			return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
 		}
-		configData, err := model.GetConfigData[model.EnvConfigData](*config)
-		if err != nil {
-			return nil, err
-		}
-		externalID := externalIDs[configData.ExternalID]
+		externalID := externalIDs[envConfig.ExternalID]
 
 		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID}
 		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
