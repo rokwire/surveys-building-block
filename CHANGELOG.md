@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.2.0] - 2023-07-27
 ### Added
 - Associate surveys with Calendar BB events [#19](https://github.com/rokwire/surveys-building-block/issues/19)
 - Support survey creation tool [#14](https://github.com/rokwire/surveys-building-block/issues/14)
@@ -27,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial implementation
 
-[Unreleased]: https://github.com/rokwire/core-building-block/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/rokwire/core-building-block/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/rokwire/core-building-block/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/rokwire/core-building-block/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/rokwire/core-building-block/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/rokwire/core-building-block/compare/v1.0.0...v1.0.1
