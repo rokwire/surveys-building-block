@@ -66,6 +66,8 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		surveyTypes = strings.Split(surveyTypesRaw, ",")
 	}
 
+	calendarEventID := r.URL.Query().Get("calendar_event_id")
+
 	limitRaw := r.URL.Query().Get("limit")
 	limit := 20
 	if len(limitRaw) > 0 {
@@ -85,7 +87,7 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, &limit, &offset)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -110,7 +112,7 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 	item.CreatorID = claims.Subject
 	item.Type = "user"
 
-	createdItem, err := h.app.Client.CreateSurvey(item)
+	createdItem, err := h.app.Client.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -166,7 +168,64 @@ func (h ClientAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *to
 	return l.HTTPResponseSuccess()
 }
 
-func (h ClientAPIsHandler) getSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+func (h ClientAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	vars := mux.Vars(r)
+	surveyID := vars["id"]
+
+	startDateRaw := r.URL.Query().Get("start_date")
+	var startDate *time.Time
+	if len(startDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, startDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("start_date"), nil, http.StatusBadRequest, false)
+		}
+		startDate = &dateParsed
+	}
+
+	endDateRaw := r.URL.Query().Get("end_date")
+	var endDate *time.Time
+	if len(endDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, endDateRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("end_date"), nil, http.StatusBadRequest, false)
+		}
+		endDate = &dateParsed
+	}
+
+	limitRaw := r.URL.Query().Get("limit")
+	limit := 20
+	if len(limitRaw) > 0 {
+		intParsed, err := strconv.Atoi(limitRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("limit"), nil, http.StatusBadRequest, false)
+		}
+		limit = intParsed
+	}
+
+	offsetRaw := r.URL.Query().Get("offset")
+	offset := 0
+	if len(offsetRaw) > 0 {
+		intParsed, err := strconv.Atoi(offsetRaw)
+		if err != nil {
+			return l.HTTPResponseErrorData(logutils.StatusInvalid, logutils.TypeQueryParam, logutils.StringArgs("offset"), nil, http.StatusBadRequest, false)
+		}
+		offset = intParsed
+	}
+
+	resData, err := h.app.Client.GetAllSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyID, startDate, endDate, &limit, &offset, claims.ExternalIDs)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
+func (h ClientAPIsHandler) getUserSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
 	surveyIDsRaw := r.URL.Query().Get("survey_ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -215,7 +274,7 @@ func (h ClientAPIsHandler) getSurveyResponses(l *logs.Log, r *http.Request, clai
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyIDs, surveyTypes, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Client.GetUserSurveyResponses(claims.OrgID, claims.AppID, claims.Subject, surveyIDs, surveyTypes, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
@@ -259,7 +318,7 @@ func (h ClientAPIsHandler) createSurveyResponse(l *logs.Log, r *http.Request, cl
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
 
-	createdItem, err := h.app.Client.CreateSurveyResponse(model.SurveyResponse{UserID: claims.Subject, AppID: claims.AppID, OrgID: claims.OrgID, Survey: item})
+	createdItem, err := h.app.Client.CreateSurveyResponse(model.SurveyResponse{UserID: claims.Subject, AppID: claims.AppID, OrgID: claims.OrgID, Survey: item}, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurveyResponse, nil, err, http.StatusInternalServerError, true)
 	}
@@ -400,7 +459,7 @@ func (h ClientAPIsHandler) getCreatorSurveys(l *logs.Log, r *http.Request, claim
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, &limit, &offset)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

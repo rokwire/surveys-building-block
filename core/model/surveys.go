@@ -53,6 +53,7 @@ type Survey struct {
 	Type               string                 `json:"type" bson:"type"`
 	SurveyStats        *SurveyStats           `json:"stats" bson:"stats"`
 	Sensitive          bool                   `json:"sensitive" bson:"sensitive"`
+	Anonymous          bool                   `json:"anonymous" bson:"anonymous"`
 	DefaultDataKey     *string                `json:"default_data_key" bson:"default_data_key"`
 	DefaultDataKeyRule *string                `json:"default_data_key_rule" bson:"default_data_key_rule"`
 	Constants          map[string]interface{} `json:"constants" bson:"constants"`
@@ -61,6 +62,7 @@ type Survey struct {
 	ResponseKeys       []string               `json:"response_keys" bson:"response_keys"`
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
+	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response

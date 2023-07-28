@@ -16,6 +16,7 @@ package interfaces
 
 import (
 	"application/core/model"
+	"application/driven/calendar"
 	"time"
 )
 
@@ -32,7 +33,7 @@ type Storage interface {
 	DeleteConfig(id string) error
 
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
+	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey, admin bool) error
 	DeleteSurvey(id string, orgID string, appID string, creatorID *string) error
@@ -62,4 +63,9 @@ type StorageListener interface {
 type Notifications interface {
 	SendNotification(notification model.NotificationMessage)
 	SendMail(toEmail string, subject string, body string)
+}
+
+// Calendar is the interface for accessing the Calendar BB
+type Calendar interface {
+	GetEventUsers(orgID string, appID string, eventID string, users []calendar.User, registered *bool, role string, attended *bool) ([]calendar.EventPerson, error)
 }

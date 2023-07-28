@@ -30,15 +30,16 @@ type Default interface {
 type Client interface {
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
-	CreateSurvey(survey model.Survey) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
+	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey) error
 	DeleteSurvey(id string, orgID string, appID string, userID string) error
 
 	// Survey Response
 	GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error)
-	GetSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
-	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
+	GetUserSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetAllSurveyResponses(orgID string, appID string, userID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int, externalIDs map[string]string) ([]model.SurveyResponse, error)
+	CreateSurveyResponse(surveyResponse model.SurveyResponse, externalIDs map[string]string) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(surveyResponse model.SurveyResponse) error
 	DeleteSurveyResponse(id string, orgID string, appID string, userID string) error
 	DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error
@@ -58,10 +59,13 @@ type Admin interface {
 
 	// Surveys
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
-	CreateSurvey(survey model.Survey) (*model.Survey, error)
+	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
+	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey) error
 	DeleteSurvey(id string, orgID string, appID string) error
+
+	// Survey Responses
+	// GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 
 	// Alert Contacts
 	GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error)

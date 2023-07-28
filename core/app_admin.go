@@ -37,13 +37,43 @@ func (a appAdmin) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurvey returns surveys matching the provided query
-func (a appAdmin) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
-	return a.app.shared.getSurveys(orgID, appID, creatorID, surveyIDs, surveyTypes, limit, offset)
+func (a appAdmin) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error) {
+	return a.app.shared.getSurveys(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset)
 }
 
+// GetAllSurveyResponses returns survey responses matching the provided query
+// func (a appAdmin) GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+// 	var allResponses []model.SurveyResponse
+// 	var err error
+
+// 	survey, err := a.app.shared.getSurvey(surveyID, orgID, appID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// Check if survey is sensitive
+// 	if survey.Sensitive {
+// 		return nil, errors.Newf("Survey is sensitive and responses are not available")
+// 	}
+
+// 	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// If survey is anonymous strip userIDs
+// 	if survey.Anonymous {
+// 		for i := range allResponses {
+// 			allResponses[i].UserID = ""
+// 		}
+// 	}
+
+// 	return allResponses, nil
+// }
+
 // CreateSurvey creates a new survey
-func (a appAdmin) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-	return a.app.shared.createSurvey(survey)
+func (a appAdmin) CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error) {
+	return a.app.shared.createSurvey(survey, externalIDs)
 }
 
 // UpdateSurvey updates the provided survey

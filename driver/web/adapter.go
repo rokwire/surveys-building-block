@@ -78,8 +78,9 @@ func (a Adapter) Start() {
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.createSurvey, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurvey, a.auth.client.User)).Methods("PUT")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurvey, a.auth.client.User)).Methods("DELETE")
+	mainRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.clientAPIsHandler.getAllSurveyResponses, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.getSurveyResponse, a.auth.client.User)).Methods("GET")
-	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.getSurveyResponses, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.getUserSurveyResponses, a.auth.client.User)).Methods("GET")
 	mainRouter.HandleFunc("/survey-responses", a.wrapFunc(a.clientAPIsHandler.createSurveyResponse, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurveyResponse, a.auth.client.User)).Methods("PUT")
 	mainRouter.HandleFunc("/survey-responses/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurveyResponse, a.auth.client.User)).Methods("DELETE")
@@ -100,6 +101,7 @@ func (a Adapter) Start() {
 	adminRouter.HandleFunc("/surveys", a.wrapFunc(a.adminAPIsHandler.createSurvey, a.auth.admin.Permissions)).Methods("POST")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.updateSurvey, a.auth.admin.Permissions)).Methods("PUT")
 	adminRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.adminAPIsHandler.deleteSurvey, a.auth.admin.Permissions)).Methods("DELETE")
+	// adminRouter.HandleFunc("/surveys/{id}/responses", a.wrapFunc(a.adminAPIsHandler.getAllSurveyResponses, a.auth.admin.Permissions)).Methods("GET")
 
 	adminRouter.HandleFunc("/alert-contacts", a.wrapFunc(a.adminAPIsHandler.getAlertContacts, a.auth.admin.Permissions)).Methods("GET")
 	adminRouter.HandleFunc("/alert-contacts/{id}", a.wrapFunc(a.adminAPIsHandler.getAlertContact, a.auth.admin.Permissions)).Methods("GET")

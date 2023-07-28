@@ -69,6 +69,13 @@ paths:
           explode: false
           schema:
             type: string
+        - name: calendar_event_id
+          in: query
+          description: eventID of calendar eventID
+          required: false
+          explode: false
+          schema:
+            type: string
         - name: limit
           in: query
           description: The number of results to be loaded in one page
@@ -217,6 +224,71 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+        '500':
+          description: Internal error
+  '/api/surveys/{id}/responses':
+    get:
+      tags:
+        - Client
+      summary: Retrieves all survey responses for specified survey
+      description: |
+        Retrieves all survey responses for specified survey
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: The start of the date range to search for
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          description: The end of the date range to search for
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The number of results to be loaded in one page
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: The number of results previously loaded
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SurveyResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
         '500':
           description: Internal error
   /api/survey-responses:
@@ -820,6 +892,13 @@ paths:
           explode: false
           schema:
             type: string
+        - name: calendar_event_id
+          in: query
+          description: eventID of calendar eventID
+          required: false
+          explode: false
+          schema:
+            type: string
         - name: limit
           in: query
           description: The number of results to be loaded in one page
@@ -974,6 +1053,74 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+        '500':
+          description: Internal error
+  '/api/admin/surveys/{id}/responses':
+    get:
+      tags:
+        - Admin
+      summary: Retrieves all survey responses for specified survey
+      deprecated: true
+      description: |
+        Retrieves all survey responses for specified survey
+
+        **Auth:** Requires admin token
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: The start of the date range to search for
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          description: The end of the date range to search for
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The number of results to be loaded in one page
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          description: The number of results previously loaded
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SurveyResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
         '500':
           description: Internal error
   /api/admin/alert-contacts:
@@ -1265,6 +1412,8 @@ components:
           $ref: '#/components/schemas/SurveyStats'
         sensitive:
           type: boolean
+        anonymous:
+          type: boolean
         default_data_key:
           type: string
         default_data_key_rule:
@@ -1286,6 +1435,8 @@ components:
           type: string
           readOnly: true
           nullable: true
+        calendar_event_id:
+          type: string
     SurveyData:
       type: object
       properties:

@@ -35,6 +35,8 @@ paths:
     $ref: "./resources/client/surveys.yaml"     
   /api/surveys/{id}:
     $ref: "./resources/client/surveysid.yaml"
+  /api/surveys/{id}/responses:
+    $ref: "./resources/client/surveysid-responses.yaml"
   /api/survey-responses:
     $ref: "./resources/client/survey-responses.yaml"     
   /api/survey-responses/{id}:
@@ -54,6 +56,8 @@ paths:
     $ref: "./resources/admin/surveys.yaml"     
   /api/admin/surveys/{id}:
     $ref: "./resources/admin/surveysid.yaml"
+  /api/admin/surveys/{id}/responses:
+    $ref: "./resources/admin/surveysid-responses.yaml"
   /api/admin/alert-contacts:
     $ref: "./resources/admin/alert-contact.yaml"     
   /api/admin/alert-contacts/{id}:

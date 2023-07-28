@@ -36,7 +36,7 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurveys gets matching surveys
-func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error) {
+func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error) {
 	filter := bson.M{"org_id": orgID, "app_id": appID}
 	if creatorID != nil {
 		filter["creator_id"] = *creatorID
@@ -46,6 +46,9 @@ func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surv
 	}
 	if len(surveyTypes) > 0 {
 		filter["type"] = bson.M{"$in": surveyTypes}
+	}
+	if len(calendarEventID) > 0 {
+		filter["calendar_event_id"] = calendarEventID
 	}
 
 	opts := options.Find()
@@ -89,7 +92,6 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"result_rules":          survey.ResultRules,
 			"type":                  survey.Type,
 			"stats":                 survey.SurveyStats,
-			"sensitive":             survey.Sensitive,
 			"default_data_key":      survey.DefaultDataKey,
 			"default_data_key_rule": survey.DefaultDataKeyRule,
 			"constants":             survey.Constants,

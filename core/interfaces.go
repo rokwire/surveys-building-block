@@ -20,8 +20,8 @@ import "application/core/model"
 type Shared interface {
 	// Surveys
 	getSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	getSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, limit *int, offset *int) ([]model.Survey, error)
-	createSurvey(survey model.Survey) (*model.Survey, error)
+	getSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
+	createSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
 	updateSurvey(survey model.Survey, admin bool) error
 	deleteSurvey(id string, orgID string, appID string, creatorID *string) error
 }

@@ -16,6 +16,7 @@ package main
 
 import (
 	"application/core"
+	"application/driven/calendar"
 	"application/driven/notifications"
 	"application/driven/storage"
 	"application/driver/web"
@@ -74,7 +75,7 @@ func main() {
 		AuthBaseURL: coreBBBaseURL,
 	}
 
-	serviceRegLoader, err := authservice.NewRemoteServiceRegLoader(&authService, []string{"notifications"})
+	serviceRegLoader, err := authservice.NewRemoteServiceRegLoader(&authService, []string{"notifications", "calendar"})
 	if err != nil {
 		logger.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
@@ -125,8 +126,21 @@ func main() {
 		logger.Fatalf("Error initializing notifications adapter: %v", err)
 	}
 
+	// Calendar adapter
+	calendarHost := ""
+	calendarReg, err := serviceRegManager.GetServiceReg("calendar")
+	if err != nil {
+		logger.Errorf("error finding calendar service reg: %s", err)
+	} else {
+		calendarHost = calendarReg.Host
+	}
+	calendarAdapter, err := calendar.NewCalendarAdapter(calendarHost, serviceAccountManager, logger)
+	if err != nil {
+		logger.Fatalf("Error initializing calendar adapter: %v", err)
+	}
+
 	// Application
-	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter, logger)
+	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter, calendarAdapter, logger)
 	application.Start()
 
 	// Web adapter

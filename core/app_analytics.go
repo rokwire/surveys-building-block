@@ -30,7 +30,7 @@ type appAnalytics struct {
 // Survey Response
 // GetAnonymousSurveyResponses returns the anonymized survey responses matching the provided filters
 func (a appAnalytics) GetAnonymousSurveyResponses(surveyTypes []string, startDate *time.Time, endDate *time.Time) ([]model.SurveyResponseAnonymous, error) {
-	// GetSurveyResponses returns the survey responses matching the provided filters
+	// GetUserSurveyResponses returns the survey responses matching the provided filters
 	responses, err := a.app.storage.GetSurveyResponses(nil, nil, nil, nil, surveyTypes, startDate, endDate, nil, nil)
 	if err != nil {
 		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeSurveyResponse, nil, err)
