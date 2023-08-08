@@ -46,8 +46,8 @@ func (a appClient) CreateSurvey(survey model.Survey, externalIDs map[string]stri
 }
 
 // UpdateSurvey updates the provided survey
-func (a appClient) UpdateSurvey(survey model.Survey) error {
-	return a.app.shared.updateSurvey(survey, false)
+func (a appClient) UpdateSurvey(survey model.Survey, userID string) error {
+	return a.app.shared.updateSurvey(survey, userID, false)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
@@ -95,12 +95,12 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 	user := calendar.User{AccountID: userID, ExternalID: externalID}
 
 	// Check if user is admin of calendar event
-	eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
+	eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
 	if err != nil {
 		return nil, err
 	}
 	for _, eventUser := range eventUsers {
-		if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin" {
+		if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == calendar.EventRoleAdmin {
 			// Get responses
 			allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
 			if err != nil {

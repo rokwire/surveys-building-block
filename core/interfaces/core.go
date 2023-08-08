@@ -32,7 +32,7 @@ type Client interface {
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey) error
+	UpdateSurvey(survey model.Survey, userID string) error
 	DeleteSurvey(id string, orgID string, appID string, userID string) error
 
 	// Survey Response
@@ -61,7 +61,7 @@ type Admin interface {
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey) error
+	UpdateSurvey(survey model.Survey, userID string) error
 	DeleteSurvey(id string, orgID string, appID string) error
 
 	// Survey Responses

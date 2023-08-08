@@ -265,9 +265,8 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.ID = id
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
-	item.CreatorID = claims.Subject
 
-	err = h.app.Admin.UpdateSurvey(item)
+	err = h.app.Admin.UpdateSurvey(item, claims.Subject)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

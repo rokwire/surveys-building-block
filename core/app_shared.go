@@ -53,12 +53,12 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 		externalID := externalIDs[envConfig.ExternalID]
 
 		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID}
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "admin", nil)
+		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
 		if err != nil {
 			return nil, err
 		}
 		for _, eventUser := range eventUsers {
-			if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == "admin" {
+			if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == calendar.EventRoleAdmin {
 				return a.app.storage.CreateSurvey(survey)
 			}
 		}
@@ -71,7 +71,23 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 	return a.app.storage.CreateSurvey(survey)
 }
 
-func (a appShared) updateSurvey(survey model.Survey, admin bool) error {
+func (a appShared) updateSurvey(survey model.Survey, userID string, admin bool) error {
+	// if survey has an associated event and the current user is not already an admin user, check if user is an event admin
+	if !admin && survey.CalendarEventID != "" {
+		// the calendar BB event users API only uses the event ID for now
+		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, nil, nil, "", nil)
+		if err != nil {
+			return errors.WrapErrorAction(logutils.ActionGet, "event users", &logutils.FieldArgs{"event_id": survey.CalendarEventID}, err)
+		}
+		for _, eventUser := range eventUsers {
+			// if the current user is an event admin, then act as an admin update
+			if eventUser.User.AccountID == userID && eventUser.Role == calendar.EventRoleAdmin {
+				admin = true
+				break
+			}
+		}
+	}
+
 	return a.app.storage.UpdateSurvey(survey, admin)
 }
 
