@@ -87,11 +87,14 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 	}
 
 	// Get external ID
+	externalID := ""
 	envConfig, err := a.app.GetEnvConfigs()
 	if err != nil {
-		return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
+		a.app.logger.Warnf("error getting config %s: %s", model.ConfigTypeEnv, err.Error())
 	}
-	externalID := externalIDs[envConfig.ExternalID]
+	if envConfig != nil {
+		externalID = externalIDs[envConfig.ExternalID]
+	}
 	user := calendar.User{AccountID: userID, ExternalID: externalID}
 
 	// Check if user is admin of calendar event
@@ -100,7 +103,7 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, err
 	}
 	for _, eventUser := range eventUsers {
-		if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == calendar.EventRoleAdmin {
+		if ((externalID != "" && eventUser.User.ExternalID == externalID) || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == calendar.EventRoleAdmin {
 			// Get responses
 			allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
 			if err != nil {
@@ -118,7 +121,7 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		}
 	}
 
-	return nil, errors.Newf("account is not admin of calendar event")
+	return nil, errors.ErrorData(logutils.StatusInvalid, "user", &logutils.FieldArgs{"calendar_event_id": survey.CalendarEventID, "admin": false})
 }
 
 // CreateSurveyResponse creates a new survey response
