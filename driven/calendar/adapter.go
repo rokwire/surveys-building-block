@@ -13,6 +13,11 @@ import (
 	"github.com/rokwire/logging-library-go/v2/logutils"
 )
 
+const (
+	// EventRoleAdmin represents the role string assigned to event admins
+	EventRoleAdmin string = "admin"
+)
+
 // Adapter implements the Calendar interface
 type Adapter struct {
 	baseURL               string

@@ -77,8 +77,8 @@ func (a appAdmin) CreateSurvey(survey model.Survey, externalIDs map[string]strin
 }
 
 // UpdateSurvey updates the provided survey
-func (a appAdmin) UpdateSurvey(survey model.Survey) error {
-	return a.app.shared.updateSurvey(survey, true)
+func (a appAdmin) UpdateSurvey(survey model.Survey, userID string) error {
+	return a.app.shared.updateSurvey(survey, userID, true)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
