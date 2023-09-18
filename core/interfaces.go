@@ -22,6 +22,6 @@ type Shared interface {
 	getSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	getSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	createSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
-	updateSurvey(survey model.Survey, userID string, admin bool) error
-	deleteSurvey(id string, orgID string, appID string, creatorID *string) error
+	updateSurvey(survey model.Survey, userID string, externalID string, admin bool) error
+	deleteSurvey(id string, orgID string, appID string, userID string, externalID string, admin bool) error
 }

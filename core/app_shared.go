@@ -15,6 +15,7 @@
 package core
 
 import (
+	"application/core/interfaces"
 	"application/core/model"
 	"application/driven/calendar"
 	"time"
@@ -71,28 +72,63 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 	return a.app.storage.CreateSurvey(survey)
 }
 
-func (a appShared) updateSurvey(survey model.Survey, userID string, admin bool) error {
-	// if survey has an associated event and the current user is not already an admin user, check if user is an event admin
-	if !admin && survey.CalendarEventID != "" {
-		// the calendar BB event users API only uses the event ID for now
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, nil, nil, "", nil)
-		if err != nil {
-			return errors.WrapErrorAction(logutils.ActionGet, "event users", &logutils.FieldArgs{"event_id": survey.CalendarEventID}, err)
-		}
-		for _, eventUser := range eventUsers {
-			// if the current user is an event admin, then act as an admin update
-			if eventUser.User.AccountID == userID && eventUser.Role == calendar.EventRoleAdmin {
-				admin = true
-				break
-			}
-		}
+func (a appShared) updateSurvey(survey model.Survey, userID string, externalID string, admin bool) error {
+	admin, err := a.isAdminUser(survey, userID, externalID, admin)
+	if err != nil {
+		return errors.WrapErrorAction("checking", "event admin", &logutils.FieldArgs{"user_id": userID, "external_id": externalID}, err)
 	}
 
 	return a.app.storage.UpdateSurvey(survey, admin)
 }
 
-func (a appShared) deleteSurvey(id string, orgID string, appID string, creatorID *string) error {
-	return a.app.storage.DeleteSurvey(id, orgID, appID, creatorID)
+func (a appShared) deleteSurvey(id string, orgID string, appID string, userID string, externalID string, admin bool) error {
+	transaction := func(storage interfaces.Storage) error {
+		//1. find survey
+		survey, err := storage.GetSurvey(id, appID, orgID)
+		if err != nil {
+			return errors.WrapErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err)
+		}
+		if survey == nil {
+			return errors.ErrorData(logutils.StatusMissing, model.TypeSurvey, &logutils.FieldArgs{"id": id, "app_id": appID, "org_id": orgID})
+		}
+
+		//2. check if user is event admin
+		admin, err = a.isAdminUser(*survey, userID, externalID, admin)
+		if err != nil {
+			return errors.WrapErrorAction("checking", "event admin", &logutils.FieldArgs{"user_id": userID, "external_id": externalID}, err)
+		}
+
+		//3. delete survey
+		err = storage.DeleteSurvey(id, orgID, appID, userID, admin)
+		if err != nil {
+			return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err)
+		}
+
+		return nil
+	}
+
+	return a.app.storage.PerformTransaction(transaction)
+}
+
+func (a appShared) isAdminUser(survey model.Survey, userID string, externalID string, admin bool) (bool, error) {
+	user := calendar.User{AccountID: userID, ExternalID: externalID}
+
+	// if survey has an associated event and the current user is not already an admin user, check if user is an event admin
+	if !admin && survey.CalendarEventID != "" {
+		// the calendar BB event users API only uses the event ID for now
+		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "", nil)
+		if err != nil {
+			return false, errors.WrapErrorAction(logutils.ActionGet, "event users", &logutils.FieldArgs{"event_id": survey.CalendarEventID}, err)
+		}
+		for _, eventUser := range eventUsers {
+			// if the current user is an event admin, then act as an admin update
+			if (eventUser.User.AccountID == userID || eventUser.User.ExternalID == externalID) && eventUser.Role == calendar.EventRoleAdmin {
+				return true, nil
+			}
+		}
+	}
+
+	return admin, nil
 }
 
 // newAppShared creates new appShared

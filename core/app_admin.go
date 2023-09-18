@@ -77,13 +77,13 @@ func (a appAdmin) CreateSurvey(survey model.Survey, externalIDs map[string]strin
 }
 
 // UpdateSurvey updates the provided survey
-func (a appAdmin) UpdateSurvey(survey model.Survey, userID string) error {
-	return a.app.shared.updateSurvey(survey, userID, true)
+func (a appAdmin) UpdateSurvey(survey model.Survey, userID string, externalID string) error {
+	return a.app.shared.updateSurvey(survey, userID, externalID, true)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appAdmin) DeleteSurvey(id string, orgID string, appID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, nil)
+func (a appAdmin) DeleteSurvey(id string, orgID string, appID string, userID string, externalID string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, externalID, true)
 }
 
 // GetAlertContacts returns all alert contacts for the provided app/org

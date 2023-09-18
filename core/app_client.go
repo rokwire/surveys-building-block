@@ -46,13 +46,13 @@ func (a appClient) CreateSurvey(survey model.Survey, externalIDs map[string]stri
 }
 
 // UpdateSurvey updates the provided survey
-func (a appClient) UpdateSurvey(survey model.Survey, userID string) error {
-	return a.app.shared.updateSurvey(survey, userID, false)
+func (a appClient) UpdateSurvey(survey model.Survey, userID string, externalID string) error {
+	return a.app.shared.updateSurvey(survey, userID, externalID, false)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, &userID)
+func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string, externalID string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, externalID, false)
 }
 
 // Survey Response
