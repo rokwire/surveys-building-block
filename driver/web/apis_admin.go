@@ -234,6 +234,7 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
+	item.Type = "admin"
 
 	createdItem, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
@@ -265,6 +266,7 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.ID = id
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
+	item.Type = "admin"
 
 	err = h.app.Admin.UpdateSurvey(item, claims.Subject)
 	if err != nil {
