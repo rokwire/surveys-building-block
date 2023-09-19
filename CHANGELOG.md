@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.2.2] - 2023-09-19
 ### Fixed
 - Event admins cannot update or delete event surveys [#23](https://github.com/rokwire/surveys-building-block/issues/23)
 
@@ -35,7 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial implementation
 
-[Unreleased]: https://github.com/rokwire/core-building-block/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/rokwire/core-building-block/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/rokwire/core-building-block/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/rokwire/core-building-block/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/rokwire/core-building-block/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/rokwire/core-building-block/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/rokwire/core-building-block/compare/v1.0.1...v1.0.2
