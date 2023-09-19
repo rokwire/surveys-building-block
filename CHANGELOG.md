@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Reintroduce survey responses admin API [#27](https://github.com/rokwire/surveys-building-block/issues/27)
+
 ## [1.2.3] - 2023-09-19
 ### Fixed
 - Fix delete survey APIs [#25](https://github.com/rokwire/surveys-building-block/issues/25)
