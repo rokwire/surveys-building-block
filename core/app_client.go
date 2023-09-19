@@ -81,8 +81,8 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, errors.Newf("Survey is sensitive and responses are not available")
 	}
 
-	// If no calendar event is associated then user should not have access to respones
-	if len(survey.CalendarEventID) == 0 {
+	// If no calendar event is associated then user should not have access to responses
+	if survey.CalendarEventID == "" {
 		return nil, errors.Newf("Survey responses are not available. No calendar event associated")
 	}
 
@@ -141,7 +141,7 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 	survey.ResultJSON = surveyResponse.Survey.ResultJSON
 	surveyResponse.Survey = *survey
 
-	if len(survey.CalendarEventID) > 0 {
+	if survey.CalendarEventID != "" {
 		// check if user attended calendar event
 
 		// Get external ID

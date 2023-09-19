@@ -274,7 +274,7 @@ func (collWrapper *collectionWrapper) ListIndexes(ctx context.Context, l *logs.L
 	return list, nil
 }
 
-func (collWrapper *collectionWrapper) AddIndex(ctx context.Context, keys interface{}, unique bool) error {
+func (collWrapper *collectionWrapper) AddIndex(ctx context.Context, keys interface{}, unique bool, partialFilterExpression interface{}) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -283,9 +283,10 @@ func (collWrapper *collectionWrapper) AddIndex(ctx context.Context, keys interfa
 
 	index := mongo.IndexModel{Keys: keys}
 
-	if unique {
+	if unique || partialFilterExpression != nil {
 		index.Options = options.Index()
 		index.Options.Unique = &unique
+		index.Options.PartialFilterExpression = partialFilterExpression
 	}
 
 	_, err := collWrapper.coll.Indexes().CreateOne(ctx, index, nil)
