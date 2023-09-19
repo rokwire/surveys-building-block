@@ -84,7 +84,7 @@ func (a appShared) updateSurvey(survey model.Survey, userID string, externalID s
 func (a appShared) deleteSurvey(id string, orgID string, appID string, userID string, externalID string, admin bool) error {
 	transaction := func(storage interfaces.Storage) error {
 		//1. find survey
-		survey, err := storage.GetSurvey(id, appID, orgID)
+		survey, err := storage.GetSurvey(id, orgID, appID)
 		if err != nil {
 			return errors.WrapErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err)
 		}
@@ -99,7 +99,7 @@ func (a appShared) deleteSurvey(id string, orgID string, appID string, userID st
 		}
 
 		//3. delete survey
-		err = storage.DeleteSurvey(id, orgID, appID, userID, admin)
+		err = storage.DeleteSurvey(survey.ID, survey.OrgID, survey.AppID, userID, admin)
 		if err != nil {
 			return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err)
 		}
