@@ -113,9 +113,9 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 }
 
 // DeleteSurvey deletes a survey
-func (a *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID *string) error {
+func (a *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID string, admin bool) error {
 	filter := bson.M{"_id": id, "org_id": orgID, "app_id": appID}
-	if creatorID != nil {
+	if !admin {
 		filter["creator_id"] = creatorID
 	}
 	res, err := a.db.surveys.DeleteOne(a.context, filter, nil)
