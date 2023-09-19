@@ -16,6 +16,9 @@ import (
 const (
 	// EventRoleAdmin represents the role string assigned to event admins
 	EventRoleAdmin string = "admin"
+
+	// TypeCalendarUser calendar.User type
+	TypeCalendarUser logutils.MessageDataType = "calendar user"
 )
 
 // Adapter implements the Calendar interface

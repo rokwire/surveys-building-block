@@ -45,43 +45,32 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 
 	if survey.CalendarEventID != "" {
 		// check if user is admin of calendar event
-
-		// Get external ID field
-		envConfig, err := a.app.GetEnvConfigs()
+		admin, err := a.isEventAdmin(survey.OrgID, survey.AppID, survey.CalendarEventID, survey.CreatorID, externalIDs)
 		if err != nil {
-			return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
+			return nil, errors.WrapErrorAction("checking", "event admin", nil, err)
 		}
-		externalID := externalIDs[envConfig.ExternalID]
-
-		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID}
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
-		if err != nil {
-			return nil, err
+		if !admin {
+			return nil, errors.Newf("account not an admin of calendar event")
 		}
-		for _, eventUser := range eventUsers {
-			if (eventUser.User.ExternalID == externalID || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == calendar.EventRoleAdmin {
-				return a.app.storage.CreateSurvey(survey)
-			}
-		}
-		return nil, errors.Newf("account not an admin of calendar event")
-		// if len(eventUsers) == 0 { // user is not admin
-		// 	return nil, errors.Newf("")
-		// }
 	}
 
 	return a.app.storage.CreateSurvey(survey)
 }
 
-func (a appShared) updateSurvey(survey model.Survey, userID string, externalID string, admin bool) error {
-	admin, err := a.isAdminUser(survey, userID, externalID, admin)
-	if err != nil {
-		return errors.WrapErrorAction("checking", "event admin", &logutils.FieldArgs{"user_id": userID, "external_id": externalID}, err)
+func (a appShared) updateSurvey(survey model.Survey, userID string, externalIDs map[string]string, admin bool) error {
+	// if user is not already an admin and survey has associated event, check if user is event admin
+	if !admin && survey.CalendarEventID != "" {
+		var err error
+		admin, err = a.isEventAdmin(survey.OrgID, survey.AppID, survey.CalendarEventID, userID, externalIDs)
+		if err != nil {
+			return errors.WrapErrorAction("checking", "event admin", nil, err)
+		}
 	}
 
 	return a.app.storage.UpdateSurvey(survey, admin)
 }
 
-func (a appShared) deleteSurvey(id string, orgID string, appID string, userID string, externalID string, admin bool) error {
+func (a appShared) deleteSurvey(id string, orgID string, appID string, userID string, externalIDs map[string]string, admin bool) error {
 	transaction := func(storage interfaces.Storage) error {
 		//1. find survey
 		survey, err := storage.GetSurvey(id, orgID, appID)
@@ -92,10 +81,12 @@ func (a appShared) deleteSurvey(id string, orgID string, appID string, userID st
 			return errors.ErrorData(logutils.StatusMissing, model.TypeSurvey, &logutils.FieldArgs{"id": id, "app_id": appID, "org_id": orgID})
 		}
 
-		//2. check if user is event admin
-		admin, err = a.isAdminUser(*survey, userID, externalID, admin)
-		if err != nil {
-			return errors.WrapErrorAction("checking", "event admin", &logutils.FieldArgs{"user_id": userID, "external_id": externalID}, err)
+		//2. if user is not already an admin and survey has associated event, check if user is event admin
+		if !admin && survey.CalendarEventID != "" {
+			admin, err = a.isEventAdmin(survey.OrgID, survey.AppID, survey.CalendarEventID, userID, externalIDs)
+			if err != nil {
+				return errors.WrapErrorAction("checking", "event admin", nil, err)
+			}
 		}
 
 		//3. delete survey
@@ -110,25 +101,49 @@ func (a appShared) deleteSurvey(id string, orgID string, appID string, userID st
 	return a.app.storage.PerformTransaction(transaction)
 }
 
-func (a appShared) isAdminUser(survey model.Survey, userID string, externalID string, admin bool) (bool, error) {
-	user := calendar.User{AccountID: userID, ExternalID: externalID}
+func (a appShared) isEventAdmin(orgID string, appID string, eventID string, userID string, externalIDs map[string]string) (bool, error) {
+	// Get external ID
+	envConfig, err := a.app.GetEnvConfigs()
+	if err != nil {
+		return false, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
+	}
+	externalID := externalIDs[envConfig.ExternalID]
 
-	// if survey has an associated event and the current user is not already an admin user, check if user is an event admin
-	if !admin && survey.CalendarEventID != "" {
-		// the calendar BB event users API only uses the event ID for now
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "", nil)
-		if err != nil {
-			return false, errors.WrapErrorAction(logutils.ActionGet, "event users", &logutils.FieldArgs{"event_id": survey.CalendarEventID}, err)
-		}
-		for _, eventUser := range eventUsers {
-			// if the current user is an event admin, then act as an admin update
-			if (eventUser.User.AccountID == userID || eventUser.User.ExternalID == externalID) && eventUser.Role == calendar.EventRoleAdmin {
-				return true, nil
-			}
+	eventUsers, err := a.app.calendar.GetEventUsers(orgID, appID, eventID, []calendar.User{{AccountID: userID, ExternalID: externalID}}, nil, calendar.EventRoleAdmin, nil)
+	if err != nil {
+		return false, errors.WrapErrorAction(logutils.ActionGet, calendar.TypeCalendarUser, &logutils.FieldArgs{"calendar_event_id": eventID, "user_id": userID, "external_id": externalID, "role": calendar.EventRoleAdmin}, err)
+	}
+	for _, eventUser := range eventUsers {
+		// the user is an event admin if there is an account ID match or external ID match and the user has the admin role
+		if ((externalID != "" && eventUser.User.ExternalID == externalID) || eventUser.User.AccountID == userID) && eventUser.Role == calendar.EventRoleAdmin {
+			return true, nil
 		}
 	}
 
-	return admin, nil
+	return false, nil
+}
+
+func (a appShared) hasAttendedEvent(orgID string, appID string, eventID string, userID string, externalIDs map[string]string) (bool, error) {
+	// Get external ID
+	envConfig, err := a.app.GetEnvConfigs()
+	if err != nil {
+		return false, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
+	}
+	externalID := externalIDs[envConfig.ExternalID]
+
+	attended := true
+	registered := true
+	eventUsers, err := a.app.calendar.GetEventUsers(orgID, appID, eventID, []calendar.User{{AccountID: userID, ExternalID: externalID}}, &registered, "", &attended)
+	if err != nil {
+		return false, errors.WrapErrorAction(logutils.ActionGet, calendar.TypeCalendarUser, &logutils.FieldArgs{"calendar_event_id": eventID, "user_id": userID, "external_id": externalID, "role": calendar.EventRoleAdmin}, err)
+	}
+	for _, eventUser := range eventUsers {
+		if ((externalID != "" && eventUser.User.ExternalID == externalID) || eventUser.User.AccountID == userID) && eventUser.Attended {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // newAppShared creates new appShared

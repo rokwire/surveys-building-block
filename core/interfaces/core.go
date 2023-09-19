@@ -32,8 +32,8 @@ type Client interface {
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey, userID string, externalID string) error
-	DeleteSurvey(id string, orgID string, appID string, userID string, externalID string) error
+	UpdateSurvey(survey model.Survey, userID string, externalIDs map[string]string) error
+	DeleteSurvey(id string, orgID string, appID string, userID string, externalIDs map[string]string) error
 
 	// Survey Response
 	GetSurveyResponse(id string, orgID string, appID string, userID string) (*model.SurveyResponse, error)
@@ -61,11 +61,11 @@ type Admin interface {
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
 	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error)
-	UpdateSurvey(survey model.Survey, userID string, externalID string) error
-	DeleteSurvey(id string, orgID string, appID string, userID string, externalID string) error
+	UpdateSurvey(survey model.Survey, userID string, externalIDs map[string]string) error
+	DeleteSurvey(id string, orgID string, appID string, userID string, externalIDs map[string]string) error
 
 	// Survey Responses
-	// GetAllSurveyResponses(orgID string, appID string, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetAllSurveyResponses(orgID string, appID string, surveyID string, userID string, externalIDs map[string]string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 
 	// Alert Contacts
 	GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error)
