@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Event admins cannot update or delete event surveys [#23](https://github.com/rokwire/surveys-building-block/issues/23)
+
 ## [1.2.1] - 2023-08-14
 ### Fixed
 - Event admins cannot update surveys [#21](https://github.com/rokwire/surveys-building-block/issues/21)

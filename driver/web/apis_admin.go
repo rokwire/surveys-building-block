@@ -234,6 +234,7 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
 	item.CreatorID = claims.Subject
+	item.Type = "admin"
 
 	createdItem, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
@@ -265,8 +266,19 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	item.ID = id
 	item.OrgID = claims.OrgID
 	item.AppID = claims.AppID
+	item.Type = "admin"
 
-	err = h.app.Admin.UpdateSurvey(item, claims.Subject)
+	// Get external ID
+	externalID := ""
+	envConfig, err := h.app.GetEnvConfigs()
+	if err != nil {
+		l.Warnf("error getting config %s: %s", model.ConfigTypeEnv, err.Error())
+	}
+	if envConfig != nil {
+		externalID = claims.ExternalIDs[envConfig.ExternalID]
+	}
+
+	err = h.app.Admin.UpdateSurvey(item, claims.Subject, externalID)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
@@ -281,7 +293,17 @@ func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tok
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	err := h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID)
+	// Get external ID
+	externalID := ""
+	envConfig, err := h.app.GetEnvConfigs()
+	if err != nil {
+		l.Warnf("error getting config %s: %s", model.ConfigTypeEnv, err.Error())
+	}
+	if envConfig != nil {
+		externalID = claims.ExternalIDs[envConfig.ExternalID]
+	}
+
+	err = h.app.Admin.DeleteSurvey(id, claims.OrgID, claims.AppID, claims.Subject, externalID)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDelete, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
