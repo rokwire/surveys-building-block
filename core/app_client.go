@@ -81,8 +81,8 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, errors.Newf("Survey is sensitive and responses are not available")
 	}
 
-	// If no calendar event is associated then user should not have access to respones
-	if len(survey.CalendarEventID) == 0 {
+	// If no calendar event is associated then user should not have access to responses
+	if survey.CalendarEventID == nil || *survey.CalendarEventID == "" {
 		return nil, errors.Newf("Survey responses are not available. No calendar event associated")
 	}
 
@@ -98,7 +98,7 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 	user := calendar.User{AccountID: userID, ExternalID: externalID}
 
 	// Check if user is admin of calendar event
-	eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
+	eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, *survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 	survey.ResultJSON = surveyResponse.Survey.ResultJSON
 	surveyResponse.Survey = *survey
 
-	if len(survey.CalendarEventID) > 0 {
+	if survey.CalendarEventID != nil && *survey.CalendarEventID != "" {
 		// check if user attended calendar event
 
 		// Get external ID
@@ -155,7 +155,7 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 		attended := true
 		registered := true
 		// This API ignores the filters so the attendance must be manually checked
-		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, survey.CalendarEventID, []calendar.User{user}, &registered, "", &attended)
+		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, *survey.CalendarEventID, []calendar.User{user}, &registered, "", &attended)
 
 		if err != nil {
 			return nil, err
