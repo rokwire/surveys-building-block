@@ -43,7 +43,7 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 	survey.DateCreated = time.Now().UTC()
 	survey.DateUpdated = nil
 
-	if survey.CalendarEventID != nil && *survey.CalendarEventID != "" {
+	if survey.CalendarEventID != "" {
 		// check if user is admin of calendar event
 
 		// Get external ID field
@@ -54,7 +54,7 @@ func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]stri
 		externalID := externalIDs[envConfig.ExternalID]
 
 		user := calendar.User{AccountID: survey.CreatorID, ExternalID: externalID}
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, *survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
+		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -114,9 +114,9 @@ func (a appShared) isAdminUser(survey model.Survey, userID string, externalID st
 	user := calendar.User{AccountID: userID, ExternalID: externalID}
 
 	// if survey has an associated event and the current user is not already an admin user, check if user is an event admin
-	if !admin && survey.CalendarEventID != nil && *survey.CalendarEventID != "" {
+	if !admin && survey.CalendarEventID != "" {
 		// the calendar BB event users API only uses the event ID for now
-		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, *survey.CalendarEventID, []calendar.User{user}, nil, "", nil)
+		eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, "", nil)
 		if err != nil {
 			return false, errors.WrapErrorAction(logutils.ActionGet, "event users", &logutils.FieldArgs{"event_id": survey.CalendarEventID}, err)
 		}
