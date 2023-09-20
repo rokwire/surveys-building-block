@@ -16,7 +16,6 @@ package core
 
 import (
 	"application/core/model"
-	"application/driven/calendar"
 	"time"
 
 	"github.com/google/uuid"
@@ -46,13 +45,13 @@ func (a appClient) CreateSurvey(survey model.Survey, externalIDs map[string]stri
 }
 
 // UpdateSurvey updates the provided survey
-func (a appClient) UpdateSurvey(survey model.Survey, userID string, externalID string) error {
-	return a.app.shared.updateSurvey(survey, userID, externalID, false)
+func (a appClient) UpdateSurvey(survey model.Survey, userID string, externalIDs map[string]string) error {
+	return a.app.shared.updateSurvey(survey, userID, externalIDs, false)
 }
 
 // DeleteSurvey deletes the survey with the specified ID
-func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string, externalID string) error {
-	return a.app.shared.deleteSurvey(id, orgID, appID, userID, externalID, false)
+func (a appClient) DeleteSurvey(id string, orgID string, appID string, userID string, externalIDs map[string]string) error {
+	return a.app.shared.deleteSurvey(id, orgID, appID, userID, externalIDs, false)
 }
 
 // Survey Response
@@ -86,42 +85,29 @@ func (a appClient) GetAllSurveyResponses(orgID string, appID string, userID stri
 		return nil, errors.Newf("Survey responses are not available. No calendar event associated")
 	}
 
-	// Get external ID
-	externalID := ""
-	envConfig, err := a.app.GetEnvConfigs()
-	if err != nil {
-		a.app.logger.Warnf("error getting config %s: %s", model.ConfigTypeEnv, err.Error())
-	}
-	if envConfig != nil {
-		externalID = externalIDs[envConfig.ExternalID]
-	}
-	user := calendar.User{AccountID: userID, ExternalID: externalID}
-
 	// Check if user is admin of calendar event
-	eventUsers, err := a.app.calendar.GetEventUsers(survey.OrgID, survey.AppID, survey.CalendarEventID, []calendar.User{user}, nil, calendar.EventRoleAdmin, nil)
+	admin, err := a.app.shared.isEventAdmin(survey.OrgID, survey.AppID, survey.CalendarEventID, userID, externalIDs)
+	if err != nil {
+		return nil, errors.WrapErrorAction("checking", "event admin", nil, err)
+	}
+	if !admin {
+		return nil, errors.ErrorData(logutils.StatusInvalid, "user", &logutils.FieldArgs{"calendar_event_id": survey.CalendarEventID, "admin": false})
+	}
+
+	// Get responses
+	allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	for _, eventUser := range eventUsers {
-		if ((externalID != "" && eventUser.User.ExternalID == externalID) || eventUser.User.AccountID == survey.CreatorID) && eventUser.Role == calendar.EventRoleAdmin {
-			// Get responses
-			allResponses, err = a.app.storage.GetSurveyResponses(&orgID, &appID, nil, []string{surveyID}, nil, startDate, endDate, limit, offset)
-			if err != nil {
-				return nil, err
-			}
 
-			// If survey is anonymous strip userIDs
-			if survey.Anonymous {
-				for i := range allResponses {
-					allResponses[i].UserID = ""
-				}
-			}
-
-			return allResponses, nil
+	// If survey is anonymous strip userIDs
+	if survey.Anonymous {
+		for i := range allResponses {
+			allResponses[i].UserID = ""
 		}
 	}
 
-	return nil, errors.ErrorData(logutils.StatusInvalid, "user", &logutils.FieldArgs{"calendar_event_id": survey.CalendarEventID, "admin": false})
+	return allResponses, nil
 }
 
 // CreateSurveyResponse creates a new survey response
@@ -143,32 +129,13 @@ func (a appClient) CreateSurveyResponse(surveyResponse model.SurveyResponse, ext
 
 	if survey.CalendarEventID != "" {
 		// check if user attended calendar event
-
-		// Get external ID
-		envConfig, err := a.app.GetEnvConfigs()
+		attended, err := a.app.shared.hasAttendedEvent(surveyResponse.OrgID, surveyResponse.AppID, survey.CalendarEventID, surveyResponse.UserID, externalIDs)
 		if err != nil {
-			return nil, errors.WrapErrorAction(logutils.ActionGet, model.TypeConfig, logutils.StringArgs(model.ConfigTypeEnv), err)
+			return nil, errors.WrapErrorAction("checking", "event attendance", nil, err)
 		}
-		externalID := externalIDs[envConfig.ExternalID]
-
-		user := calendar.User{AccountID: surveyResponse.UserID, ExternalID: externalID}
-		attended := true
-		registered := true
-		// This API ignores the filters so the attendance must be manually checked
-		eventUsers, err := a.app.calendar.GetEventUsers(surveyResponse.OrgID, surveyResponse.AppID, survey.CalendarEventID, []calendar.User{user}, &registered, "", &attended)
-
-		if err != nil {
-			return nil, err
+		if !attended {
+			return nil, errors.Newf("user has not attended calendar event")
 		}
-		for _, eventUser := range eventUsers {
-			if (eventUser.User.AccountID == surveyResponse.UserID || eventUser.User.ExternalID == externalID) && eventUser.Attended {
-				return a.app.storage.CreateSurveyResponse(surveyResponse)
-			}
-		}
-		return nil, errors.Newf("account has not attended calendar event")
-		// if len(eventUsers) == 0 { // user has not attended
-		// 	return nil, errors.Newf("account has not attended calendar event")
-		// }
 	}
 
 	return a.app.storage.CreateSurveyResponse(surveyResponse)
