@@ -293,7 +293,11 @@ func (h AdminAPIsHandler) deleteSurvey(l *logs.Log, r *http.Request, claims *tok
 }
 
 func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	surveyID := r.URL.Query().Get("id")
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if len(id) <= 0 {
+		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
+	}
 
 	startDateRaw := r.URL.Query().Get("start_date")
 	var startDate *time.Time
@@ -335,7 +339,7 @@ func (h AdminAPIsHandler) getAllSurveyResponses(l *logs.Log, r *http.Request, cl
 		offset = intParsed
 	}
 
-	resData, err := h.app.Admin.GetAllSurveyResponses(claims.OrgID, claims.AppID, surveyID, claims.Subject, claims.ExternalIDs, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Admin.GetAllSurveyResponses(claims.OrgID, claims.AppID, id, claims.Subject, claims.ExternalIDs, startDate, endDate, &limit, &offset)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
