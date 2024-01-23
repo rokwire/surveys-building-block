@@ -2,7 +2,6 @@ get:
   tags:
     - Admin
   summary: Retrieves all survey responses for specified survey
-  deprecated: true
   description: |
     Retrieves all survey responses for specified survey
 
