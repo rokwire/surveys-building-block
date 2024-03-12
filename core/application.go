@@ -18,7 +18,9 @@ import (
 	"application/core/interfaces"
 	"application/core/model"
 
+	"github.com/rokwire/core-auth-library-go/v3/authservice"
 	"github.com/rokwire/core-auth-library-go/v3/authutils"
+	"github.com/rokwire/core-auth-library-go/v3/coreservice"
 	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
 	"github.com/rokwire/logging-library-go/v2/logutils"
@@ -55,6 +57,8 @@ type Application struct {
 	storage       interfaces.Storage
 	notifications interfaces.Notifications
 	calendar      interfaces.Calendar
+
+	coreService *coreservice.CoreService
 }
 
 // Start starts the core part of the application
@@ -62,6 +66,10 @@ func (a *Application) Start() {
 	//set storage listener
 	storageListener := storageListener{app: a}
 	a.storage.RegisterStorageListener(&storageListener)
+
+	if a.coreService != nil {
+		a.coreService.StartDeletedMembershipsTimer()
+	}
 }
 
 // GetEnvConfigs retrieves the cached database env configs
@@ -77,9 +85,34 @@ func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 	return model.GetConfigData[model.EnvConfigData](*config)
 }
 
+func (a *Application) handleDeletedAccounts(deleted []coreservice.DeletedOrgAppMemberships) error {
+	for _, orgAppMemberships := range deleted {
+		err := a.storage.DeleteSurveyResponses(orgAppMemberships.OrgID, orgAppMemberships.AppID, orgAppMemberships.AccountIDs, nil, nil, nil, nil)
+		if err != nil && a.logger != nil {
+			err = errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, logutils.StringArgs("deleted account memberships"), err)
+			a.logger.Error(err.Error())
+		}
+	}
+
+	return nil
+}
+
 // NewApplication creates new Application
-func NewApplication(version string, build string, storage interfaces.Storage, notifications interfaces.Notifications, calendar interfaces.Calendar, logger *logs.Logger) *Application {
+func NewApplication(version string, build string, storage interfaces.Storage, notifications interfaces.Notifications, calendar interfaces.Calendar,
+	serviceAccountManager *authservice.ServiceAccountManager, logger *logs.Logger) *Application {
+
 	application := Application{version: version, build: build, storage: storage, notifications: notifications, calendar: calendar, logger: logger}
+
+	var err error
+	if serviceAccountManager != nil {
+		deletedAccountsConfig := coreservice.DeletedMembershipsConfig{
+			Callback: application.handleDeletedAccounts,
+		}
+		application.coreService, err = coreservice.NewCoreService(serviceAccountManager, &deletedAccountsConfig, logger)
+		if err != nil && logger != nil {
+			logger.Errorf("error creating core service: %v", err)
+		}
+	}
 
 	//add the drivers ports/interfaces
 	application.Default = newAppDefault(&application)

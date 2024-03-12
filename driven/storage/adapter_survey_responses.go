@@ -110,7 +110,7 @@ func (a *Adapter) UpdateSurveyResponse(surveyResponse model.SurveyResponse) erro
 
 // DeleteSurveyResponse deletes a survey response
 func (a *Adapter) DeleteSurveyResponse(orgID string, appID string, userID string, id string) error {
-	filter := bson.M{"_id": id, "user_id": userID, "org_id": orgID, "app_id": appID}
+	filter := bson.M{"_id": id, "user_id": userID, "org_id": orgID, "app_id": appID, "retain_responses": bson.M{"$ne": true}}
 	res, err := a.db.surveyResponses.DeleteOne(a.context, filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, filterArgs(filter), err)
@@ -122,8 +122,11 @@ func (a *Adapter) DeleteSurveyResponse(orgID string, appID string, userID string
 }
 
 // DeleteSurveyResponses deletes matching surveys
-func (a *Adapter) DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
-	filter := bson.M{"user_id": userID, "org_id": orgID, "app_id": appID}
+func (a *Adapter) DeleteSurveyResponses(orgID string, appID string, userIDs []string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
+	filter := bson.M{"org_id": orgID, "app_id": appID, "retain_responses": bson.M{"$ne": true}}
+	if len(userIDs) > 0 {
+		filter["user_id"] = bson.M{"$in": userIDs}
+	}
 	if len(surveyIDs) > 0 {
 		filter["survey._id"] = bson.M{"$in": surveyIDs}
 	}
