@@ -140,7 +140,7 @@ func main() {
 	}
 
 	// Application
-	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter, calendarAdapter, serviceAccountManager, logger)
+	application := core.NewApplication(Version, Build, serviceID, storageAdapter, notificationsAdapter, calendarAdapter, serviceAccountManager, logger)
 	application.Start()
 
 	// Web adapter

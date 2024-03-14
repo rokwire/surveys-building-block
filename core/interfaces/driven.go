@@ -43,7 +43,8 @@ type Storage interface {
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(surveyResponse model.SurveyResponse) error
 	DeleteSurveyResponse(id string, orgID string, appID string, userID string) error
-	DeleteSurveyResponses(orgID string, appID string, userIDs []string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error
+	DeleteSurveyResponses(orgID string, appID string, userIDs []string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, ignoreMissingError bool) error
+	DeleteSurveyResponsesExcept(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, ignoreMissingError bool) error
 
 	GetAlertContacts(orgID string, appID string) ([]model.AlertContact, error)
 	GetAlertContact(id string, orgID string, appID string) (*model.AlertContact, error)

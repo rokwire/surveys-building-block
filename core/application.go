@@ -17,6 +17,7 @@ package core
 import (
 	"application/core/interfaces"
 	"application/core/model"
+	"application/utils"
 
 	"github.com/rokwire/core-auth-library-go/v3/authservice"
 	"github.com/rokwire/core-auth-library-go/v3/authutils"
@@ -40,8 +41,9 @@ func (s *storageListener) OnExampleUpdated() {
 
 // Application represents the core application code based on hexagonal architecture
 type Application struct {
-	version string
-	build   string
+	version   string
+	build     string
+	serviceID string
 
 	Default   interfaces.Default   // expose to the drivers adapters
 	Client    interfaces.Client    // expose to the drivers adapters
@@ -85,28 +87,73 @@ func (a *Application) GetEnvConfigs() (*model.EnvConfigData, error) {
 	return model.GetConfigData[model.EnvConfigData](*config)
 }
 
-func (a *Application) handleDeletedAccounts(deleted []coreservice.DeletedOrgAppMemberships) error {
+func (a *Application) handleDeletedMemberships(deleted []coreservice.DeletedOrgAppMemberships) error {
 	for _, orgAppMemberships := range deleted {
-		err := a.storage.DeleteSurveyResponses(orgAppMemberships.OrgID, orgAppMemberships.AppID, orgAppMemberships.AccountIDs, nil, nil, nil, nil)
-		if err != nil && a.logger != nil {
-			err = errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, logutils.StringArgs("deleted account memberships"), err)
-			a.logger.Error(err.Error())
+		noContextAccountIDs := make([]string, 0)
+		for _, context := range orgAppMemberships.Memberships {
+			if context.Context != nil {
+				retainData, err := a.getRetainSurveyResponsesData(context.Context)
+				if err != nil {
+					err = errors.WrapErrorAction(logutils.ActionGet, "retain survey responses data", &logutils.FieldArgs{"org_id": orgAppMemberships.OrgID, "app_id": orgAppMemberships.AppID, "account_id": context.AccountID}, err)
+					a.logger.Error(err.Error())
+					continue
+				}
+				if retainData == nil {
+					continue
+				}
+				err = a.storage.DeleteSurveyResponsesExcept(orgAppMemberships.OrgID, orgAppMemberships.AppID, context.AccountID, retainData.SurveyIDs, retainData.SurveyTypes, nil, nil, true)
+				if err != nil && a.logger != nil {
+					err = errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, &logutils.FieldArgs{"org_id": orgAppMemberships.OrgID, "app_id": orgAppMemberships.AppID}, err)
+					a.logger.Error(err.Error())
+				}
+			} else {
+				noContextAccountIDs = append(noContextAccountIDs, context.AccountID)
+			}
+		}
+
+		if len(noContextAccountIDs) > 0 {
+			err := a.storage.DeleteSurveyResponses(orgAppMemberships.OrgID, orgAppMemberships.AppID, noContextAccountIDs, nil, nil, nil, nil, true)
+			if err != nil && a.logger != nil {
+				err = errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, &logutils.FieldArgs{"org_id": orgAppMemberships.OrgID, "app_id": orgAppMemberships.AppID}, err)
+				a.logger.Error(err.Error())
+			}
 		}
 	}
 
 	return nil
 }
 
+func (a *Application) getRetainSurveyResponsesData(context map[string]interface{}) (*retainSurveyResponsesData, error) {
+	surveyResponseContext, err := utils.JSONConvert[deleteSurveyResponsesContext](context)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionParse, "delete survey responses context", nil, err)
+	}
+	if surveyResponseContext == nil {
+		return nil, nil
+	}
+
+	return &surveyResponseContext.RetainResponses, nil
+}
+
+type deleteSurveyResponsesContext struct {
+	RetainResponses retainSurveyResponsesData `json:"retain_responses"`
+}
+
+type retainSurveyResponsesData struct {
+	SurveyIDs   []string `json:"survey_ids"`
+	SurveyTypes []string `json:"survey_types"`
+}
+
 // NewApplication creates new Application
-func NewApplication(version string, build string, storage interfaces.Storage, notifications interfaces.Notifications, calendar interfaces.Calendar,
+func NewApplication(version string, build string, serviceID string, storage interfaces.Storage, notifications interfaces.Notifications, calendar interfaces.Calendar,
 	serviceAccountManager *authservice.ServiceAccountManager, logger *logs.Logger) *Application {
 
-	application := Application{version: version, build: build, storage: storage, notifications: notifications, calendar: calendar, logger: logger}
+	application := Application{version: version, build: build, serviceID: serviceID, storage: storage, notifications: notifications, calendar: calendar, logger: logger}
 
 	var err error
 	if serviceAccountManager != nil {
 		deletedAccountsConfig := coreservice.DeletedMembershipsConfig{
-			Callback: application.handleDeletedAccounts,
+			Callback: application.handleDeletedMemberships,
 		}
 		application.coreService, err = coreservice.NewCoreService(serviceAccountManager, &deletedAccountsConfig, logger)
 		if err != nil && logger != nil {

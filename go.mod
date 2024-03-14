@@ -16,7 +16,7 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/aws/aws-sdk-go v1.50.36 // indirect
+	github.com/aws/aws-sdk-go v1.50.37 // indirect
 	github.com/casbin/casbin/v2 v2.84.0 // indirect
 	github.com/casbin/govaluate v1.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

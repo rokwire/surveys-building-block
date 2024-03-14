@@ -179,17 +179,35 @@ func (_m *Storage) DeleteSurveyResponse(id string, orgID string, appID string, u
 	return r0
 }
 
-// DeleteSurveyResponses provides a mock function with given fields: orgID, appID, userIDs, surveyIDs, surveyTypes, startDate, endDate
-func (_m *Storage) DeleteSurveyResponses(orgID string, appID string, userIDs []string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
-	ret := _m.Called(orgID, appID, userIDs, surveyIDs, surveyTypes, startDate, endDate)
+// DeleteSurveyResponses provides a mock function with given fields: orgID, appID, userIDs, surveyIDs, surveyTypes, startDate, endDate, ignoreMissingError
+func (_m *Storage) DeleteSurveyResponses(orgID string, appID string, userIDs []string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, ignoreMissingError bool) error {
+	ret := _m.Called(orgID, appID, userIDs, surveyIDs, surveyTypes, startDate, endDate, ignoreMissingError)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteSurveyResponses")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, []string, []string, []string, *time.Time, *time.Time) error); ok {
-		r0 = rf(orgID, appID, userIDs, surveyIDs, surveyTypes, startDate, endDate)
+	if rf, ok := ret.Get(0).(func(string, string, []string, []string, []string, *time.Time, *time.Time, bool) error); ok {
+		r0 = rf(orgID, appID, userIDs, surveyIDs, surveyTypes, startDate, endDate, ignoreMissingError)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteSurveyResponsesExcept provides a mock function with given fields: orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, ignoreMissingError
+func (_m *Storage) DeleteSurveyResponsesExcept(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, ignoreMissingError bool) error {
+	ret := _m.Called(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, ignoreMissingError)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteSurveyResponsesExcept")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, string, []string, []string, *time.Time, *time.Time, bool) error); ok {
+		r0 = rf(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate, ignoreMissingError)
 	} else {
 		r0 = ret.Error(0)
 	}
