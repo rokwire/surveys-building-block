@@ -110,7 +110,7 @@ func (a *Adapter) UpdateSurveyResponse(surveyResponse model.SurveyResponse) erro
 
 // DeleteSurveyResponse deletes a survey response
 func (a *Adapter) DeleteSurveyResponse(orgID string, appID string, userID string, id string) error {
-	filter := bson.M{"_id": id, "user_id": userID, "org_id": orgID, "app_id": appID}
+	filter := bson.M{"_id": id, "user_id": userID, "org_id": orgID, "app_id": appID, "retain_responses": bson.M{"$ne": true}}
 	res, err := a.db.surveyResponses.DeleteOne(a.context, filter, nil)
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, filterArgs(filter), err)
@@ -121,9 +121,12 @@ func (a *Adapter) DeleteSurveyResponse(orgID string, appID string, userID string
 	return nil
 }
 
-// DeleteSurveyResponses deletes matching surveys
-func (a *Adapter) DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
-	filter := bson.M{"user_id": userID, "org_id": orgID, "app_id": appID}
+// DeleteSurveyResponses deletes matching survey responses
+func (a *Adapter) DeleteSurveyResponses(orgID string, appID string, userIDs []string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, ignoreMissingError bool) error {
+	filter := bson.M{"org_id": orgID, "app_id": appID, "survey.retain_responses": bson.M{"$ne": true}}
+	if len(userIDs) > 0 {
+		filter["user_id"] = bson.M{"$in": userIDs}
+	}
 	if len(surveyIDs) > 0 {
 		filter["survey._id"] = bson.M{"$in": surveyIDs}
 	}
@@ -145,7 +148,37 @@ func (a *Adapter) DeleteSurveyResponses(orgID string, appID string, userID strin
 	if err != nil {
 		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, filterArgs(filter), err)
 	}
-	if result.DeletedCount == 0 {
+	if result.DeletedCount == 0 && !ignoreMissingError {
+		return errors.WrapErrorData(logutils.StatusMissing, model.TypeSurveyResponse, filterArgs(filter), err)
+	}
+	return nil
+}
+
+// DeleteSurveyResponsesExcept deletes survey responses not matching the given arguments
+func (a *Adapter) DeleteSurveyResponsesExcept(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, ignoreMissingError bool) error {
+	filter := bson.M{"org_id": orgID, "app_id": appID, "user_id": userID, "survey.retain_responses": bson.M{"$ne": true}}
+	if len(surveyIDs) > 0 {
+		filter["survey._id"] = bson.M{"$nin": surveyIDs}
+	}
+	if len(surveyTypes) > 0 {
+		filter["survey.type"] = bson.M{"$nin": surveyTypes}
+	}
+	if startDate != nil || endDate != nil {
+		dateFilter := bson.M{}
+		if startDate != nil {
+			dateFilter["$lt"] = startDate
+		}
+		if endDate != nil {
+			dateFilter["$gte"] = endDate
+		}
+		filter["date_created"] = dateFilter
+	}
+
+	result, err := a.db.surveyResponses.DeleteMany(a.context, filter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, filterArgs(filter), err)
+	}
+	if result.DeletedCount == 0 && !ignoreMissingError {
 		return errors.WrapErrorData(logutils.StatusMissing, model.TypeSurveyResponse, filterArgs(filter), err)
 	}
 	return nil

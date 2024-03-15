@@ -1414,6 +1414,8 @@ components:
           type: boolean
         anonymous:
           type: boolean
+        retain_responses:
+          type: boolean
         default_data_key:
           type: string
         default_data_key_rule:

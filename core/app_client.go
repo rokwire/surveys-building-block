@@ -153,7 +153,7 @@ func (a appClient) DeleteSurveyResponse(id string, orgID string, appID string, u
 
 // DeleteSurveyResponses deletes the survey responses matching the provided filters
 func (a appClient) DeleteSurveyResponses(orgID string, appID string, userID string, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
-	return a.app.storage.DeleteSurveyResponses(orgID, appID, userID, surveyIDs, surveyTypes, startDate, endDate)
+	return a.app.storage.DeleteSurveyResponses(orgID, appID, []string{userID}, surveyIDs, surveyTypes, startDate, endDate, false)
 }
 
 // Survey Alerts
