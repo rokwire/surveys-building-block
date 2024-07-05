@@ -17,6 +17,7 @@ package main
 import (
 	"application/core"
 	"application/driven/calendar"
+	corebb "application/driven/core"
 	"application/driven/notifications"
 	"application/driven/storage"
 	"application/driver/web"
@@ -67,6 +68,8 @@ func main() {
 	// Service registration
 	baseURL := envLoader.GetAndLogEnvVar(envPrefix+"BASE_URL", true, false)
 	coreBBBaseURL := envLoader.GetAndLogEnvVar(envPrefix+"CORE_BB_BASE_URL", true, false)
+	appID := envLoader.GetAndLogEnvVar(envPrefix+"APP_ID", true, false)
+	orgID := envLoader.GetAndLogEnvVar(envPrefix+"ORG_ID", true, false)
 
 	authService := authservice.AuthService{
 		ServiceID:   serviceID,
@@ -139,8 +142,12 @@ func main() {
 		logger.Fatalf("Error initializing calendar adapter: %v", err)
 	}
 
+	//core adapter
+	coreAdapter := corebb.NewCoreAdapter(coreBBBaseURL, orgID, appID, serviceAccountManager)
+
 	// Application
-	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter, calendarAdapter, logger)
+	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter,
+		calendarAdapter, coreAdapter, serviceID, logger)
 	application.Start()
 
 	// Web adapter
