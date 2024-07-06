@@ -149,6 +149,19 @@ func (d deleteDataLogic) processDelete() {
 }
 
 func (d deleteDataLogic) deleteAppOrgUsersData(appID string, orgID string, accountsIDs []string) {
+	// delete survey responses
+	err := d.storage.DeleteSurveyResponsesWithIDs(appID, orgID, accountsIDs)
+	if err != nil {
+		d.logger.Errorf("error deleting the survey responses - %s", err)
+		return
+	}
+
+	// delete surveys
+	err = d.storage.DeleteSurveysWithIDs(appID, orgID, accountsIDs)
+	if err != nil {
+		d.logger.Errorf("error deleting the surveys  - %s", err)
+		return
+	}
 
 }
 

@@ -251,6 +251,36 @@ func (a *Adapter) DeleteConfig(id string) error {
 	return nil
 }
 
+// DeleteSurveyResponsesWithIDs Deletes survey responses
+func (sa Adapter) DeleteSurveyResponsesWithIDs(appID string, orgID string, accountsIDs []string) error {
+	filter := bson.D{
+		primitive.E{Key: "app_id", Value: appID},
+		primitive.E{Key: "org_id", Value: orgID},
+		primitive.E{Key: "creator_id", Value: bson.M{"$in": accountsIDs}},
+	}
+
+	_, err := sa.db.surveyResponses.DeleteMany(nil, filter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, "user", nil, err)
+	}
+	return nil
+}
+
+// DeleteSurveysWithIDs Deletes surveys
+func (sa Adapter) DeleteSurveysWithIDs(appID string, orgID string, accountsIDs []string) error {
+	filter := bson.D{
+		primitive.E{Key: "app_id", Value: appID},
+		primitive.E{Key: "org_id", Value: orgID},
+		primitive.E{Key: "creator_id", Value: bson.M{"$in": accountsIDs}},
+	}
+
+	_, err := sa.db.surveys.DeleteMany(nil, filter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, "user", nil, err)
+	}
+	return nil
+}
+
 // PerformTransaction performs a transaction
 func (a *Adapter) PerformTransaction(transaction func(storage interfaces.Storage) error) error {
 	// transaction

@@ -65,6 +65,7 @@ func (a *Application) Start() {
 	//set storage listener
 	storageListener := storageListener{app: a}
 	a.storage.RegisterStorageListener(&storageListener)
+	a.deleteDataLogic.start()
 }
 
 // GetEnvConfigs retrieves the cached database env configs
