@@ -252,8 +252,10 @@ func (a *Adapter) DeleteConfig(id string) error {
 }
 
 // DeleteSurveyResponsesWithIDs Deletes survey responses
-func (a Adapter) DeleteSurveyResponsesWithIDs(accountsIDs []string) error {
+func (a Adapter) DeleteSurveyResponsesWithIDs(orgID string, appID string, accountsIDs []string) error {
 	filter := bson.D{
+		primitive.E{Key: "app_id", Value: appID},
+		primitive.E{Key: "org_id", Value: orgID},
 		primitive.E{Key: "user_id", Value: bson.M{"$in": accountsIDs}},
 	}
 
@@ -265,8 +267,10 @@ func (a Adapter) DeleteSurveyResponsesWithIDs(accountsIDs []string) error {
 }
 
 // DeleteSurveysWithIDs Deletes surveys
-func (a Adapter) DeleteSurveysWithIDs(accountsIDs []string) error {
+func (a Adapter) DeleteSurveysWithIDs(orgID string, appID string, accountsIDs []string) error {
 	filter := bson.D{
+		primitive.E{Key: "app_id", Value: appID},
+		primitive.E{Key: "org_id", Value: orgID},
 		primitive.E{Key: "creator_id", Value: bson.M{"$in": accountsIDs}},
 	}
 
