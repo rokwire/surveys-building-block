@@ -28,3 +28,8 @@ type Shared interface {
 	isEventAdmin(orgID string, appID string, eventID string, userID string, externalIDs map[string]string) (bool, error)
 	hasAttendedEvent(orgID string, appID string, eventID string, userID string, externalIDs map[string]string) (bool, error)
 }
+
+// Core exposes Core APIs for the driver adapters
+type Core interface {
+	LoadDeletedMemberships() ([]model.DeletedUserData, error)
+}

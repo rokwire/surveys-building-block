@@ -152,3 +152,16 @@ type OptionData struct {
 	Score    *float64    `json:"score" bson:"score"`
 	Selected bool        `json:"selected" bson:"selected"`
 }
+
+// DeletedUserData represents a user-deleted
+type DeletedUserData struct {
+	AppID       string              `json:"app_id"`
+	Memberships []DeletedMembership `json:"memberships"`
+	OrgID       string              `json:"org_id"`
+}
+
+// DeletedMembership defines model for DeletedMembership.
+type DeletedMembership struct {
+	AccountID string                  `json:"account_id"`
+	Context   *map[string]interface{} `json:"context,omitempty"`
+}

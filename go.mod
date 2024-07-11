@@ -1,12 +1,14 @@
 module application
 
-go 1.20
+go 1.22
 
 require (
-	github.com/google/uuid v1.3.1
+	github.com/golang/mock v1.4.4
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.0
+	github.com/rokwire/core-auth-library-go/v2 v2.2.0
 	github.com/rokwire/core-auth-library-go/v3 v3.1.0
-	github.com/rokwire/logging-library-go/v2 v2.2.0
+	github.com/rokwire/logging-library-go/v2 v2.3.0
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	go.mongodb.org/mongo-driver v1.12.1
@@ -49,7 +51,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	golang.org/x/crypto v0.13.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
