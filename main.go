@@ -68,8 +68,6 @@ func main() {
 	// Service registration
 	baseURL := envLoader.GetAndLogEnvVar(envPrefix+"BASE_URL", true, false)
 	coreBBBaseURL := envLoader.GetAndLogEnvVar(envPrefix+"CORE_BB_BASE_URL", true, false)
-	appID := envLoader.GetAndLogEnvVar(envPrefix+"APP_ID", true, false)
-	orgID := envLoader.GetAndLogEnvVar(envPrefix+"ORG_ID", true, false)
 
 	authService := authservice.AuthService{
 		ServiceID:   serviceID,
@@ -143,7 +141,7 @@ func main() {
 	}
 
 	//core adapter
-	coreAdapter := corebb.NewCoreAdapter(coreBBBaseURL, orgID, appID, serviceAccountManager)
+	coreAdapter := corebb.NewCoreAdapter(coreBBBaseURL, serviceAccountManager)
 
 	// Application
 	application := core.NewApplication(Version, Build, storageAdapter, notificationsAdapter,

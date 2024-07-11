@@ -252,11 +252,9 @@ func (a *Adapter) DeleteConfig(id string) error {
 }
 
 // DeleteSurveyResponsesWithIDs Deletes survey responses
-func (a Adapter) DeleteSurveyResponsesWithIDs(appID string, orgID string, accountsIDs []string) error {
+func (a Adapter) DeleteSurveyResponsesWithIDs(accountsIDs []string) error {
 	filter := bson.D{
-		primitive.E{Key: "app_id", Value: appID},
-		primitive.E{Key: "org_id", Value: orgID},
-		primitive.E{Key: "creator_id", Value: bson.M{"$in": accountsIDs}},
+		primitive.E{Key: "user_id", Value: bson.M{"$in": accountsIDs}},
 	}
 
 	_, err := a.db.surveyResponses.DeleteMany(nil, filter, nil)
@@ -267,10 +265,8 @@ func (a Adapter) DeleteSurveyResponsesWithIDs(appID string, orgID string, accoun
 }
 
 // DeleteSurveysWithIDs Deletes surveys
-func (a Adapter) DeleteSurveysWithIDs(appID string, orgID string, accountsIDs []string) error {
+func (a Adapter) DeleteSurveysWithIDs(accountsIDs []string) error {
 	filter := bson.D{
-		primitive.E{Key: "app_id", Value: appID},
-		primitive.E{Key: "org_id", Value: orgID},
 		primitive.E{Key: "creator_id", Value: bson.M{"$in": accountsIDs}},
 	}
 

@@ -197,17 +197,17 @@ func (_m *Storage) DeleteSurveyResponses(orgID string, appID string, userID stri
 	return r0
 }
 
-// DeleteSurveyResponsesWithIDs provides a mock function with given fields: appID, orgID, accountsIDs
-func (_m *Storage) DeleteSurveyResponsesWithIDs(appID string, orgID string, accountsIDs []string) error {
-	ret := _m.Called(appID, orgID, accountsIDs)
+// DeleteSurveyResponsesWithIDs provides a mock function with given fields: accountsIDs
+func (_m *Storage) DeleteSurveyResponsesWithIDs(accountsIDs []string) error {
+	ret := _m.Called(accountsIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteSurveyResponsesWithIDs")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, []string) error); ok {
-		r0 = rf(appID, orgID, accountsIDs)
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(accountsIDs)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -215,17 +215,17 @@ func (_m *Storage) DeleteSurveyResponsesWithIDs(appID string, orgID string, acco
 	return r0
 }
 
-// DeleteSurveysWithIDs provides a mock function with given fields: appID, orgID, accountsIDs
-func (_m *Storage) DeleteSurveysWithIDs(appID string, orgID string, accountsIDs []string) error {
-	ret := _m.Called(appID, orgID, accountsIDs)
+// DeleteSurveysWithIDs provides a mock function with given fields: accountsIDs
+func (_m *Storage) DeleteSurveysWithIDs(accountsIDs []string) error {
+	ret := _m.Called(accountsIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteSurveysWithIDs")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, []string) error); ok {
-		r0 = rf(appID, orgID, accountsIDs)
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(accountsIDs)
 	} else {
 		r0 = ret.Error(0)
 	}

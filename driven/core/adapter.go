@@ -32,14 +32,11 @@ type Adapter struct {
 	logger                logs.Logger
 	coreURL               string
 	serviceAccountManager *authservice.ServiceAccountManager
-
-	appID string
-	orgID string
 }
 
 // NewCoreAdapter creates a new adapter for Core API
-func NewCoreAdapter(coreURL string, orgID string, appID string, serviceAccountManager *authservice.ServiceAccountManager) *Adapter {
-	return &Adapter{coreURL: coreURL, appID: appID, orgID: orgID, serviceAccountManager: serviceAccountManager}
+func NewCoreAdapter(coreURL string, serviceAccountManager *authservice.ServiceAccountManager) *Adapter {
+	return &Adapter{coreURL: coreURL, serviceAccountManager: serviceAccountManager}
 }
 
 // LoadDeletedMemberships loads deleted memberships

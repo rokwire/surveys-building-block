@@ -144,20 +144,20 @@ func (d deleteDataLogic) processDelete() {
 		d.logger.Infof("accounts for deletion - %s", accountsIDs)
 
 		//delete the data
-		d.deleteAppOrgUsersData(appOrgSection.AppID, appOrgSection.OrgID, accountsIDs)
+		d.deleteAppOrgUsersData(accountsIDs)
 	}
 }
 
-func (d deleteDataLogic) deleteAppOrgUsersData(appID string, orgID string, accountsIDs []string) {
+func (d deleteDataLogic) deleteAppOrgUsersData(accountsIDs []string) {
 	// delete survey responses
-	err := d.storage.DeleteSurveyResponsesWithIDs(appID, orgID, accountsIDs)
+	err := d.storage.DeleteSurveyResponsesWithIDs(accountsIDs)
 	if err != nil {
 		d.logger.Errorf("error deleting the survey responses - %s", err)
 		return
 	}
 
 	// delete surveys
-	err = d.storage.DeleteSurveysWithIDs(appID, orgID, accountsIDs)
+	err = d.storage.DeleteSurveysWithIDs(accountsIDs)
 	if err != nil {
 		d.logger.Errorf("error deleting the surveys  - %s", err)
 		return

@@ -26,7 +26,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/rokwire/core-auth-library-go/v2/authutils"
+	"github.com/rokwire/core-auth-library-go/v3/authutils"
 	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
