@@ -1,8 +1,6 @@
-FROM golang:1.20-alpine as builder
+FROM golang:1.22-bullseye as builder
 
 ENV CGO_ENABLED=0
-
-RUN apk add --no-cache --update make git
 
 RUN mkdir /app
 WORKDIR /app
@@ -10,7 +8,8 @@ WORKDIR /app
 COPY . .
 RUN make
 
-FROM alpine:3.17.2
+FROM alpine:3.20
+
 
 #we need timezone database
 RUN apk add --no-cache --update tzdata
