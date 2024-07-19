@@ -27,10 +27,11 @@ func surveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest) m
 
 func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
 	startDateUnixTimestamp := item.StartDate.Unix()
-	endDateUnixTimestamp := item.EndDate.Unix()
+	var endDateUnixTimestamp int64
 	if item.EndDate != nil {
 		endDateUnixTimestamp = item.EndDate.Unix()
 	}
+
 	return model.SurveyRequest{ID: item.ID, CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Title: item.Title,
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		Type: item.Type, SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,

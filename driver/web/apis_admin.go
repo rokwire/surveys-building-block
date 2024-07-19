@@ -226,21 +226,19 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 }
 
 func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	var item model.Survey
-	err := json.NewDecoder(r.Body).Decode(&item)
+	var items model.SurveyRequest
+	err := json.NewDecoder(r.Body).Decode(&items)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	item.OrgID = claims.OrgID
-	item.AppID = claims.AppID
-	item.CreatorID = claims.Subject
-	item.Type = "admin"
+	item := surveyRequestToSurvey(claims, items)
 
-	createdItem, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
+	ci, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
+	createdItem := surveyToSurveyRequest(*ci)
 
 	data, err := json.Marshal(createdItem)
 	if err != nil {
