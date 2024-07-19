@@ -63,8 +63,8 @@ type Survey struct {
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
-	StartDate          int64                  `json:"start_date" bson:"start_date"`
-	EndDate            *int64                 `json:"end_date" bson:"end_date"`
+	StartDate          time.Time              `json:"start_date" bson:"start_date"`
+	EndDate            *time.Time             `json:"end_date" bson:"end_date"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response
@@ -166,4 +166,33 @@ type DeletedUserData struct {
 type DeletedMembership struct {
 	AccountID string                  `json:"account_id"`
 	Context   *map[string]interface{} `json:"context,omitempty"`
+}
+
+// SurveyRequest wraps the wraps the request for the surveys
+type SurveyRequest struct {
+	ID                 string                 `json:"id" bson:"_id"`
+	CreatorID          string                 `json:"creator_id" bson:"creator_id"`
+	OrgID              string                 `json:"org_id" bson:"org_id"`
+	AppID              string                 `json:"app_id" bson:"app_id"`
+	Title              string                 `json:"title" bson:"title"`
+	MoreInfo           *string                `json:"more_info" bson:"more_info"`
+	Data               map[string]SurveyData  `json:"data" bson:"data"`
+	Scored             bool                   `json:"scored" bson:"scored"`
+	ResultRules        string                 `json:"result_rules" bson:"result_rules"`
+	ResultJSON         string                 `json:"result_json" bson:"result_json"`
+	Type               string                 `json:"type" bson:"type"`
+	SurveyStats        *SurveyStats           `json:"stats" bson:"stats"`
+	Sensitive          bool                   `json:"sensitive" bson:"sensitive"`
+	Anonymous          bool                   `json:"anonymous" bson:"anonymous"`
+	DefaultDataKey     *string                `json:"default_data_key" bson:"default_data_key"`
+	DefaultDataKeyRule *string                `json:"default_data_key_rule" bson:"default_data_key_rule"`
+	Constants          map[string]interface{} `json:"constants" bson:"constants"`
+	Strings            map[string]interface{} `json:"strings" bson:"strings"`
+	SubRules           map[string]interface{} `json:"sub_rules" bson:"sub_rules"`
+	ResponseKeys       []string               `json:"response_keys" bson:"response_keys"`
+	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
+	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
+	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
+	StartDate          int64                  `json:"start_date" bson:"start_date"`
+	EndDate            *int64                 `json:"end_date" bson:"end_date"`
 }
