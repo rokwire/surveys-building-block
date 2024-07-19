@@ -256,16 +256,13 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	var item model.Survey
-	err := json.NewDecoder(r.Body).Decode(&item)
+	var items model.SurveyRequest
+	err := json.NewDecoder(r.Body).Decode(&items)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	item.ID = id
-	item.OrgID = claims.OrgID
-	item.AppID = claims.AppID
-	item.Type = "admin"
+	item := updateSurveyRequestToSurvey(claims, items, id)
 
 	err = h.app.Admin.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
 	if err != nil {
