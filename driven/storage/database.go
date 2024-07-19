@@ -132,29 +132,6 @@ func (d *database) applySurveysChecks(surveys *collectionWrapper) error {
 		return err
 	}
 
-	// Create a filter for documents where start_date or end_date is missing or null
-	filter := bson.M{
-		"$or": []bson.M{
-			{"start_date": bson.M{"$exists": false}},
-			{"start_date": nil},
-			{"end_date": bson.M{"$exists": false}},
-			{"end_date": nil},
-		},
-	}
-
-	// Create the update document
-	update := bson.M{
-		"$set": bson.M{
-			"start_date": nil,
-			"end_date":   nil,
-		},
-	}
-
-	// Perform the update
-	_, err = surveys.UpdateMany(context.Background(), filter, update, nil)
-	if err != nil {
-		return err
-	}
 	d.logger.Info("surveys passed")
 	return nil
 }
