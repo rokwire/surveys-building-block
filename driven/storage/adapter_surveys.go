@@ -97,6 +97,8 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"constants":             survey.Constants,
 			"strings":               survey.Strings,
 			"sub_rules":             survey.SubRules,
+			"start_date":            survey.StartDate,
+			"end_date":              survey.EndDate,
 			"date_updated":          now,
 		}}
 
