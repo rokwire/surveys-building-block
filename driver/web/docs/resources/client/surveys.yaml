@@ -46,6 +46,12 @@ get:
       explode: false
       schema:
         type: number
+  requestBody:
+    description: Get survey time filter request body
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/surveys/SurveyTimeFilter.yaml"    
   responses:
     200:
       description: Success

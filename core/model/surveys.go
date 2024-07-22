@@ -196,3 +196,13 @@ type SurveyRequest struct {
 	StartDate          int64                  `json:"start_date" bson:"start_date"`
 	EndDate            *int64                 `json:"end_date" bson:"end_date"`
 }
+
+// SurveyTimeFilter wraps the time filter for surveys
+type SurveyTimeFilter struct {
+	StartTimeAfter             *int64 `json:"start_time_after"`
+	StartTimeAfterNullEndTime  *int64 `json:"start_time_after_null_end_time"`
+	StartTimeBefore            *int64 `json:"start_time_before"`
+	StartTimeBeforeNullEndTime *int64 `json:"start_time_before_null_end_time"`
+	EndTimeAfter               *int64 `json:"end_time_after"`
+	EndTimeBefore              *int64 `json:"end_time_before"`
+}
