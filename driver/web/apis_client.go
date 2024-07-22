@@ -18,6 +18,8 @@ import (
 	"application/core"
 	"application/core/model"
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -55,6 +57,25 @@ func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *token
 }
 
 func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionRead, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, false)
+	}
+
+	var items *model.SurveyTimeFilterRequest
+	// If the body is empty or only contains whitespace, treat it as nil
+	if len(data) == 0 {
+		log.Println("Request body is empty, proceeding with default behavior.")
+		items = &model.SurveyTimeFilterRequest{StartTimeBefore: nil, StartTimeAfter: nil, EndTimeAfter: nil, EndTimeBefore: nil}
+	} else {
+		// Unmarshal the data into the items struct
+		err = json.Unmarshal(data, &items)
+		if err != nil {
+			log.Printf("Error unmarshaling request body: %v", err)
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+	}
+	filter := surveyTimeFilter(items)
 	surveyIDsRaw := r.URL.Query().Get("ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -87,35 +108,34 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID,
+		&limit, &offset, filter)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	data, err := json.Marshal(resData)
+	rdata, err := json.Marshal(resData)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}
 
-	return l.HTTPResponseSuccessJSON(data)
+	return l.HTTPResponseSuccessJSON(rdata)
 }
 
 func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	var item model.Survey
-	err := json.NewDecoder(r.Body).Decode(&item)
+	var items model.SurveyRequest
+	err := json.NewDecoder(r.Body).Decode(&items)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	item.OrgID = claims.OrgID
-	item.AppID = claims.AppID
-	item.CreatorID = claims.Subject
-	item.Type = "user"
+	item := surveyRequestToSurvey(claims, items)
 
-	createdItem, err := h.app.Client.CreateSurvey(item, claims.ExternalIDs)
+	ci, err := h.app.Client.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
+	createdItem := surveyToSurveyRequest(*ci)
 
 	data, err := json.Marshal(createdItem)
 	if err != nil {
@@ -133,16 +153,13 @@ func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *to
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	var item model.Survey
-	err := json.NewDecoder(r.Body).Decode(&item)
+	var items model.SurveyRequest
+	err := json.NewDecoder(r.Body).Decode(&items)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	item.ID = id
-	item.OrgID = claims.OrgID
-	item.AppID = claims.AppID
-	item.Type = "user"
+	item := updateSurveyRequestToSurvey(claims, items, id)
 
 	err = h.app.Client.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
 	if err != nil {
@@ -458,7 +475,7 @@ func (h ClientAPIsHandler) getCreatorSurveys(l *logs.Log, r *http.Request, claim
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

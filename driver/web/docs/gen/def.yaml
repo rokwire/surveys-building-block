@@ -92,6 +92,34 @@ paths:
           explode: false
           schema:
             type: number
+      requestBody:
+        description: Get survey time filter request body
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_time_before:
+                  type: integer
+                  nullable: true
+                  format: int64
+                  description: UNIX UTC timestamp in seconds
+                start_time_after:
+                  type: integer
+                  nullable: true
+                  format: int64
+                  description: UNIX UTC timestamp in seconds
+                end_time_before:
+                  type: integer
+                  nullable: true
+                  format: int64
+                  description: UNIX UTC timestamp in seconds
+                end_time_after:
+                  type: integer
+                  nullable: true
+                  format: int64
+                  description: UNIX UTC timestamp in seconds
       responses:
         '200':
           description: Success
@@ -183,7 +211,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Data body model.Survey
+        description: Data body model.SurveyRequest
         content:
           application/json:
             schema:
@@ -1437,6 +1465,15 @@ components:
           nullable: true
         calendar_event_id:
           type: string
+        start_date:
+          type: integer
+          format: int64
+          description: UNIX timestamp
+        end_date:
+          type: integer
+          format: int64
+          nullable: true
+          description: UNIX timestamp
     SurveyData:
       type: object
       properties:
