@@ -39,8 +39,8 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 // GetSurveys gets matching surveys
 func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, timeFilter *model.SurveyTimeFilter) ([]model.Survey, error) {
 	filter := bson.D{
-		{"org_id", orgID},
-		{"app_id", appID},
+		{Key: "org_id", Value: orgID},
+		{Key: "app_id", Value: appID},
 	}
 
 	if creatorID != nil {
