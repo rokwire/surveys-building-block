@@ -199,10 +199,16 @@ type SurveyRequest struct {
 
 // SurveyTimeFilter wraps the time filter for surveys
 type SurveyTimeFilter struct {
-	StartTimeAfter             *int64 `json:"start_time_after"`
-	StartTimeAfterNullEndTime  *int64 `json:"start_time_after_null_end_time"`
-	StartTimeBefore            *int64 `json:"start_time_before"`
-	StartTimeBeforeNullEndTime *int64 `json:"start_time_before_null_end_time"`
-	EndTimeAfter               *int64 `json:"end_time_after"`
-	EndTimeBefore              *int64 `json:"end_time_before"`
+	StartTimeAfter  *time.Time `json:"start_time_after"`
+	StartTimeBefore *time.Time `json:"start_time_before"`
+	EndTimeAfter    *time.Time `json:"end_time_after"`
+	EndTimeBefore   *time.Time `json:"end_time_before"`
+}
+
+// SurveyTimeFilterRequest wraps the time filter for surveys
+type SurveyTimeFilterRequest struct {
+	StartTimeAfter  *int64 `json:"start_time_after"`
+	StartTimeBefore *int64 `json:"start_time_before"`
+	EndTimeAfter    *int64 `json:"end_time_after"`
+	EndTimeBefore   *int64 `json:"end_time_before"`
 }
