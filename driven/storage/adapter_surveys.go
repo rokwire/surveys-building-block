@@ -44,16 +44,16 @@ func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surv
 	}
 
 	if creatorID != nil {
-		filter = append(filter, bson.E{"creator_id", *creatorID})
+		filter = append(filter, bson.E{Key: "creator_id", Value: *creatorID})
 	}
 	if len(surveyIDs) > 0 {
-		filter = append(filter, bson.E{"_id", bson.M{"$in": surveyIDs}})
+		filter = append(filter, bson.E{Key: "_id", Value: bson.M{"$in": surveyIDs}})
 	}
 	if len(surveyTypes) > 0 {
-		filter = append(filter, bson.E{"type", bson.M{"$in": surveyTypes}})
+		filter = append(filter, bson.E{Key: "type", Value: bson.M{"$in": surveyTypes}})
 	}
 	if calendarEventID != "" {
-		filter = append(filter, bson.E{"calendar_event_id", calendarEventID})
+		filter = append(filter, bson.E{Key: "calendar_event_id", Value: calendarEventID})
 	}
 
 	if timeFilter.StartTimeAfter != nil {
