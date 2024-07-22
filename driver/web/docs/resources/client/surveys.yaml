@@ -48,6 +48,7 @@ get:
         type: number
   requestBody:
     description: Get survey time filter request body
+    required: false
     content:
       application/json:
         schema:
