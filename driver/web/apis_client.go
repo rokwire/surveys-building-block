@@ -18,6 +18,8 @@ import (
 	"application/core"
 	"application/core/model"
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -55,14 +57,25 @@ func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *token
 }
 
 func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	var items model.SurveyTimeFilterRequest
-	err := json.NewDecoder(r.Body).Decode(&items)
+	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
+		return l.HTTPResponseErrorAction(logutils.ActionRead, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, false)
 	}
 
+	var items *model.SurveyTimeFilterRequest
+	// If the body is empty or only contains whitespace, treat it as nil
+	if len(data) == 0 {
+		log.Println("Request body is empty, proceeding with default behavior.")
+		items = &model.SurveyTimeFilterRequest{StartTimeBefore: nil, StartTimeAfter: nil, EndTimeAfter: nil, EndTimeBefore: nil}
+	} else {
+		// Unmarshal the data into the items struct
+		err = json.Unmarshal(data, &items)
+		if err != nil {
+			log.Printf("Error unmarshaling request body: %v", err)
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+	}
 	filter := surveyTimeFilter(items)
-
 	surveyIDsRaw := r.URL.Query().Get("ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -101,12 +114,12 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	data, err := json.Marshal(resData)
+	rdata, err := json.Marshal(resData)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}
 
-	return l.HTTPResponseSuccessJSON(data)
+	return l.HTTPResponseSuccessJSON(rdata)
 }
 
 func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {

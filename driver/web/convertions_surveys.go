@@ -58,7 +58,7 @@ func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequ
 		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValueValue, EndDate: endValue}
 }
 
-func surveyTimeFilter(item model.SurveyTimeFilterRequest) *model.SurveyTimeFilter {
+func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilter {
 
 	filter := model.SurveyTimeFilter{}
 
