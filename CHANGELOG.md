@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.6.0] - 2024-007-23
+### Added
+- Archived flag [#40](https://github.com/rokwire/surveys-building-block/issues/40)
+### Added
+- Public flag [#37](https://github.com/rokwire/surveys-building-block/issues/37)
+### Added
+- Add extras field to survey data [#39](https://github.com/rokwire/surveys-building-block/issues/39)
+### Fixed
+- Fix "start_date" and "end_date" [#43](https://github.com/rokwire/surveys-building-block/issues/43)
+
 ## [1.5.0] - 2024-007-22
 ### Added 
 - Start/end date [#38](https://github.com/rokwire/surveys-building-block/issues/38)

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Rokwire Surveys Building Block API
   description: Surveys Building Block API Documentation
-  version: 1.5.0
+  version: 1.6.0
 servers:
   - url: 'https://api.rokwire.illinois.edu/surveys'
     description: Production server
@@ -92,6 +92,22 @@ paths:
           explode: false
           schema:
             type: number
+        - name: public
+          in: query
+          description: Shows if the survery is public or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
+        - name: archived
+          in: query
+          description: Shows if the survery is archived or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
       requestBody:
         description: Get survey time filter request body
         required: false
@@ -943,6 +959,29 @@ paths:
           explode: false
           schema:
             type: number
+        - name: public
+          in: query
+          description: Shows if the survery is public or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
+        - name: archived
+          in: query
+          description: Shows if the survery is archived or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
+      requestBody:
+        description: Get survey time filter request body
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1api~1surveys/get/requestBody/content/application~1json/schema'
       responses:
         '200':
           description: Success
@@ -1468,12 +1507,19 @@ components:
         start_date:
           type: integer
           format: int64
+          nullable: true
           description: UNIX timestamp
         end_date:
           type: integer
           format: int64
           nullable: true
           description: UNIX timestamp
+        public:
+          type: boolean
+          nullable: true
+        archived:
+          type: boolean
+          nullable: true
     SurveyData:
       type: object
       properties:
@@ -1497,6 +1543,9 @@ components:
           type: boolean
         response:
           type: object
+        extras:
+          type: object
+          nullable: true
         type:
           type: string
         correct_answer:

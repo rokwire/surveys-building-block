@@ -10,7 +10,11 @@ import (
 func surveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest) model.Survey {
 	item.Type = "user"
 	//start
-	startValueValue := time.Unix(int64(item.StartDate), 0)
+	var startValue *time.Time
+	if item.StartDate != nil {
+		startValueValue := time.Unix(int64(*item.StartDate), 0)
+		startValue = &startValueValue
+	}
 	//end
 	var endValue *time.Time
 	if item.EndDate != nil {
@@ -22,11 +26,16 @@ func surveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest) m
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
-		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValueValue, EndDate: endValue}
+		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValue, EndDate: endValue,
+		Public: item.Public, Archived: item.Archived}
 }
 
 func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
-	startDateUnixTimestamp := item.StartDate.Unix()
+	var startDateUnixTimestamp int64
+	if item.StartDate != nil {
+		startDateUnixTimestamp = item.StartDate.Unix()
+	}
+
 	var endDateUnixTimestamp int64
 	if item.EndDate != nil {
 		endDateUnixTimestamp = item.EndDate.Unix()
@@ -36,14 +45,26 @@ func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		Type: item.Type, SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
-		ResponseKeys: item.ResponseKeys, DateCreated: item.DateCreated, CalendarEventID: item.CalendarEventID, StartDate: startDateUnixTimestamp,
-		EndDate: &endDateUnixTimestamp}
+		ResponseKeys: item.ResponseKeys, DateCreated: item.DateCreated, CalendarEventID: item.CalendarEventID, StartDate: &startDateUnixTimestamp,
+		EndDate: &endDateUnixTimestamp, Public: item.Public, Archived: item.Archived}
+}
+
+func surveysToSurveyRequests(items []model.Survey) []model.SurveyRequest {
+	list := make([]model.SurveyRequest, len(items))
+	for index := range items {
+		list[index] = surveyToSurveyRequest(items[index])
+	}
+	return list
 }
 
 func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest, id string) model.Survey {
 	item.Type = "user"
 	//start
-	startValueValue := time.Unix(int64(item.StartDate), 0)
+	var startValue *time.Time
+	if item.StartDate != nil {
+		startValueTime := time.Unix(int64(*item.StartDate), 0)
+		startValue = &startValueTime
+	}
 	//end
 	var endValue *time.Time
 	if item.EndDate != nil {
@@ -55,7 +76,8 @@ func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequ
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
-		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValueValue, EndDate: endValue}
+		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValue, EndDate: endValue,
+		Public: item.Public, Archived: item.Archived}
 }
 
 func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilter {

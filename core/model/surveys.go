@@ -63,8 +63,10 @@ type Survey struct {
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
-	StartDate          time.Time              `json:"start_date" bson:"start_date"`
+	StartDate          *time.Time             `json:"start_date" bson:"start_date"`
 	EndDate            *time.Time             `json:"end_date" bson:"end_date"`
+	Public             *bool                  `json:"public" bson:"public"`
+	Archived           *bool                  `json:"archived" bson:"archived"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response
@@ -92,17 +94,18 @@ type SurveyStats struct {
 
 // SurveyData is data stored for a Survey
 type SurveyData struct {
-	Section             *string     `json:"section,omitempty" bson:"section,omitempty"`
-	Sections            []string    `json:"sections,omitempty" bson:"sections,omitempty"`
-	AllowSkip           bool        `json:"allow_skip" bson:"allow_skip"`
-	Text                string      `json:"text" bson:"text"`
-	MoreInfo            string      `json:"more_info" bson:"more_info"`
-	DefaultFollowUpKey  *string     `json:"default_follow_up_key" bson:"default_follow_up_key"`
-	DefaultResponseRule *string     `json:"default_response_rule" bson:"default_response_rule"`
-	FollowUpRule        *string     `json:"follow_up_rule" bson:"follow_up_rule"`
-	ScoreRule           *string     `json:"score_rule" bson:"score_rule"`
-	Replace             bool        `json:"replace" bson:"replace"`
-	Response            interface{} `json:"response" bson:"response"`
+	Section             *string                 `json:"section,omitempty" bson:"section,omitempty"`
+	Sections            []string                `json:"sections,omitempty" bson:"sections,omitempty"`
+	AllowSkip           bool                    `json:"allow_skip" bson:"allow_skip"`
+	Text                string                  `json:"text" bson:"text"`
+	MoreInfo            string                  `json:"more_info" bson:"more_info"`
+	DefaultFollowUpKey  *string                 `json:"default_follow_up_key" bson:"default_follow_up_key"`
+	DefaultResponseRule *string                 `json:"default_response_rule" bson:"default_response_rule"`
+	FollowUpRule        *string                 `json:"follow_up_rule" bson:"follow_up_rule"`
+	ScoreRule           *string                 `json:"score_rule" bson:"score_rule"`
+	Replace             bool                    `json:"replace" bson:"replace"`
+	Response            interface{}             `json:"response" bson:"response"`
+	Extras              *map[string]interface{} `json:"extras" bson:"extras"`
 
 	Type string `json:"type" bson:"type"`
 
@@ -193,8 +196,10 @@ type SurveyRequest struct {
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
-	StartDate          int64                  `json:"start_date" bson:"start_date"`
+	StartDate          *int64                 `json:"start_date" bson:"start_date"`
 	EndDate            *int64                 `json:"end_date" bson:"end_date"`
+	Public             *bool                  `json:"public" bson:"public"`
+	Archived           *bool                  `json:"archived" bson:"archived"`
 }
 
 // SurveyTimeFilter wraps the time filter for surveys

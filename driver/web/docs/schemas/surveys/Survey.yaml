@@ -60,9 +60,16 @@ properties:
   start_date:
     type: integer
     format: int64
+    nullable: true
     description: "UNIX timestamp"
   end_date:
     type: integer
     format: int64
     nullable: true
-    description: "UNIX timestamp"  
+    description: "UNIX timestamp"
+  public:
+    type: boolean
+    nullable: true
+  archived:
+    type: boolean
+    nullable: true        
