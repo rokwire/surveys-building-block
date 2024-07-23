@@ -65,6 +65,7 @@ type Survey struct {
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
 	StartDate          *time.Time             `json:"start_date" bson:"start_date"`
 	EndDate            *time.Time             `json:"end_date" bson:"end_date"`
+	Public             *bool                  `json:"public" bson:"public"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response
@@ -196,6 +197,7 @@ type SurveyRequest struct {
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
 	StartDate          *int64                 `json:"start_date" bson:"start_date"`
 	EndDate            *int64                 `json:"end_date" bson:"end_date"`
+	Public             *bool                  `json:"public" bson:"public"`
 }
 
 // SurveyTimeFilter wraps the time filter for surveys
