@@ -66,6 +66,7 @@ type Survey struct {
 	StartDate          *time.Time             `json:"start_date" bson:"start_date"`
 	EndDate            *time.Time             `json:"end_date" bson:"end_date"`
 	Public             *bool                  `json:"public" bson:"public"`
+	Archived           *bool                  `json:"archived" bson:"archived"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response
@@ -198,6 +199,7 @@ type SurveyRequest struct {
 	StartDate          *int64                 `json:"start_date" bson:"start_date"`
 	EndDate            *int64                 `json:"end_date" bson:"end_date"`
 	Public             *bool                  `json:"public" bson:"public"`
+	Archived           *bool                  `json:"archived" bson:"archived"`
 }
 
 // SurveyTimeFilter wraps the time filter for surveys
