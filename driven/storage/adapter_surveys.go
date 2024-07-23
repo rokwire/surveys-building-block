@@ -74,6 +74,10 @@ func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surv
 		filter = append(filter, bson.E{Key: "public", Value: public})
 	}
 
+	if archived != nil {
+		filter = append(filter, bson.E{Key: "archived", Value: archived})
+	}
+
 	opts := options.Find()
 	if limit != nil {
 		opts.SetLimit(int64(*limit))
