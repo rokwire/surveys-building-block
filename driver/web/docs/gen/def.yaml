@@ -1468,6 +1468,7 @@ components:
         start_date:
           type: integer
           format: int64
+          nullable: true
           description: UNIX timestamp
         end_date:
           type: integer

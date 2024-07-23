@@ -63,7 +63,7 @@ type Survey struct {
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
-	StartDate          time.Time              `json:"start_date" bson:"start_date"`
+	StartDate          *time.Time             `json:"start_date" bson:"start_date"`
 	EndDate            *time.Time             `json:"end_date" bson:"end_date"`
 }
 
@@ -193,7 +193,7 @@ type SurveyRequest struct {
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 	CalendarEventID    string                 `json:"calendar_event_id" bson:"calendar_event_id"`
-	StartDate          int64                  `json:"start_date" bson:"start_date"`
+	StartDate          *int64                 `json:"start_date" bson:"start_date"`
 	EndDate            *int64                 `json:"end_date" bson:"end_date"`
 }
 
