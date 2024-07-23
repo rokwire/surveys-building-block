@@ -50,7 +50,7 @@ get:
         type: number
     - name: public
       in: query
-      description: is the survery public or not
+      description: Shows if the survery is public or not
       required: false
       style: simple
       explode: false
