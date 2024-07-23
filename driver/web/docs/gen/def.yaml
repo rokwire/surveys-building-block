@@ -100,6 +100,14 @@ paths:
           explode: false
           schema:
             type: boolean
+        - name: archived
+          in: query
+          description: Shows if the survery is archived or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
       requestBody:
         description: Get survey time filter request body
         required: false
@@ -959,6 +967,14 @@ paths:
           explode: false
           schema:
             type: boolean
+        - name: archived
+          in: query
+          description: Shows if the survery is archived or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
       requestBody:
         description: Get survey time filter request body
         required: false
@@ -1499,6 +1515,9 @@ components:
           nullable: true
           description: UNIX timestamp
         public:
+          type: boolean
+          nullable: true
+        archived:
           type: boolean
           nullable: true
     SurveyData:

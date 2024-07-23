@@ -37,7 +37,7 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurveys gets matching surveys
-func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, timeFilter *model.SurveyTimeFilter, public *bool) ([]model.Survey, error) {
+func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, timeFilter *model.SurveyTimeFilter, public *bool, archived *bool) ([]model.Survey, error) {
 	filter := bson.D{
 		{Key: "org_id", Value: orgID},
 		{Key: "app_id", Value: appID},
@@ -72,6 +72,10 @@ func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surv
 
 	if public != nil {
 		filter = append(filter, bson.E{Key: "public", Value: public})
+	}
+
+	if archived != nil {
+		filter = append(filter, bson.E{Key: "archived", Value: archived})
 	}
 
 	opts := options.Find()
@@ -136,6 +140,7 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"start_date":            survey.StartDate,
 			"end_date":              survey.EndDate,
 			"public":                survey.Public,
+			"archived":              survey.Archived,
 			"date_updated":          now,
 		}}
 
