@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -108,13 +109,29 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		offset = intParsed
 	}
 
+	publicStr := r.URL.Query().Get("public")
+
+	var public *bool
+
+	if publicStr != "" {
+		value, err := strconv.ParseBool(publicStr)
+		if err != nil {
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+		public = &value
+	}
+
 	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID,
-		&limit, &offset, filter)
+		&limit, &offset, filter, public)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
 	surveys := surveysToSurveyRequests(resData)
+
+	sort.Slice(surveys, func(i, j int) bool {
+		return surveys[i].DateCreated.After(surveys[j].DateCreated)
+	})
 
 	rdata, err := json.Marshal(surveys)
 	if err != nil {
@@ -477,7 +494,7 @@ func (h ClientAPIsHandler) getCreatorSurveys(l *logs.Log, r *http.Request, claim
 		offset = intParsed
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil)
+	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil, nil)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

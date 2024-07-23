@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -233,11 +234,28 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		}
 		offset = intParsed
 	}
+	publicStr := r.URL.Query().Get("public")
 
-	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset, filter)
+	var public *bool
+
+	if publicStr != "" {
+		value, err := strconv.ParseBool(publicStr)
+		if err != nil {
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+		public = &value
+	}
+
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset, filter, public)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
+
+	surveys := surveysToSurveyRequests(resData)
+
+	sort.Slice(surveys, func(i, j int) bool {
+		return surveys[i].DateCreated.After(surveys[j].DateCreated)
+	})
 
 	rdata, err := json.Marshal(resData)
 	if err != nil {

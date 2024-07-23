@@ -92,6 +92,14 @@ paths:
           explode: false
           schema:
             type: number
+        - name: public
+          in: query
+          description: Shows if the survery is public or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
       requestBody:
         description: Get survey time filter request body
         required: false
@@ -943,6 +951,21 @@ paths:
           explode: false
           schema:
             type: number
+        - name: public
+          in: query
+          description: Shows if the survery is public or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
+      requestBody:
+        description: Get survey time filter request body
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1api~1surveys/get/requestBody/content/application~1json/schema'
       responses:
         '200':
           description: Success
@@ -1475,6 +1498,9 @@ components:
           format: int64
           nullable: true
           description: UNIX timestamp
+        public:
+          type: boolean
+          nullable: true
     SurveyData:
       type: object
       properties:
