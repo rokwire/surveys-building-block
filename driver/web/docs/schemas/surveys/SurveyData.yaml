@@ -21,7 +21,8 @@ properties:
   response:
     type: object
   extras:
-    type: object  
+    type: object 
+    nullable: true 
   type:
     type: string
   correct_answer:

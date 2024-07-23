@@ -92,17 +92,18 @@ type SurveyStats struct {
 
 // SurveyData is data stored for a Survey
 type SurveyData struct {
-	Section             *string     `json:"section,omitempty" bson:"section,omitempty"`
-	Sections            []string    `json:"sections,omitempty" bson:"sections,omitempty"`
-	AllowSkip           bool        `json:"allow_skip" bson:"allow_skip"`
-	Text                string      `json:"text" bson:"text"`
-	MoreInfo            string      `json:"more_info" bson:"more_info"`
-	DefaultFollowUpKey  *string     `json:"default_follow_up_key" bson:"default_follow_up_key"`
-	DefaultResponseRule *string     `json:"default_response_rule" bson:"default_response_rule"`
-	FollowUpRule        *string     `json:"follow_up_rule" bson:"follow_up_rule"`
-	ScoreRule           *string     `json:"score_rule" bson:"score_rule"`
-	Replace             bool        `json:"replace" bson:"replace"`
-	Response            interface{} `json:"response" bson:"response"`
+	Section             *string                 `json:"section,omitempty" bson:"section,omitempty"`
+	Sections            []string                `json:"sections,omitempty" bson:"sections,omitempty"`
+	AllowSkip           bool                    `json:"allow_skip" bson:"allow_skip"`
+	Text                string                  `json:"text" bson:"text"`
+	MoreInfo            string                  `json:"more_info" bson:"more_info"`
+	DefaultFollowUpKey  *string                 `json:"default_follow_up_key" bson:"default_follow_up_key"`
+	DefaultResponseRule *string                 `json:"default_response_rule" bson:"default_response_rule"`
+	FollowUpRule        *string                 `json:"follow_up_rule" bson:"follow_up_rule"`
+	ScoreRule           *string                 `json:"score_rule" bson:"score_rule"`
+	Replace             bool                    `json:"replace" bson:"replace"`
+	Response            interface{}             `json:"response" bson:"response"`
+	Extras              *map[string]interface{} `json:"extras" bson:"extras"`
 
 	Type string `json:"type" bson:"type"`
 

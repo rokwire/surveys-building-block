@@ -1500,6 +1500,7 @@ components:
           type: object
         extras:
           type: object
+          nullable: true
         type:
           type: string
         correct_answer:
