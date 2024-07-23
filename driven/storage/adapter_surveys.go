@@ -136,6 +136,7 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"start_date":            survey.StartDate,
 			"end_date":              survey.EndDate,
 			"public":                survey.Public,
+			"archived":              survey.Archived,
 			"date_updated":          now,
 		}}
 
