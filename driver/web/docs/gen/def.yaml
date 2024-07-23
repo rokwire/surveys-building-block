@@ -1475,6 +1475,9 @@ components:
           format: int64
           nullable: true
           description: UNIX timestamp
+        public:
+          type: boolean
+          nullable: true
     SurveyData:
       type: object
       properties:
