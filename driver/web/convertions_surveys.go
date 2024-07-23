@@ -40,6 +40,14 @@ func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
 		EndDate: &endDateUnixTimestamp}
 }
 
+func surveysToSurveyRequests(items []model.Survey) []model.SurveyRequest {
+	list := make([]model.SurveyRequest, len(items))
+	for index := range items {
+		list[index] = surveyToSurveyRequest(items[index])
+	}
+	return list
+}
+
 func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest, id string) model.Survey {
 	item.Type = "user"
 	//start
