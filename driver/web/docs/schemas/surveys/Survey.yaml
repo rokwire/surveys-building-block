@@ -69,4 +69,7 @@ properties:
     description: "UNIX timestamp"
   public:
     type: boolean
-    nullable: true    
+    nullable: true
+  archived:
+    type: boolean
+    nullable: true        

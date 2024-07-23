@@ -56,6 +56,14 @@ get:
       explode: false
       schema:
         type: boolean
+    - name: archived
+      in: query
+      description: Shows if the survery is archived or not
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: boolean    
   requestBody:
     description: Get survey time filter request body
     required: false
