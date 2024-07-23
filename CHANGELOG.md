@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Archived flag [#40](https://github.com/rokwire/surveys-building-block/issues/40)
 ### Added
+- Public flag [#37](https://github.com/rokwire/surveys-building-block/issues/37)
+### Added
 - Add extras field to survey data [#39](https://github.com/rokwire/surveys-building-block/issues/39)
 ### Fixed
 - Fix "start_date" and "end_date" [#43](https://github.com/rokwire/surveys-building-block/issues/43)
