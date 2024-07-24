@@ -27,7 +27,7 @@ func surveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest) m
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
 		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValue, EndDate: endValue,
-		Public: item.Public, Archived: item.Archived}
+		Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime}
 }
 
 func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
@@ -46,7 +46,7 @@ func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
 		Type: item.Type, SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
 		ResponseKeys: item.ResponseKeys, DateCreated: item.DateCreated, CalendarEventID: item.CalendarEventID, StartDate: &startDateUnixTimestamp,
-		EndDate: &endDateUnixTimestamp, Public: item.Public, Archived: item.Archived}
+		EndDate: &endDateUnixTimestamp, Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime}
 }
 
 func surveysToSurveyRequests(items []model.Survey) []model.SurveyRequest {
@@ -77,7 +77,7 @@ func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequ
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
 		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: startValue, EndDate: endValue,
-		Public: item.Public, Archived: item.Archived}
+		Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime}
 }
 
 func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilter {
