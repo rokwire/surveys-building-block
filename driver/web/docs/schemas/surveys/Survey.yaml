@@ -72,4 +72,8 @@ properties:
     nullable: true
   archived:
     type: boolean
-    nullable: true        
+    nullable: true 
+  estimated_completion_time:
+    type: integer
+    format: int64
+    nullable: true       

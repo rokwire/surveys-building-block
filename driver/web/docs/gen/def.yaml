@@ -1520,6 +1520,10 @@ components:
         archived:
           type: boolean
           nullable: true
+        estimated_completion_time:
+          type: integer
+          format: int64
+          nullable: true
     SurveyData:
       type: object
       properties:
