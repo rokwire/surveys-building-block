@@ -214,8 +214,8 @@ type SurveyTimeFilter struct {
 
 // SurveyTimeFilterRequest wraps the time filter for surveys
 type SurveyTimeFilterRequest struct {
-	StartTimeAfter  *int64 `json:"start_time_after"`
-	StartTimeBefore *int64 `json:"start_time_before"`
-	EndTimeAfter    *int64 `json:"end_time_after"`
-	EndTimeBefore   *int64 `json:"end_time_before"`
+	StartTimeAfter  *string `json:"start_time_after"`
+	StartTimeBefore *string `json:"start_time_before"`
+	EndTimeAfter    *string `json:"end_time_after"`
+	EndTimeBefore   *string `json:"end_time_before"`
 }

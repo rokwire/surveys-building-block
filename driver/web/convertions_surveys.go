@@ -73,20 +73,20 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 	filter := model.SurveyTimeFilter{}
 
 	if item.StartTimeBefore != nil {
-		beforeStartTime := time.Unix(*item.StartTimeBefore, 0)
+		beforeStartTime, _ := time.Parse(time.RFC3339, *item.StartTimeBefore)
 		filter.StartTimeBefore = &beforeStartTime
 	}
 	if item.StartTimeAfter != nil {
-		afterStartTime := time.Unix(*item.StartTimeAfter, 0)
+		afterStartTime, _ := time.Parse(time.RFC3339, *item.StartTimeAfter)
 		filter.StartTimeAfter = &afterStartTime
 	}
 
 	if item.EndTimeBefore != nil {
-		beforeEndTime := time.Unix(*item.EndTimeBefore, 0)
+		beforeEndTime, _ := time.Parse(time.RFC3339, *item.EndTimeBefore)
 		filter.EndTimeBefore = &beforeEndTime
 	}
 	if item.EndTimeAfter != nil {
-		afterEndTime := time.Unix(*item.EndTimeAfter, 0)
+		afterEndTime, _ := time.Parse(time.RFC3339, *item.EndTimeAfter)
 		filter.EndTimeAfter = &afterEndTime
 	}
 
