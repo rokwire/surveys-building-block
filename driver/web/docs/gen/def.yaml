@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Rokwire Surveys Building Block API
   description: Surveys Building Block API Documentation
-  version: 1.7.0
+  version: 1.8.0
 servers:
   - url: 'https://api.rokwire.illinois.edu/surveys'
     description: Production server
@@ -1505,15 +1505,11 @@ components:
         calendar_event_id:
           type: string
         start_date:
-          type: integer
-          format: int64
+          type: string
           nullable: true
-          description: UNIX timestamp
         end_date:
-          type: integer
-          format: int64
+          type: string
           nullable: true
-          description: UNIX timestamp
         public:
           type: boolean
           nullable: true
