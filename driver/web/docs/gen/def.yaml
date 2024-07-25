@@ -1505,15 +1505,11 @@ components:
         calendar_event_id:
           type: string
         start_date:
-          type: integer
-          format: int64
+          type: string
           nullable: true
-          description: UNIX timestamp
         end_date:
-          type: integer
-          format: int64
+          type: string
           nullable: true
-          description: UNIX timestamp
         public:
           type: boolean
           nullable: true

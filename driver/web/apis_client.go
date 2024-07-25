@@ -111,41 +111,46 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 
 	publicStr := r.URL.Query().Get("public")
 
-	var public *bool
+	var public bool
 
 	if publicStr != "" {
-		value, err := strconv.ParseBool(publicStr)
+		valueArchived, err := strconv.ParseBool(publicStr)
 		if err != nil {
 			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 		}
-		public = &value
+		public = valueArchived
+	} else {
+		valueArchived := false
+		public = valueArchived
 	}
 
 	archivedStr := r.URL.Query().Get("archived")
 
-	var archived *bool
+	var archived bool
 
 	if archivedStr != "" {
 		valueArchived, err := strconv.ParseBool(archivedStr)
 		if err != nil {
 			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 		}
-		archived = &valueArchived
+		archived = valueArchived
+	} else {
+		valueArchived := false
+		archived = valueArchived
 	}
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID,
+	surveys, surverysRsponse, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, calendarEventID,
 		&limit, &offset, filter, public, archived)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	surveys := surveysToSurveyRequests(resData)
-
-	sort.Slice(surveys, func(i, j int) bool {
-		return surveys[i].DateCreated.After(surveys[j].DateCreated)
+	resData := getSurveysResData(surveys, surverysRsponse)
+	sort.Slice(resData, func(i, j int) bool {
+		return resData[i].DateCreated.After(resData[j].DateCreated)
 	})
 
-	rdata, err := json.Marshal(surveys)
+	rdata, err := json.Marshal(resData)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}
@@ -159,14 +164,16 @@ func (h ClientAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *to
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
+	items.CreatorID = claims.Subject
+	items.OrgID = claims.OrgID
+	items.AppID = claims.AppID
+	items.Type = "user"
+	item := surveyRequestToSurvey(items)
 
-	item := surveyRequestToSurvey(claims, items)
-
-	ci, err := h.app.Client.CreateSurvey(item, claims.ExternalIDs)
+	createdItem, err := h.app.Client.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
-	createdItem := surveyToSurveyRequest(*ci)
 
 	data, err := json.Marshal(createdItem)
 	if err != nil {
@@ -189,8 +196,12 @@ func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *to
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
+	items.CreatorID = claims.Subject
+	items.OrgID = claims.OrgID
+	items.AppID = claims.AppID
+	items.Type = "user"
 
-	item := updateSurveyRequestToSurvey(claims, items, id)
+	item := updateSurveyRequestToSurvey(items, id)
 
 	err = h.app.Client.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
 	if err != nil {
@@ -505,8 +516,37 @@ func (h ClientAPIsHandler) getCreatorSurveys(l *logs.Log, r *http.Request, claim
 		}
 		offset = intParsed
 	}
+	publicStr := r.URL.Query().Get("public")
 
-	resData, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil, nil, nil)
+	var public bool
+
+	if publicStr != "" {
+		valueArchived, err := strconv.ParseBool(publicStr)
+		if err != nil {
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+		public = valueArchived
+	} else {
+		valueArchived := false
+		public = valueArchived
+	}
+
+	archivedStr := r.URL.Query().Get("archived")
+
+	var archived bool
+
+	if archivedStr != "" {
+		valueArchived, err := strconv.ParseBool(archivedStr)
+		if err != nil {
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+		archived = valueArchived
+	} else {
+		valueArchived := false
+		archived = valueArchived
+	}
+
+	resData, _, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil, public, archived)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

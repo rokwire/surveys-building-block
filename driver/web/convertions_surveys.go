@@ -3,26 +3,23 @@ package web
 import (
 	"application/core/model"
 	"time"
-
-	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 )
 
-func surveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest) model.Survey {
-	item.Type = "user"
+func surveyRequestToSurvey(item model.SurveyRequest) model.Survey {
 	//start
 	var startValue *time.Time
 	if item.StartDate != nil {
-		startValueValue := time.Unix(int64(*item.StartDate), 0)
+		startValueValue, _ := time.Parse(time.RFC3339, *item.StartDate)
 		startValue = &startValueValue
 	}
 	//end
 	var endValue *time.Time
 	if item.EndDate != nil {
-		endValueTime := time.Unix(int64(*item.EndDate), 0)
+		endValueTime, _ := time.Parse(time.RFC3339, *item.EndDate)
 		endValue = &endValueTime
 	}
 
-	return model.Survey{CreatorID: claims.Subject, OrgID: claims.OrgID, AppID: claims.AppID, Type: item.Type, Title: item.Title,
+	return model.Survey{CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Type: item.Type, Title: item.Title,
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
@@ -30,49 +27,40 @@ func surveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest) m
 		Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime}
 }
 
-func surveyToSurveyRequest(item model.Survey) model.SurveyRequest {
-	var startDateUnixTimestamp int64
-	if item.StartDate != nil {
-		startDateUnixTimestamp = item.StartDate.Unix()
-	}
+func getSurvey(item model.Survey) model.Survey {
 
-	var endDateUnixTimestamp int64
-	if item.EndDate != nil {
-		endDateUnixTimestamp = item.EndDate.Unix()
-	}
-
-	return model.SurveyRequest{ID: item.ID, CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Title: item.Title,
+	return model.Survey{CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Type: item.Type, Title: item.Title,
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
-		Type: item.Type, SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
+		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
-		ResponseKeys: item.ResponseKeys, DateCreated: item.DateCreated, CalendarEventID: item.CalendarEventID, StartDate: &startDateUnixTimestamp,
-		EndDate: &endDateUnixTimestamp, Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime}
+		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: item.StartDate, EndDate: item.EndDate,
+		Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime}
 }
 
-func surveysToSurveyRequests(items []model.Survey) []model.SurveyRequest {
-	list := make([]model.SurveyRequest, len(items))
+func getSurveys(items []model.Survey) []model.Survey {
+	list := make([]model.Survey, len(items))
 	for index := range items {
-		list[index] = surveyToSurveyRequest(items[index])
+		list[index] = getSurvey(items[index])
 	}
 	return list
 }
 
-func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest, id string) model.Survey {
-	item.Type = "user"
-	//start
+func updateSurveyRequestToSurvey(item model.SurveyRequest, id string) model.Survey {
+
+	// start
 	var startValue *time.Time
 	if item.StartDate != nil {
-		startValueTime := time.Unix(int64(*item.StartDate), 0)
-		startValue = &startValueTime
+		startValueValue, _ := time.Parse(time.RFC3339, *item.StartDate)
+		startValue = &startValueValue
 	}
-	//end
+	// end
 	var endValue *time.Time
 	if item.EndDate != nil {
-		endValueTime := time.Unix(int64(*item.EndDate), 0)
+		endValueTime, _ := time.Parse(time.RFC3339, *item.EndDate)
 		endValue = &endValueTime
 	}
 
-	return model.Survey{ID: id, CreatorID: claims.Subject, OrgID: claims.OrgID, AppID: claims.AppID, Type: item.Type, Title: item.Title,
+	return model.Survey{ID: id, CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Type: item.Type, Title: item.Title,
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
@@ -85,20 +73,20 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 	filter := model.SurveyTimeFilter{}
 
 	if item.StartTimeBefore != nil {
-		beforeStartTime := time.Unix(*item.StartTimeBefore, 0)
+		beforeStartTime, _ := time.Parse(time.RFC3339, *item.StartTimeBefore)
 		filter.StartTimeBefore = &beforeStartTime
 	}
 	if item.StartTimeAfter != nil {
-		afterStartTime := time.Unix(*item.StartTimeAfter, 0)
+		afterStartTime, _ := time.Parse(time.RFC3339, *item.StartTimeAfter)
 		filter.StartTimeAfter = &afterStartTime
 	}
 
 	if item.EndTimeBefore != nil {
-		beforeEndTime := time.Unix(*item.EndTimeBefore, 0)
+		beforeEndTime, _ := time.Parse(time.RFC3339, *item.EndTimeBefore)
 		filter.EndTimeBefore = &beforeEndTime
 	}
 	if item.EndTimeAfter != nil {
-		afterEndTime := time.Unix(*item.EndTimeAfter, 0)
+		afterEndTime, _ := time.Parse(time.RFC3339, *item.EndTimeAfter)
 		filter.EndTimeAfter = &afterEndTime
 	}
 
@@ -107,4 +95,33 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 		StartTimeBefore: filter.StartTimeBefore,
 		EndTimeAfter:    filter.EndTimeAfter,
 		EndTimeBefore:   filter.EndTimeBefore}
+}
+
+func getSurveyResData(item model.Survey, surveyResponse model.SurveyResponse) model.SurveysResponseData {
+	var complete bool
+
+	if item.CreatorID == surveyResponse.UserID && item.AppID == surveyResponse.AppID && item.OrgID == surveyResponse.OrgID && item.ID == surveyResponse.Survey.ID {
+		complete = true
+	} else {
+		complete = false
+	}
+
+	return model.SurveysResponseData{ID: item.ID, CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Type: item.Type, Title: item.Title,
+		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
+		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
+		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
+		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: item.StartDate, EndDate: item.EndDate,
+		Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime, Complete: &complete}
+}
+
+func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyResponse) []model.SurveysResponseData {
+	list := make([]model.SurveysResponseData, len(items))
+	for index := range items {
+		var surveyResponse model.SurveyResponse
+		if index < len(surveyResponses) {
+			surveyResponse = surveyResponses[index]
+		}
+		list[index] = getSurveyResData(items[index], surveyResponse)
+	}
+	return list
 }
