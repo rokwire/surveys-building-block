@@ -219,3 +219,36 @@ type SurveyTimeFilterRequest struct {
 	EndTimeAfter    *string `json:"end_time_after"`
 	EndTimeBefore   *string `json:"end_time_before"`
 }
+
+// SurveysResponseData wraps the entire record
+type SurveysResponseData struct {
+	ID                      string                 `json:"id"`
+	CreatorID               string                 `json:"creator_id"`
+	OrgID                   string                 `json:"org_id"`
+	AppID                   string                 `json:"app_id"`
+	Title                   string                 `json:"title"`
+	MoreInfo                *string                `json:"more_info"`
+	Data                    map[string]SurveyData  `json:"data"`
+	Scored                  bool                   `json:"scored"`
+	ResultRules             string                 `json:"result_rules"`
+	ResultJSON              string                 `json:"result_json"`
+	Type                    string                 `json:"type"`
+	SurveyStats             *SurveyStats           `json:"stats"`
+	Sensitive               bool                   `json:"sensitive"`
+	Anonymous               bool                   `json:"anonymous"`
+	DefaultDataKey          *string                `json:"default_data_key"`
+	DefaultDataKeyRule      *string                `json:"default_data_key_rule"`
+	Constants               map[string]interface{} `json:"constants"`
+	Strings                 map[string]interface{} `json:"strings"`
+	SubRules                map[string]interface{} `json:"sub_rules"`
+	ResponseKeys            []string               `json:"response_keys"`
+	DateCreated             time.Time              `json:"date_created""`
+	DateUpdated             *time.Time             `json:"date_updated"`
+	CalendarEventID         string                 `json:"calendar_event_id""`
+	StartDate               *time.Time             `json:"start_date"`
+	EndDate                 *time.Time             `json:"end_date"`
+	Public                  *bool                  `json:"public"`
+	Archived                *bool                  `json:"archived"`
+	EstimatedCompletionTime *int                   `json:"estimated_completion_time"`
+	Complete                *bool                  `json:"complete"`
+}

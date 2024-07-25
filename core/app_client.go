@@ -36,7 +36,7 @@ func (a appClient) GetSurvey(id string, orgID string, appID string) (*model.Surv
 
 // GetSurvey returns surveys matching the provided query
 func (a appClient) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string,
-	limit *int, offset *int, filter *model.SurveyTimeFilter, public bool, archived bool) ([]model.Survey, error) {
+	limit *int, offset *int, filter *model.SurveyTimeFilter, public bool, archived bool) ([]model.Survey, []model.SurveyResponse, error) {
 	return a.app.shared.getSurveys(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
 }
 

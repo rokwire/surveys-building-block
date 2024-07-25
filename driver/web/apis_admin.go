@@ -263,11 +263,13 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		archived = valueArchived
 	}
 
-	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset, filter, public, archived)
+	surveys, surverysRsponse, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, calendarEventID,
+		&limit, &offset, filter, public, archived)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
+	resData := getSurveysResData(surveys, surverysRsponse)
 	sort.Slice(resData, func(i, j int) bool {
 		return resData[i].DateCreated.After(resData[j].DateCreated)
 	})
