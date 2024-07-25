@@ -247,14 +247,14 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 	}
 	archivedStr := r.URL.Query().Get("archived")
 
-	var archived *bool
+	var archived bool
 
 	if archivedStr != "" {
 		valueArchived, err := strconv.ParseBool(archivedStr)
 		if err != nil {
 			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 		}
-		archived = &valueArchived
+		archived = valueArchived
 	}
 
 	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset, filter, public, archived)

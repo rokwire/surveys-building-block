@@ -18,6 +18,7 @@ import (
 	"application/core/interfaces"
 	"application/core/model"
 	"application/driven/calendar"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,8 +35,23 @@ func (a appShared) getSurvey(id string, orgID string, appID string) (*model.Surv
 	return a.app.storage.GetSurvey(id, orgID, appID)
 }
 
-func (a appShared) getSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, filter *model.SurveyTimeFilter, public *bool, archived *bool) ([]model.Survey, error) {
-	return a.app.storage.GetSurveys(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
+func (a appShared) getSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, filter *model.SurveyTimeFilter, public *bool, archived bool) ([]model.Survey, error) {
+	surveys, err := a.app.storage.GetSurveys(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
+	if err != nil {
+		return nil, err
+	}
+
+	surveysResponse, err := a.app.storage.GetSurveyResponses(&orgID, &appID, creatorID, surveyIDs, surveyTypes, nil, nil, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(surveysResponse)
+	/*for _, s := range surveys {
+		for _, sr := range surveysResponse {
+
+		}
+	}*/
+	return surveys, nil
 }
 
 func (a appShared) createSurvey(survey model.Survey, externalIDs map[string]string) (*model.Survey, error) {
