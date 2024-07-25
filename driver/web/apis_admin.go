@@ -262,10 +262,8 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	surveys := surveysToSurveyRequests(resData)
-
-	sort.Slice(surveys, func(i, j int) bool {
-		return surveys[i].DateCreated.After(surveys[j].DateCreated)
+	sort.Slice(resData, func(i, j int) bool {
+		return resData[i].DateCreated.After(resData[j].DateCreated)
 	})
 
 	rdata, err := json.Marshal(resData)
@@ -282,14 +280,17 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
+	items.CreatorID = claims.Subject
+	items.OrgID = claims.OrgID
+	items.AppID = claims.AppID
+	items.Type = "user"
 
-	item := surveyRequestToSurvey(claims, items)
+	item := surveyRequestToSurvey(items)
 
-	ci, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
+	createdItem, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
-	createdItem := surveyToSurveyRequest(*ci)
 
 	data, err := json.Marshal(createdItem)
 	if err != nil {

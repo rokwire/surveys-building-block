@@ -197,8 +197,8 @@ type SurveyRequest struct {
 	DateCreated             time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated             *time.Time             `json:"date_updated" bson:"date_updated"`
 	CalendarEventID         string                 `json:"calendar_event_id" bson:"calendar_event_id"`
-	StartDate               *int64                 `json:"start_date" bson:"start_date"`
-	EndDate                 *int64                 `json:"end_date" bson:"end_date"`
+	StartDate               *string                `json:"start_date" bson:"start_date"`
+	EndDate                 *string                `json:"end_date" bson:"end_date"`
 	Public                  *bool                  `json:"public" bson:"public"`
 	Archived                *bool                  `json:"archived" bson:"archived"`
 	EstimatedCompletionTime *int                   `json:"estimated_completion_time" bson:"estimated_completion_time"`
