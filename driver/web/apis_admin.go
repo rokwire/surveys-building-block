@@ -314,7 +314,12 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	item := updateSurveyRequestToSurvey(claims, items, id)
+	items.CreatorID = claims.Subject
+	items.OrgID = claims.OrgID
+	items.AppID = claims.AppID
+	items.Type = "user"
+
+	item := updateSurveyRequestToSurvey(items, id)
 
 	err = h.app.Admin.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
 	if err != nil {

@@ -189,8 +189,12 @@ func (h ClientAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *to
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
+	items.CreatorID = claims.Subject
+	items.OrgID = claims.OrgID
+	items.AppID = claims.AppID
+	items.Type = "user"
 
-	item := updateSurveyRequestToSurvey(claims, items, id)
+	item := updateSurveyRequestToSurvey(items, id)
 
 	err = h.app.Client.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
 	if err != nil {

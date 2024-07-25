@@ -3,8 +3,6 @@ package web
 import (
 	"application/core/model"
 	"time"
-
-	"github.com/rokwire/core-auth-library-go/v3/tokenauth"
 )
 
 func surveyRequestToSurvey(item model.SurveyRequest) model.Survey {
@@ -47,8 +45,8 @@ func getSurveys(items []model.Survey) []model.Survey {
 	return list
 }
 
-func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequest, id string) model.Survey {
-	item.Type = "user"
+func updateSurveyRequestToSurvey(item model.SurveyRequest, id string) model.Survey {
+
 	// start
 	var startValue *time.Time
 	if item.StartDate != nil {
@@ -62,7 +60,7 @@ func updateSurveyRequestToSurvey(claims *tokenauth.Claims, item model.SurveyRequ
 		endValue = &endValueTime
 	}
 
-	return model.Survey{ID: id, CreatorID: claims.Subject, OrgID: claims.OrgID, AppID: claims.AppID, Type: item.Type, Title: item.Title,
+	return model.Survey{ID: id, CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Type: item.Type, Title: item.Title,
 		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
 		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
 		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
