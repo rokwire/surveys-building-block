@@ -242,9 +242,9 @@ type SurveysResponseData struct {
 	Strings                 map[string]interface{} `json:"strings"`
 	SubRules                map[string]interface{} `json:"sub_rules"`
 	ResponseKeys            []string               `json:"response_keys"`
-	DateCreated             time.Time              `json:"date_created""`
+	DateCreated             time.Time              `json:"date_created"`
 	DateUpdated             *time.Time             `json:"date_updated"`
-	CalendarEventID         string                 `json:"calendar_event_id""`
+	CalendarEventID         string                 `json:"calendar_event_id"`
 	StartDate               *time.Time             `json:"start_date"`
 	EndDate                 *time.Time             `json:"end_date"`
 	Public                  *bool                  `json:"public"`
