@@ -257,16 +257,18 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 		archived = &valueArchived
 	}
 
-	surveys, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset, filter, public, archived)
+	resData, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID, &limit, &offset, filter, public, archived)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
+
+	surveys := surveysToSurveyRequests(resData)
 
 	sort.Slice(surveys, func(i, j int) bool {
 		return surveys[i].DateCreated.After(surveys[j].DateCreated)
 	})
 
-	rdata, err := json.Marshal(surveys)
+	rdata, err := json.Marshal(resData)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
 	}
@@ -275,16 +277,19 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 }
 
 func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	var items model.Survey
+	var items model.SurveyRequest
 	err := json.NewDecoder(r.Body).Decode(&items)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	createdItem, err := h.app.Admin.CreateSurvey(items, claims.ExternalIDs)
+	item := surveyRequestToSurvey(claims, items)
+
+	ci, err := h.app.Admin.CreateSurvey(item, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionCreate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
+	createdItem := surveyToSurveyRequest(*ci)
 
 	data, err := json.Marshal(createdItem)
 	if err != nil {
@@ -302,13 +307,15 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 		return l.HTTPResponseErrorData(logutils.StatusMissing, logutils.TypePathParam, logutils.StringArgs("id"), nil, http.StatusBadRequest, false)
 	}
 
-	var items model.Survey
+	var items model.SurveyRequest
 	err := json.NewDecoder(r.Body).Decode(&items)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionDecode, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, true)
 	}
 
-	err = h.app.Admin.UpdateSurvey(items, claims.Subject, claims.ExternalIDs)
+	item := updateSurveyRequestToSurvey(claims, items, id)
+
+	err = h.app.Admin.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionUpdate, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
