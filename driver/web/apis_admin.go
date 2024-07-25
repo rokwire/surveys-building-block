@@ -236,14 +236,17 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 	}
 	publicStr := r.URL.Query().Get("public")
 
-	var public *bool
+	var public bool
 
 	if publicStr != "" {
-		value, err := strconv.ParseBool(publicStr)
+		valueArchived, err := strconv.ParseBool(publicStr)
 		if err != nil {
 			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 		}
-		public = &value
+		public = valueArchived
+	} else {
+		valueArchived := false
+		public = valueArchived
 	}
 	archivedStr := r.URL.Query().Get("archived")
 
