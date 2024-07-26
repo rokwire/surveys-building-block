@@ -40,37 +40,10 @@ func (a appShared) getSurveys(orgID string, appID string, creatorID *string, sur
 		return nil, nil, err
 	}
 
-	/*if surveyIDs == nil {
-		var allServiceIDs []string
-		for _, s := range surveys {
-			if s.ID != "" {
-				allServiceIDs = append(allServiceIDs, s.ID)
-			}
-		}
-		surveyIDs = allServiceIDs
-	}*/
-
 	surveysResponse, err := a.app.storage.GetSurveyResponses(nil, nil, nil, surveyIDs, surveyTypes, nil, nil, nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	// Map to store survey ID as key and slice of user IDs as value
-	/*surveyUserMap := make(map[string][]string)
-
-	// Populate the map
-	for _, response := range surveysResponse {
-		surveyID := response.Survey.ID
-		userID := response.UserID
-
-		// Check if the survey ID exists in the map, if not initialize it
-		if _, exists := surveyUserMap[surveyID]; !exists {
-			surveyUserMap[surveyID] = []string{}
-		}
-
-		// Add the user ID to the corresponding survey ID
-		surveyUserMap[surveyID] = append(surveyUserMap[surveyID], userID)
-	}
-	fmt.Print(surveyUserMap)*/
 
 	return surveys, surveysResponse, nil
 }

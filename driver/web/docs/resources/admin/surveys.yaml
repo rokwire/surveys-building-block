@@ -63,7 +63,15 @@ get:
       style: simple
       explode: false
       schema:
-        type: boolean    
+        type: boolean  
+    - name: completed
+      in: query
+      description: Shows if the survery is completed or not
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: boolean          
   requestBody:
     description: Get survey time filter request body
     required: false

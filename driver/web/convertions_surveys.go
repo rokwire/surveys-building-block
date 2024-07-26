@@ -100,11 +100,11 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyResponse) []model.SurveysResponseData {
 	list := make([]model.SurveysResponseData, len(items))
 	for index, item := range items {
-		var complete bool
+		var completed bool
 
 		for _, surveyResponse := range surveyResponses {
 			if item.ID == surveyResponse.Survey.ID {
-				complete = true
+				completed = true
 				break
 			}
 		}
@@ -136,7 +136,7 @@ func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyRespo
 			Public:                  item.Public,
 			Archived:                item.Archived,
 			EstimatedCompletionTime: item.EstimatedCompletionTime,
-			Complete:                &complete,
+			Completed:               &completed,
 		}
 	}
 
