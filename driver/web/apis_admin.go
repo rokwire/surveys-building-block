@@ -236,31 +236,26 @@ func (h AdminAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *token
 	}
 	publicStr := r.URL.Query().Get("public")
 
-	var public bool
+	var public *bool
 
 	if publicStr != "" {
-		valueArchived, err := strconv.ParseBool(publicStr)
+		valuePublic, err := strconv.ParseBool(publicStr)
 		if err != nil {
 			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 		}
-		public = valueArchived
-	} else {
-		valueArchived := false
-		public = valueArchived
+		public = &valuePublic
 	}
+
 	archivedStr := r.URL.Query().Get("archived")
 
-	var archived bool
+	var archived *bool
 
 	if archivedStr != "" {
 		valueArchived, err := strconv.ParseBool(archivedStr)
 		if err != nil {
 			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 		}
-		archived = valueArchived
-	} else {
-		valueArchived := false
-		archived = valueArchived
+		archived = &valueArchived
 	}
 
 	surveys, surverysRsponse, err := h.app.Admin.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, calendarEventID,
