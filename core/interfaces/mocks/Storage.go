@@ -504,7 +504,7 @@ func (_m *Storage) GetSurveyResponses(orgID *string, appID *string, userID *stri
 }
 
 // GetSurveys provides a mock function with given fields: orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived
-func (_m *Storage) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, filter *model.SurveyTimeFilter, public bool, archived bool) ([]model.Survey, error) {
+func (_m *Storage) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, filter *model.SurveyTimeFilter, public *bool, archived *bool) ([]model.Survey, error) {
 	ret := _m.Called(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
 
 	if len(ret) == 0 {
@@ -513,10 +513,10 @@ func (_m *Storage) GetSurveys(orgID string, appID string, creatorID *string, sur
 
 	var r0 []model.Survey
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, *string, []string, []string, string, *int, *int, *model.SurveyTimeFilter, bool, bool) ([]model.Survey, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, *string, []string, []string, string, *int, *int, *model.SurveyTimeFilter, *bool, *bool) ([]model.Survey, error)); ok {
 		return rf(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, *string, []string, []string, string, *int, *int, *model.SurveyTimeFilter, bool, bool) []model.Survey); ok {
+	if rf, ok := ret.Get(0).(func(string, string, *string, []string, []string, string, *int, *int, *model.SurveyTimeFilter, *bool, *bool) []model.Survey); ok {
 		r0 = rf(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
 	} else {
 		if ret.Get(0) != nil {
@@ -524,7 +524,7 @@ func (_m *Storage) GetSurveys(orgID string, appID string, creatorID *string, sur
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, *string, []string, []string, string, *int, *int, *model.SurveyTimeFilter, bool, bool) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, *string, []string, []string, string, *int, *int, *model.SurveyTimeFilter, *bool, *bool) error); ok {
 		r1 = rf(orgID, appID, creatorID, surveyIDs, surveyTypes, calendarEventID, limit, offset, filter, public, archived)
 	} else {
 		r1 = ret.Error(1)
