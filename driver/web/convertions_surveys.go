@@ -97,46 +97,49 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 		EndTimeBefore:   filter.EndTimeBefore}
 }
 
-func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyResponse) []model.SurveysResponseData {
-	list := make([]model.SurveysResponseData, len(items))
-	for index, item := range items {
-		var completed bool
+func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyResponse, completed *bool) []model.SurveysResponseData {
+	var list []model.SurveysResponseData
+
+	for _, item := range items {
+		var isCompleted bool
 
 		for _, surveyResponse := range surveyResponses {
 			if item.ID == surveyResponse.Survey.ID {
-				completed = true
+				isCompleted = true
 				break
 			}
 		}
 
-		list[index] = model.SurveysResponseData{
-			ID:                      item.ID,
-			CreatorID:               item.CreatorID,
-			OrgID:                   item.OrgID,
-			AppID:                   item.AppID,
-			Type:                    item.Type,
-			Title:                   item.Title,
-			MoreInfo:                item.MoreInfo,
-			Data:                    item.Data,
-			Scored:                  item.Scored,
-			ResultRules:             item.ResultRules,
-			ResultJSON:              item.ResultJSON,
-			SurveyStats:             item.SurveyStats,
-			Sensitive:               item.Sensitive,
-			Anonymous:               item.Anonymous,
-			DefaultDataKey:          item.DefaultDataKey,
-			DefaultDataKeyRule:      item.DefaultDataKeyRule,
-			Constants:               item.Constants,
-			Strings:                 item.Strings,
-			SubRules:                item.SubRules,
-			ResponseKeys:            item.ResponseKeys,
-			CalendarEventID:         item.CalendarEventID,
-			StartDate:               item.StartDate,
-			EndDate:                 item.EndDate,
-			Public:                  item.Public,
-			Archived:                item.Archived,
-			EstimatedCompletionTime: item.EstimatedCompletionTime,
-			Completed:               &completed,
+		if completed == nil || *completed == isCompleted {
+			list = append(list, model.SurveysResponseData{
+				ID:                      item.ID,
+				CreatorID:               item.CreatorID,
+				OrgID:                   item.OrgID,
+				AppID:                   item.AppID,
+				Type:                    item.Type,
+				Title:                   item.Title,
+				MoreInfo:                item.MoreInfo,
+				Data:                    item.Data,
+				Scored:                  item.Scored,
+				ResultRules:             item.ResultRules,
+				ResultJSON:              item.ResultJSON,
+				SurveyStats:             item.SurveyStats,
+				Sensitive:               item.Sensitive,
+				Anonymous:               item.Anonymous,
+				DefaultDataKey:          item.DefaultDataKey,
+				DefaultDataKeyRule:      item.DefaultDataKeyRule,
+				Constants:               item.Constants,
+				Strings:                 item.Strings,
+				SubRules:                item.SubRules,
+				ResponseKeys:            item.ResponseKeys,
+				CalendarEventID:         item.CalendarEventID,
+				StartDate:               item.StartDate,
+				EndDate:                 item.EndDate,
+				Public:                  item.Public,
+				Archived:                item.Archived,
+				EstimatedCompletionTime: item.EstimatedCompletionTime,
+				Completed:               &isCompleted,
+			})
 		}
 	}
 
