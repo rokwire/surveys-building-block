@@ -40,7 +40,7 @@ func (a appShared) getSurveys(orgID string, appID string, creatorID *string, sur
 		return nil, nil, err
 	}
 
-	surveysResponse, err := a.app.storage.GetSurveyResponses(&orgID, &appID, creatorID, surveyIDs, surveyTypes, nil, nil, nil, nil)
+	surveysResponse, err := a.app.storage.GetSurveyResponses(nil, nil, nil, surveyIDs, surveyTypes, nil, nil, nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
