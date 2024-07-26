@@ -97,31 +97,48 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 		EndTimeBefore:   filter.EndTimeBefore}
 }
 
-func getSurveyResData(item model.Survey, surveyResponse model.SurveyResponse) model.SurveysResponseData {
-	var complete bool
-
-	if item.ID == surveyResponse.Survey.ID {
-		complete = true
-	} else {
-		complete = false
-	}
-
-	return model.SurveysResponseData{ID: item.ID, CreatorID: item.CreatorID, OrgID: item.OrgID, AppID: item.AppID, Type: item.Type, Title: item.Title,
-		MoreInfo: item.MoreInfo, Data: item.Data, Scored: item.Scored, ResultRules: item.ResultRules, ResultJSON: item.ResultJSON,
-		SurveyStats: item.SurveyStats, Sensitive: item.Sensitive, Anonymous: item.Anonymous, DefaultDataKey: item.DefaultDataKey,
-		DefaultDataKeyRule: item.DefaultDataKeyRule, Constants: item.Constants, Strings: item.Strings, SubRules: item.SubRules,
-		ResponseKeys: item.ResponseKeys, CalendarEventID: item.CalendarEventID, StartDate: item.StartDate, EndDate: item.EndDate,
-		Public: item.Public, Archived: item.Archived, EstimatedCompletionTime: item.EstimatedCompletionTime, Complete: &complete}
-}
-
 func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyResponse) []model.SurveysResponseData {
 	list := make([]model.SurveysResponseData, len(items))
-	for index := range items {
-		var surveyResponse model.SurveyResponse
-		if index < len(surveyResponses) {
-			surveyResponse = surveyResponses[index]
+	for index, item := range items {
+		var complete bool
+
+		for _, surveyResponse := range surveyResponses {
+			if item.ID == surveyResponse.Survey.ID {
+				complete = true
+				break
+			}
 		}
-		list[index] = getSurveyResData(items[index], surveyResponse)
+
+		list[index] = model.SurveysResponseData{
+			ID:                      item.ID,
+			CreatorID:               item.CreatorID,
+			OrgID:                   item.OrgID,
+			AppID:                   item.AppID,
+			Type:                    item.Type,
+			Title:                   item.Title,
+			MoreInfo:                item.MoreInfo,
+			Data:                    item.Data,
+			Scored:                  item.Scored,
+			ResultRules:             item.ResultRules,
+			ResultJSON:              item.ResultJSON,
+			SurveyStats:             item.SurveyStats,
+			Sensitive:               item.Sensitive,
+			Anonymous:               item.Anonymous,
+			DefaultDataKey:          item.DefaultDataKey,
+			DefaultDataKeyRule:      item.DefaultDataKeyRule,
+			Constants:               item.Constants,
+			Strings:                 item.Strings,
+			SubRules:                item.SubRules,
+			ResponseKeys:            item.ResponseKeys,
+			CalendarEventID:         item.CalendarEventID,
+			StartDate:               item.StartDate,
+			EndDate:                 item.EndDate,
+			Public:                  item.Public,
+			Archived:                item.Archived,
+			EstimatedCompletionTime: item.EstimatedCompletionTime,
+			Complete:                &complete,
+		}
 	}
+
 	return list
 }
