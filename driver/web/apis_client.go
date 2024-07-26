@@ -91,7 +91,7 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 	calendarEventID := r.URL.Query().Get("calendar_event_id")
 
 	limitRaw := r.URL.Query().Get("limit")
-	limit := 20
+	limit := 0
 	if len(limitRaw) > 0 {
 		intParsed, err := strconv.Atoi(limitRaw)
 		if err != nil {
@@ -133,7 +133,7 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		archived = &valueArchived
 	}
 
-	surveys, surverysRsponse, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, calendarEventID,
+	surveys, surverysRsponse, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID,
 		&limit, &offset, filter, public, archived)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
