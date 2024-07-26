@@ -100,7 +100,7 @@ func surveyTimeFilter(item *model.SurveyTimeFilterRequest) *model.SurveyTimeFilt
 func getSurveyResData(item model.Survey, surveyResponse model.SurveyResponse) model.SurveysResponseData {
 	var complete bool
 
-	if item.CreatorID == surveyResponse.UserID && item.AppID == surveyResponse.AppID && item.OrgID == surveyResponse.OrgID && item.ID == surveyResponse.Survey.ID {
+	if item.ID == surveyResponse.Survey.ID {
 		complete = true
 	} else {
 		complete = false
