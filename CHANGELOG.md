@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fix "public" and "archived" [#55](https://github.com/rokwire/surveys-building-block/issues/55)
+
 ## [1.8.0] - 2024-007-25
 ### Added
 - Fix "start_date" and "end_date" timestamp, "archived", "public" and set "complete" in the result [#52](https://github.com/rokwire/surveys-building-block/issues/52)
