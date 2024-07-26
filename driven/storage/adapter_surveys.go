@@ -37,7 +37,7 @@ func (a *Adapter) GetSurvey(id string, orgID string, appID string) (*model.Surve
 }
 
 // GetSurveys gets matching surveys
-func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, timeFilter *model.SurveyTimeFilter, public bool, archived bool) ([]model.Survey, error) {
+func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, timeFilter *model.SurveyTimeFilter, public *bool, archived *bool) ([]model.Survey, error) {
 	filter := bson.D{
 		{Key: "org_id", Value: orgID},
 		{Key: "app_id", Value: appID},
@@ -70,22 +70,28 @@ func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surv
 		filter = append(filter, primitive.E{Key: "end_date", Value: primitive.M{"$lte": *timeFilter.EndTimeBefore}})
 	}
 
-	if public == true {
-		filter = append(filter, bson.E{Key: "public", Value: true})
-	} else {
-		filter = append(filter, bson.E{Key: "$or", Value: bson.A{
-			bson.M{"public": false},
-			bson.M{"public": bson.M{"$exists": false}},
-		}})
+	if public != nil {
+		if *public == true {
+			filter = append(filter, bson.E{Key: "public", Value: true})
+		} else {
+			filter = append(filter, bson.E{Key: "$or", Value: bson.A{
+				bson.M{"public": false},
+				bson.M{"public": bson.M{"$exists": false}},
+				bson.M{"public": nil},
+			}})
+		}
 	}
 
-	if archived == true {
-		filter = append(filter, bson.E{Key: "archived", Value: true})
-	} else {
-		filter = append(filter, bson.E{Key: "$or", Value: bson.A{
-			bson.M{"archived": false},
-			bson.M{"archived": bson.M{"$exists": false}},
-		}})
+	if archived != nil {
+		if *archived == true {
+			filter = append(filter, bson.E{Key: "archived", Value: true})
+		} else {
+			filter = append(filter, bson.E{Key: "$or", Value: bson.A{
+				bson.M{"archived": false},
+				bson.M{"archived": bson.M{"$exists": false}},
+				bson.M{"archived": nil},
+			}})
+		}
 	}
 
 	opts := options.Find()
