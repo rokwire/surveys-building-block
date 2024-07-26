@@ -250,5 +250,5 @@ type SurveysResponseData struct {
 	Public                  *bool                  `json:"public"`
 	Archived                *bool                  `json:"archived"`
 	EstimatedCompletionTime *int                   `json:"estimated_completion_time"`
-	Complete                *bool                  `json:"complete"`
+	Completed               *bool                  `json:"completed"`
 }
