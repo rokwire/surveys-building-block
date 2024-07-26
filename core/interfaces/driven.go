@@ -33,7 +33,7 @@ type Storage interface {
 	DeleteConfig(id string) error
 
 	GetSurvey(id string, orgID string, appID string) (*model.Survey, error)
-	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, filter *model.SurveyTimeFilter, public *bool, archived *bool) ([]model.Survey, error)
+	GetSurveys(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, limit *int, offset *int, filter *model.SurveyTimeFilter, public *bool, archived *bool, completed *bool) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(survey model.Survey, admin bool) error
 	DeleteSurvey(id string, orgID string, appID string, creatorID string, admin bool) error

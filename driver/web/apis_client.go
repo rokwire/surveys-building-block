@@ -133,13 +133,25 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		archived = &valueArchived
 	}
 
+	completedStr := r.URL.Query().Get("completed")
+
+	var completed *bool
+
+	if completedStr != "" {
+		valueCompleted, err := strconv.ParseBool(completedStr)
+		if err != nil {
+			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+		}
+		completed = &valueCompleted
+	}
+
 	surveys, surverysRsponse, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, nil, surveyIDs, surveyTypes, calendarEventID,
-		&limit, &offset, filter, public, archived)
+		&limit, &offset, filter, public, archived, completed)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
 
-	resData := getSurveysResData(surveys, surverysRsponse)
+	resData := getSurveysResData(surveys, surverysRsponse, completed)
 	sort.Slice(resData, func(i, j int) bool {
 		return resData[i].DateCreated.After(resData[j].DateCreated)
 	})
@@ -511,7 +523,7 @@ func (h ClientAPIsHandler) getCreatorSurveys(l *logs.Log, r *http.Request, claim
 		offset = intParsed
 	}
 
-	resData, _, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil, nil, nil)
+	resData, _, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, surveyIDs, surveyTypes, "", &limit, &offset, nil, nil, nil, nil)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}

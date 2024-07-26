@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Rokwire Surveys Building Block API
   description: Surveys Building Block API Documentation
-  version: 1.8.2
+  version: 1.9.0
 servers:
   - url: 'https://api.rokwire.illinois.edu/surveys'
     description: Production server
@@ -103,6 +103,14 @@ paths:
         - name: archived
           in: query
           description: Shows if the survery is archived or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
+        - name: completed
+          in: query
+          description: Shows if the survery is completed or not
           required: false
           style: simple
           explode: false
@@ -970,6 +978,14 @@ paths:
         - name: archived
           in: query
           description: Shows if the survery is archived or not
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: boolean
+        - name: completed
+          in: query
+          description: Shows if the survery is completed or not
           required: false
           style: simple
           explode: false
