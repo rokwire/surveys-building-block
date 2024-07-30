@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -152,9 +151,6 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 	}
 
 	resData := getSurveysResData(surveys, surverysRsponse, completed)
-	sort.Slice(resData, func(i, j int) bool {
-		return resData[i].DateCreated.After(resData[j].DateCreated)
-	})
 
 	rdata, err := json.Marshal(resData)
 	if err != nil {

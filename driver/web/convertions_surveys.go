@@ -2,6 +2,7 @@ package web
 
 import (
 	"application/core/model"
+	"sort"
 	"time"
 )
 
@@ -139,9 +140,13 @@ func getSurveysResData(items []model.Survey, surveyResponses []model.SurveyRespo
 				Archived:                item.Archived,
 				EstimatedCompletionTime: item.EstimatedCompletionTime,
 				Completed:               &isCompleted,
+				DateCreated:             item.DateCreated,
 			})
 		}
 	}
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].DateCreated.After(list[j].DateCreated)
+	})
 
 	return list
 }
