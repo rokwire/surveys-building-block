@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix survey completed field [#69](https://github.com/rokwire/surveys-building-block/issues/69)
-- 
+
 ## [1.10.0] - 2024-007-30
 ### Added 
 - Add admin GET survey responses API [#66](https://github.com/rokwire/surveys-building-block/issues/66)
