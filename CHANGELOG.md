@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Use mongo db aggregation pipeline for get surveys and survey responses [#71](https://github.com/rokwire/surveys-building-block/issues/71)
+### Fixed
 - Fix survey completed field [#69](https://github.com/rokwire/surveys-building-block/issues/69)
 
 ## [1.10.0] - 2024-007-30
