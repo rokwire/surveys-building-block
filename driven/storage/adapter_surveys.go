@@ -192,6 +192,7 @@ func (a *Adapter) DeleteSurvey(id string, orgID string, appID string, creatorID 
 	return nil
 }
 
+// GetSurveysAndSurveyResponses gets surveys and matching survey responses
 func (a *Adapter) GetSurveysAndSurveyResponses(orgID string, appID string, creatorID *string, surveyIDs []string, surveyTypes []string, calendarEventID string, public *bool, archived *bool, limit *int, offset *int, userID *string, timeFilter *model.SurveyTimeFilter) ([]model.Survey, []model.SurveyResponse, error) {
 	// Construct the survey filter
 	surveyFilter := bson.D{
