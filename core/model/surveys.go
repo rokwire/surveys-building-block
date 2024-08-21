@@ -244,3 +244,11 @@ type SurveysResponseData struct {
 	EstimatedCompletionTime *int                   `json:"estimated_completion_time"`
 	Completed               *bool                  `json:"completed"`
 }
+
+// SurveyTimeFilterRequest wraps the time filter for surveys
+type SurveyTimeFilterRequest struct {
+	StartTimeAfter  *string `json:"start_time_after"`
+	StartTimeBefore *string `json:"start_time_before"`
+	EndTimeAfter    *string `json:"end_time_after"`
+	EndTimeBefore   *string `json:"end_time_before"`
+}
