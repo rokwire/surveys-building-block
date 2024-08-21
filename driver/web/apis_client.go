@@ -18,8 +18,6 @@ import (
 	"application/core"
 	"application/core/model"
 	"encoding/json"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -57,25 +55,7 @@ func (h ClientAPIsHandler) getSurvey(l *logs.Log, r *http.Request, claims *token
 }
 
 func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return l.HTTPResponseErrorAction(logutils.ActionRead, logutils.TypeRequestBody, nil, err, http.StatusBadRequest, false)
-	}
 
-	var items *model.SurveyTimeFilterRequest
-	// If the body is empty or only contains whitespace, treat it as nil
-	if len(data) == 0 {
-		log.Println("Request body is empty, proceeding with default behavior.")
-		items = &model.SurveyTimeFilterRequest{StartTimeBefore: nil, StartTimeAfter: nil, EndTimeAfter: nil, EndTimeBefore: nil}
-	} else {
-		// Unmarshal the data into the items struct
-		err = json.Unmarshal(data, &items)
-		if err != nil {
-			log.Printf("Error unmarshaling request body: %v", err)
-			return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
-		}
-	}
-	filter := surveyTimeFilter(items)
 	surveyIDsRaw := r.URL.Query().Get("ids")
 	var surveyIDs []string
 	if len(surveyIDsRaw) > 0 {
@@ -145,7 +125,7 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 	}
 
 	surveys, surverysRsponse, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, nil, surveyIDs, surveyTypes, calendarEventID,
-		&limit, &offset, filter, public, archived, completed)
+		&limit, &offset, nil, public, archived, completed)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
