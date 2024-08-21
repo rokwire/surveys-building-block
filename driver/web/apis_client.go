@@ -124,8 +124,27 @@ func (h ClientAPIsHandler) getSurveys(l *logs.Log, r *http.Request, claims *toke
 		completed = &valueCompleted
 	}
 
+	var timeFilterItems model.SurveyTimeFilterRequest
+	startsBeforeRaw := r.URL.Query().Get("starts_before")
+	if startsBeforeRaw != "" {
+		timeFilterItems.StartTimeBefore = &startsBeforeRaw
+	}
+	startsAfterRaw := r.URL.Query().Get("starts_after")
+	if startsAfterRaw != "" {
+		timeFilterItems.StartTimeAfter = &startsAfterRaw
+	}
+	endsBeforeRaw := r.URL.Query().Get("ends_before")
+	if endsBeforeRaw != "" {
+		timeFilterItems.EndTimeBefore = &endsBeforeRaw
+	}
+	endsAfterRaw := r.URL.Query().Get("ends_after")
+	if endsAfterRaw != "" {
+		timeFilterItems.EndTimeAfter = &endsAfterRaw
+	}
+	filter := surveyTimeFilter(&timeFilterItems)
+
 	surveys, surverysRsponse, err := h.app.Client.GetSurveys(claims.OrgID, claims.AppID, &claims.Subject, nil, surveyIDs, surveyTypes, calendarEventID,
-		&limit, &offset, nil, public, archived, completed)
+		&limit, &offset, filter, public, archived, completed)
 	if err != nil {
 		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
 	}
