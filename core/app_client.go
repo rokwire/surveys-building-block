@@ -182,7 +182,7 @@ func (a appClient) CreateSurveyAlert(surveyAlert model.SurveyAlert) error {
 	return nil
 }
 
-// GetSurvey returns surveys matching the provided query
+// GetUserData returns surveys matching the provided query
 func (a appClient) GetUserData(orgID string, appID string, userID *string) (*model.UserData, error) {
 	return a.app.shared.getUserData(orgID, appID, userID)
 }
