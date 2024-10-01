@@ -152,6 +152,10 @@ func (a appShared) hasAttendedEvent(orgID string, appID string, eventID string, 
 	return false, nil
 }
 
+func (a appShared) getUserData(orgID string, appID string, userID *string) ([]model.UserData, error) {
+	return nil, nil
+}
+
 // newAppShared creates new appShared
 func newAppShared(app *Application) appShared {
 	return appShared{app: app}
