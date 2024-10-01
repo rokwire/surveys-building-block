@@ -252,3 +252,32 @@ type SurveyTimeFilterRequest struct {
 	EndTimeAfter    *string `json:"end_time_after"`
 	EndTimeBefore   *string `json:"end_time_before"`
 }
+
+// SurveysUserData represents user data
+type SurveysUserData struct {
+	ID        string                  `json:"id" bson:"_id"`
+	CreatorID string                  `json:"creator_id" bson:"creator_id"`
+	AppID     string                  `json:"app_id"`
+	AccountID string                  `json:"account_id"`
+	Context   *map[string]interface{} `json:"context,omitempty"`
+	OrgID     string                  `json:"org_id"`
+	Title     string                  `json:"title"`
+	Type      string                  `json:"type"`
+}
+
+// SurveyResponseUserData represents user data
+type SurveysResponseUserData struct {
+	ID        string                  `json:"id" bson:"_id"`
+	CreatorID string                  `json:"creator_id" bson:"creator_id"`
+	AppID     string                  `json:"app_id"`
+	AccountID string                  `json:"account_id"`
+	Context   *map[string]interface{} `json:"context,omitempty"`
+	OrgID     string                  `json:"org_id"`
+	Title     string                  `json:"title"`
+}
+
+// UserData represents user data
+type UserData struct {
+	Survey         []Survey         `json:"survey"`
+	SurveyResponse []SurveyResponse `json:"survey_responses"`
+}
