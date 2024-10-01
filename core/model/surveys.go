@@ -253,7 +253,7 @@ type SurveyTimeFilterRequest struct {
 	EndTimeBefore   *string `json:"end_time_before"`
 }
 
-// SurveysUserData represents user data
+// SurveysUserData represents user data for surveys
 type SurveysUserData struct {
 	ID        string `json:"id" bson:"_id"`
 	CreatorID string `json:"creator_id" bson:"creator_id"`
@@ -264,7 +264,7 @@ type SurveysUserData struct {
 	Type      string `json:"type"`
 }
 
-// SurveyResponseUserData represents user data
+// SurveysResponseUserData represents user data for surveys responses
 type SurveysResponseUserData struct {
 	ID        string `json:"id"`
 	UserID    string `json:"user_id"`
