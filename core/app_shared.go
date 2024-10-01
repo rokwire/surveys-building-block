@@ -152,8 +152,35 @@ func (a appShared) hasAttendedEvent(orgID string, appID string, eventID string, 
 	return false, nil
 }
 
-func (a appShared) getUserData(orgID string, appID string, userID *string) ([]model.UserData, error) {
-	return nil, nil
+func (a appShared) getUserData(orgID string, appID string, userID *string) (*model.UserData, error) {
+	var serveyUserData []model.SurveysUserData
+	var surveyResponseUserData []model.SurveysResponseUserData
+
+	surveys, err := a.app.storage.GetSurveysLight(orgID, appID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, s := range surveys {
+		survey := model.SurveysUserData{ID: s.ID, CreatorID: s.CreatorID, AppID: s.AppID, AccountID: s.CreatorID,
+			OrgID: s.OrgID, Title: s.Title, Type: s.Type}
+		serveyUserData = append(serveyUserData, survey)
+	}
+
+	surveysResponses, err := a.app.storage.GetSurveyResponses(&orgID, &appID, userID, nil, nil, nil, nil, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, sr := range surveysResponses {
+		surveyResponse := model.SurveysResponseUserData{ID: sr.ID, UserID: sr.UserID, AppID: sr.AppID, AccountID: sr.UserID,
+			OrgID: sr.OrgID, Title: sr.Survey.Title}
+		surveyResponseUserData = append(surveyResponseUserData, surveyResponse)
+	}
+
+	userData := model.UserData{SurveyUserData: &serveyUserData, SurveyResponseUserData: &surveyResponseUserData}
+
+	return &userData, nil
 }
 
 // newAppShared creates new appShared

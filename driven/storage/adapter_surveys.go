@@ -124,6 +124,26 @@ func (a *Adapter) GetSurveys(orgID string, appID string, creatorID *string, surv
 	return results, nil
 }
 
+// GetSurveysLight gets matching surveys
+func (a *Adapter) GetSurveysLight(orgID string, appID string, creatorID *string) ([]model.Survey, error) {
+	filter := bson.D{
+		{Key: "org_id", Value: orgID},
+		{Key: "app_id", Value: appID},
+	}
+
+	if creatorID != nil {
+		filter = append(filter, bson.E{Key: "creator_id", Value: *creatorID})
+	}
+
+	var results []model.Survey
+	err := a.db.surveys.Find(a.context, filter, &results, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
 // CreateSurvey creates a poll
 func (a *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 	_, err := a.db.surveys.InsertOne(a.context, survey)
