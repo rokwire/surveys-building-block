@@ -3,10 +3,8 @@ module application
 go 1.22
 
 require (
-	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.0
-	github.com/rokwire/core-auth-library-go/v2 v2.2.0
 	github.com/rokwire/core-auth-library-go/v3 v3.1.0
 	github.com/rokwire/logging-library-go/v2 v2.3.0
 	github.com/stretchr/testify v1.8.4

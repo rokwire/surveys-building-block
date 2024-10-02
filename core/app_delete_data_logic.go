@@ -18,14 +18,15 @@
 package core
 
 import (
-	"fmt"
-
 	"application/core/interfaces"
 	"application/core/model"
 	corebb "application/driven/core"
+	"application/utils"
 	"time"
 
+	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
+	"github.com/rokwire/logging-library-go/v2/logutils"
 )
 
 type deleteDataLogic struct {
@@ -68,10 +69,10 @@ func (d deleteDataLogic) setupTimerForDelete() {
 	now := time.Now().In(location)
 	d.logger.Infof("setupTimerForDelete -> now - hours:%d minutes:%d seconds:%d\n", now.Hour(), now.Minute(), now.Second())
 
-	nowSecondsInDay := 60*60*now.Hour() + 60*now.Minute() + now.Second()
-	desiredMoment := 14400 //4 AM
+	//nowSecondsInDay := 60*60*now.Hour() + 60*now.Minute() + now.Second()
+	//desiredMoment := 14400 //4 AM
 
-	var durationInSeconds int
+	/*var durationInSeconds int
 	d.logger.Infof("setupTimerForDelete -> nowSecondsInDay:%d desiredMoment:%d\n", nowSecondsInDay, desiredMoment)
 	if nowSecondsInDay <= desiredMoment {
 		d.logger.Infof("setupTimerForDelete -> not delete process today, so the first process will be today")
@@ -80,10 +81,10 @@ func (d deleteDataLogic) setupTimerForDelete() {
 		d.logger.Infof("setupTimerForDelete -> the delete process has already been processed today, so the first process will be tomorrow")
 		leftToday := 86400 - nowSecondsInDay
 		durationInSeconds = leftToday + desiredMoment // the time which left today + desired moment from tomorrow
-	}
+	}*/
 	//log.Println(durationInSeconds)
-	//duration := time.Second * time.Duration(3)
-	duration := time.Second * time.Duration(durationInSeconds)
+	duration := time.Second * time.Duration(3)
+	//duration := time.Second * time.Duration(durationInSeconds)
 	d.logger.Infof("setupTimerForDelete -> first call after %s", duration)
 
 	d.dailyDeleteTimer = time.NewTimer(duration)
@@ -130,7 +131,7 @@ func (d deleteDataLogic) processDelete() {
 		d.logger.Errorf("error on loading deleted accounts - %s", err)
 		return
 	}
-	fmt.Print(deletedMemberships)
+
 	//process by app org
 	for _, appOrgSection := range deletedMemberships {
 		d.logger.Infof("delete - [app-id:%s org-id:%s]", appOrgSection.AppID, appOrgSection.OrgID)
@@ -146,6 +147,61 @@ func (d deleteDataLogic) processDelete() {
 		//delete the data
 		d.deleteAppOrgUsersData(appOrgSection.AppID, appOrgSection.OrgID, accountsIDs)
 	}
+
+	for _, orgAppMemberships := range deletedMemberships {
+		noContextAccountIDs := make([]string, 0)
+		for _, context := range orgAppMemberships.Memberships {
+			if context.Context != nil {
+				retainData, err := d.getRetainSurveyResponsesData(*context.Context)
+				if err != nil {
+					err = errors.WrapErrorAction(logutils.ActionGet, "retain survey responses data", &logutils.FieldArgs{"org_id": orgAppMemberships.OrgID, "app_id": orgAppMemberships.AppID, "account_id": context.AccountID}, err)
+					d.logger.Error(err.Error())
+					continue
+				}
+				if retainData == nil {
+					continue
+				}
+				/*err = d.storage.DeleteSurveyResponsesExcept(orgAppMemberships.OrgID, orgAppMemberships.AppID, context.AccountID, retainData.SurveyIDs, retainData.SurveyTypes, nil, nil, true)
+				if err != nil {
+					err = errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, &logutils.FieldArgs{"org_id": orgAppMemberships.OrgID, "app_id": orgAppMemberships.AppID}, err)
+					d.logger.Error(err.Error())
+				}*/
+			} else {
+				noContextAccountIDs = append(noContextAccountIDs, context.AccountID)
+			}
+		}
+
+		if len(noContextAccountIDs) > 0 {
+			/*	err := d.storage.DeleteSurveyResponses(orgAppMemberships.OrgID, orgAppMemberships.AppID, noContextAccountIDs, nil, nil, nil, nil, true)
+				if err != nil {
+					err = errors.WrapErrorAction(logutils.ActionDelete, model.TypeSurveyResponse, &logutils.FieldArgs{"org_id": orgAppMemberships.OrgID, "app_id": orgAppMemberships.AppID}, err)
+					d.logger.Error(err.Error())
+				}*/
+		}
+	}
+
+	return
+}
+
+func (d deleteDataLogic) getRetainSurveyResponsesData(context map[string]interface{}) (*retainSurveyResponsesData, error) {
+	surveyResponseContext, err := utils.JSONConvert[deleteSurveyResponsesContext](context)
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionParse, "delete survey responses context", nil, err)
+	}
+	if surveyResponseContext == nil {
+		return nil, nil
+	}
+
+	return &surveyResponseContext.RetainResponses, nil
+}
+
+type deleteSurveyResponsesContext struct {
+	RetainResponses retainSurveyResponsesData `json:"retain_responses"`
+}
+
+type retainSurveyResponsesData struct {
+	SurveyIDs   []string `json:"survey_ids"`
+	SurveyTypes []string `json:"survey_types"`
 }
 
 func (d deleteDataLogic) deleteAppOrgUsersData(appID string, orgID string, accountsIDs []string) {

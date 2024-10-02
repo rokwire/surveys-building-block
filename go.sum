@@ -76,8 +76,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDNXVBh4M=
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
-github.com/rokwire/core-auth-library-go/v2 v2.2.0 h1:AMnYyGBIQMVY2w/+gYeVl05BqpBcjttRKj3urXO2OVo=
-github.com/rokwire/core-auth-library-go/v2 v2.2.0/go.mod h1:0MO0lt55BvVjLmegbbDeTyNQR+UL0wKzOvZvnMtRw0w=
 github.com/rokwire/core-auth-library-go/v3 v3.1.0 h1:rsKYetn83BAKZdUYEmMoqSuPkdEsNnEXKBuihApM670=
 github.com/rokwire/core-auth-library-go/v3 v3.1.0/go.mod h1:/0SMcZFFaN883sMC0p253CHVRgI+UYOZBEEY9zAo7Ss=
 github.com/rokwire/logging-library-go/v2 v2.3.0 h1:79paNwa+DwvaMNyTqg4emkXbn6xHIkpmDKWfQ2K6FUc=
