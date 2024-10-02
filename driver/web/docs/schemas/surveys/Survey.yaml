@@ -72,4 +72,6 @@ properties:
   estimated_completion_time:
     type: integer
     format: int64
-    nullable: true       
+    nullable: true  
+  retain_responses:
+    type: boolean       

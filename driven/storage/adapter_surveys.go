@@ -160,6 +160,7 @@ func (a *Adapter) UpdateSurvey(survey model.Survey, admin bool) error {
 			"public":                    survey.Public,
 			"archived":                  survey.Archived,
 			"estimated_completion_time": survey.EstimatedCompletionTime,
+			"retain_responses":          survey.RetainResponses,
 			"date_updated":              now,
 		}}
 

@@ -68,6 +68,7 @@ type Survey struct {
 	Public                  *bool                  `json:"public" bson:"public"`
 	Archived                *bool                  `json:"archived" bson:"archived"`
 	EstimatedCompletionTime *int                   `json:"estimated_completion_time" bson:"estimated_completion_time"`
+	RetainResponses         bool                   `json:"retain_responses" bson:"retain_responses"`
 }
 
 // SurveyResponseAnonymous represents an anonymized survey response
