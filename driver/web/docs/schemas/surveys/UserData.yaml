@@ -3,7 +3,7 @@ properties:
   survey:
     type: array
     items:
-      $ref: "./SurveyUserData.yaml"
+      $ref: "./SurveysUserData.yaml"
   survey_responses:
     type: array
     items:
