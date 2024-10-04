@@ -45,6 +45,8 @@ paths:
     $ref: "./resources/client/survey-alerts.yaml"
   /api/creator/surveys:
     $ref: "./resources/client/creator/surveys.yaml"
+  /api/user-data:
+    $ref: "./resources/client/user-data.yaml"  
 
   # Admin
   /api/admin/configs:
