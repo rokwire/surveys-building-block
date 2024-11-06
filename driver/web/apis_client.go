@@ -587,6 +587,20 @@ func (h ClientAPIsHandler) getCreatorSurveys(l *logs.Log, r *http.Request, claim
 	return l.HTTPResponseSuccessJSON(data)
 }
 
+func (h ClientAPIsHandler) getUserData(l *logs.Log, r *http.Request, claims *tokenauth.Claims) logs.HTTPResponse {
+	resData, err := h.app.Client.GetUserData(claims.OrgID, claims.AppID, &claims.Subject)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionGet, model.TypeSurvey, nil, err, http.StatusInternalServerError, true)
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		return l.HTTPResponseErrorAction(logutils.ActionMarshal, logutils.TypeResponseBody, nil, err, http.StatusInternalServerError, false)
+	}
+
+	return l.HTTPResponseSuccessJSON(data)
+}
+
 // NewClientAPIsHandler creates new client API handler instance
 func NewClientAPIsHandler(app *core.Application) ClientAPIsHandler {
 	return ClientAPIsHandler{app: app}

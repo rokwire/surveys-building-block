@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - User survey responses not accessible [#78](https://github.com/rokwire/surveys-building-block/issues/78)
+## [1.11.0] - 2024-10-07
+### Added
+- Consolidate the information, and make it accessible with a single API call [#79](https://github.com/rokwire/surveys-building-block/issues/79)
 
 ## [1.10.3] - 2024-08-21
 ### Fixed
