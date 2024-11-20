@@ -296,7 +296,6 @@ func (h AdminAPIsHandler) createSurvey(l *logs.Log, r *http.Request, claims *tok
 	items.CreatorID = claims.Subject
 	items.OrgID = claims.OrgID
 	items.AppID = claims.AppID
-	items.Type = "user"
 
 	item := surveyRequestToSurvey(items)
 
