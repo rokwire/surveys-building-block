@@ -335,7 +335,7 @@ func (h AdminAPIsHandler) updateSurvey(l *logs.Log, r *http.Request, claims *tok
 	if items.Type == "" {
 		items.Type = "user"
 	}
-	
+
 	item := updateSurveyRequestToSurvey(items, id)
 
 	err = h.app.Admin.UpdateSurvey(item, claims.Subject, claims.ExternalIDs)
