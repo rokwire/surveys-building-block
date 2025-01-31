@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Rokwire Surveys Building Block API
   description: Surveys Building Block API Documentation
-  version: 1.11.1
+  version: 1.12.0
 servers:
   - url: 'https://api.rokwire.illinois.edu/surveys'
     description: Production server
@@ -1885,43 +1885,11 @@ components:
         survey:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              org_id:
-                type: string
-              app_id:
-                type: string
-              creator_id:
-                type: string
-              account_id:
-                type: string
-              context:
-                type: object
-              title:
-                type: string
-              type:
-                type: string
+            $ref: '#/components/schemas/Survey'
         survey_responses:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              org_id:
-                type: string
-              app_id:
-                type: string
-              creator_id:
-                type: string
-              account_id:
-                type: string
-              context:
-                type: object
-              title:
-                type: string
+            $ref: '#/components/schemas/SurveyResponse'
     _admin_req_update-configs:
       required:
         - type
