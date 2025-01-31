@@ -1885,43 +1885,11 @@ components:
         survey:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              org_id:
-                type: string
-              app_id:
-                type: string
-              creator_id:
-                type: string
-              account_id:
-                type: string
-              context:
-                type: object
-              title:
-                type: string
-              type:
-                type: string
+            $ref: '#/components/schemas/Survey'
         survey_responses:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: string
-              org_id:
-                type: string
-              app_id:
-                type: string
-              creator_id:
-                type: string
-              account_id:
-                type: string
-              context:
-                type: object
-              title:
-                type: string
+            $ref: '#/components/schemas/SurveyResponse'
     _admin_req_update-configs:
       required:
         - type
