@@ -6,10 +6,8 @@ require (
 	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.0
-	github.com/rokwire/core-auth-library-go/v2 v2.2.0
-	github.com/rokwire/core-auth-library-go/v3 v3.1.0
-	github.com/rokwire/logging-library-go/v2 v2.3.0
 	github.com/stretchr/testify v1.8.4
+	github.com/rokwire/rokwire-building-block-sdk-go v1.8.3
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/sync v0.3.0
