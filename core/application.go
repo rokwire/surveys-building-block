@@ -19,10 +19,10 @@ import (
 	"application/core/model"
 	corebb "application/driven/core"
 
-	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/errors"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logs"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logutils"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 )
 
 type storageListener struct {

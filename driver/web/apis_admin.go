@@ -25,10 +25,11 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
+
 	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth/tokenauth"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logs"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logutils"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 )
 
 // AdminAPIsHandler handles the rest Admin APIs implementation

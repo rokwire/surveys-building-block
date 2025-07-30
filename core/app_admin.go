@@ -19,10 +19,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth/tokenauth"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/errors"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logutils"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 )
 
 // appAdmin contains admin implementations

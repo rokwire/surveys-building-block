@@ -26,8 +26,8 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logs"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/rokwireutils"
 )
 
 const (
