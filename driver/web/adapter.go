@@ -74,7 +74,7 @@ func (a Adapter) Start() {
 
 	// Client APIs
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.getSurveys, a.auth.client.User)).Methods("GET")
-	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.getSurvey, a.auth.client.User)).Methods("GET")
+	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.getSurvey, a.auth.client.Standard)).Methods("GET")
 	mainRouter.HandleFunc("/surveys", a.wrapFunc(a.clientAPIsHandler.createSurvey, a.auth.client.User)).Methods("POST")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.updateSurvey, a.auth.client.User)).Methods("PUT")
 	mainRouter.HandleFunc("/surveys/{id}", a.wrapFunc(a.clientAPIsHandler.deleteSurvey, a.auth.client.User)).Methods("DELETE")
