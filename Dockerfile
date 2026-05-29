@@ -3,7 +3,7 @@ FROM golang:1.26-alpine AS builder
 ENV CGO_ENABLED=0
 
 RUN apk add --no-cache --update make git
-m
+
 RUN mkdir /app
 WORKDIR /app
 # Copy the source from the current directory to the Working Directory inside the container
