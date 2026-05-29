@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.14.1] - 2026-05-29
 ### Changed
 - Allow for anonymous login from the client [#97](https://github.com/rokwire/surveys-building-block/issues/97)
 - Updated Go to 1.26 to address vulnerability issues
